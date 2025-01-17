@@ -15,7 +15,12 @@ inputs={
     ],
 }
 types={
-    minigame:[
+    player:[
+        {name:'Yellow Duck'},
+        {name:'Blue Duck'},
+        {name:'Pink Duck'},
+        {name:'Green Duck'},
+    ],minigame:[
         {name:'Brownian Motion'},
         {name:`Bash n' Cash`},
         {name:'Bumper Balls'},

@@ -17,6 +17,10 @@ class player extends partisan{
             break
             case 1:
                 this.radius=12.5
+                this.life=3
+                this.timer.invincible=0
+                this.infoAnim={life:[1,1,1]}
+                this.hijack={timer:0,direction:0}
             break
         }
     }
@@ -199,11 +203,11 @@ class player extends partisan{
                 }
             break
             case 1:
-                for(let a=0,la=2;a<la;a++){
-                    if(this.skin.legs[a].display){
-                        layer.fill(...this.color.skin.legs,this.fade.main*this.skin.legs[a].fade)
-                        layer.noStroke()
-                        layer.ellipse(this.skin.legs[a].points.end.x,this.skin.legs[a].points.end.z,12,12)
+                layer.noStroke()
+                for(let a=0,la=this.infoAnim.life.length;a<la;a++){
+                    if(this.infoAnim.life[a]>0){
+                        layer.fill(250,225,225,this.fade.main*this.infoAnim.life[a])
+                        layer.ellipse(4-la*4+a*8,-20,5)
                     }
                 }
                 for(let a=0,la=2;a<la;a++){
@@ -248,7 +252,7 @@ class player extends partisan{
         }
         layer.pop()
     }
-    update(control){
+    update(){
         super.update()
         let inputKeys=inputs.keys[this.id]
         let inputTap=inputs.tap[this.id]
@@ -257,45 +261,82 @@ class player extends partisan{
             break
             case 1:
                 if(this.position.x<0){
-                    this.position.x=0
+                    this.position.x*=-1
                     this.velocity.x=0
-                }else if(this.position.x>control){
-                    this.position.x=0
-                    this.velocity.x=0
+                    this.hijack.timer=random(30,45)
+                    this.hijack.direction=90
+                }else if(this.position.x>this.layer.width){
+                    this.position.x=this.layer.width
+                    this.velocity.x*=-1
+                    this.hijack.timer=random(30,45)
+                    this.hijack.direction=270
                 }
-                this.position.x=constrain(this.position.x,0,this.layer.width)
-                this.position.y=constrain(this.position.y,0,this.layer.height)
+                if(this.position.y<0){
+                    this.position.y=0
+                    this.velocity.y*=-1
+                    this.hijack.timer=random(30,45)
+                    this.hijack.direction=0
+                }else if(this.position.y>this.layer.height){
+                    this.position.y=this.layer.height
+                    this.velocity.y*=-1
+                    this.hijack.timer=random(30,45)
+                    this.hijack.direction=180
+                }
                 this.direction.main=spinControl(this.direction.main)
                 this.direction.goal=spinControl(this.direction.goal)
-                this.direction.main=spinDirection(this.direction.main,this.direction.goal,6)
+                this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
                 this.velocity.x*=0.8
                 this.velocity.y*=0.8
                 let controlDirection={x:0,y:0}
-                if(inputKeys[0]&&!inputKeys[1]&&this.active){
-                    this.velocity.x-=1.2
-                    controlDirection.x--
-                }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
-                    this.velocity.x+=1.2
-                    controlDirection.x++
-                }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
-                    controlDirection.x+=this.velocity.x>0?1:-1
-                }
-                if(inputKeys[2]&&!inputKeys[3]&&this.active){
-                    this.velocity.y-=1.2
-                    controlDirection.y--
-                }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
-                    this.velocity.y+=1.2
-                    controlDirection.y++
-                }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
-                    controlDirection.y+=this.velocity.y>0?1:-1
-                }
-                if(controlDirection.x!=0||controlDirection.y!=0){
-                    this.direction.goal=atan2(controlDirection.x,controlDirection.y)
-                }
-                if(controlDirection.x!=0||controlDirection.y!=0||this.animSet.loop>0&&this.animSet.loop%15!=0){
+                if(this.hijack.timer>0){
+                    this.hijack.timer--
+                    this.velocity.x+=1.2*lsin(this.hijack.direction)
+                    this.velocity.y+=1.2*lcos(this.hijack.direction)
+                    this.direction.goal+=10
                     this.runAnim(1)
                 }else{
-                    this.animSet.loop=0
+                    if(inputKeys[0]&&!inputKeys[1]&&this.active){
+                        this.velocity.x-=1.2
+                        controlDirection.x--
+                    }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
+                        this.velocity.x+=1.2
+                        controlDirection.x++
+                    }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
+                        controlDirection.x+=this.velocity.x>0?1:-1
+                    }
+                    if(inputKeys[2]&&!inputKeys[3]&&this.active){
+                        this.velocity.y-=1.2
+                        controlDirection.y--
+                    }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
+                        this.velocity.y+=1.2
+                        controlDirection.y++
+                    }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
+                        controlDirection.y+=this.velocity.y>0?1:-1
+                    }
+                    if(controlDirection.x!=0||controlDirection.y!=0){
+                        this.direction.goal=atan2(controlDirection.x,controlDirection.y)
+                    }
+                    if(controlDirection.x!=0||controlDirection.y!=0||this.animSet.loop>0&&this.animSet.loop%15!=0){
+                        this.runAnim(1)
+                    }else{
+                        this.animSet.loop=0
+                    }
+                }
+                for(let a=0,la=this.infoAnim.life.length;a<la;a++){
+                    this.infoAnim.life[a]=smoothAnim(this.infoAnim.life[a],this.life>=a+1,0,1,5)
+                }
+                if(this.life<=0){
+                    if(this.active){
+                        this.active=false
+                        this.fade.trigger=false
+                    }
+                }else{
+                    if(this.timer.invincible>0){
+                        this.timer.invincible--
+                        this.fade.trigger=this.timer.main%10<5
+                    }else{
+                        this.fade.trigger=true
+                    }
                 }
             break
         }
