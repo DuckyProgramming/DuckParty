@@ -1,0 +1,2 @@
+class particle extends entity{
+}
