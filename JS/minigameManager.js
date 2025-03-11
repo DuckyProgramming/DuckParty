@@ -2,9 +2,11 @@ class minigameManager{
     constructor(layer,operation){
         this.layer=layer
         this.operation=operation
-        this.minigame=0
+        this.minigame=1
         this.generator={}
         this.entities={}
+        this.graphics={main:[]}
+        this.control={timer:0}
         this.result={end:false,winner:[],anim:0,score:[]}
         this.subResult={end:false,winner:[],anim:0}
     }
@@ -21,11 +23,28 @@ class minigameManager{
                     }
                 }
             break
+            case 1:
+                this.entities={players:[],walls:[[],[],[],[]]}
+                this.graphics={main:[]}
+                for(let a=0,la=this.operation.player.length;a<la;a++){
+                    this.entities.players.push(new player(this.layer,this.layer.width*(a+0.5)/la,this.layer.height/2,1,a,this.operation.player[a]))
+                    //this.entities.walls.push()
+                    this.graphics.main.push(createGraphics(this.layer.width/4,this.layer.height/2))
+                }
+            break
         }
     }
     setup(){
+        this.control.timer=0
         switch(this.minigame){
             case 0:
+                this.result.score=[]
+                this.reset()
+                for(let a=0,la=this.operation.player.length;a<la;a++){
+                    this.result.score.push(0)
+                }
+            break
+            case 1:
                 this.result.score=[]
                 this.reset()
                 for(let a=0,la=this.operation.player.length;a<la;a++){
@@ -54,6 +73,8 @@ class minigameManager{
                         }
                         this.layer.textAlign(CENTER,CENTER)
                     break
+                    case 1:
+                    break
                 }
                 if(this.result.anim>0){
                     this.layer.fill(255,this.result.anim)
@@ -78,11 +99,12 @@ class minigameManager{
     update(scene){
         switch(scene){
             case 'minigame':
+                this.control.timer++
                 switch(this.minigame){
                     case 0:
                         let survive=0
                         for(let a=0,la=this.entities.players.length;a<la;a++){
-                            this.entities.players[a].update()
+                            this.entities.players[a].update(this)
                             for(let b=a+1,lb=this.entities.players.length;b<lb;b++){
                                 this.entities.players[a].collide(0,this.entities.players[b])
                             }
@@ -143,6 +165,25 @@ class minigameManager{
                                     this.subResult.end=false
                                     this.subResult.anim=0
                                 }
+                            }
+                        }
+                        if(this.result.end&&this.result.anim<1){
+                            this.result.anim+=0.1
+                        }
+                    break
+                    case 1:
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].update(this)
+                            if(this.entities.players[a].remove){
+                                this.entities.players.splice(a,1)
+                                a--
+                                la--
+                            }
+                        }
+                        for(let a=0,la=this.entities.walls.length;a<la;a++){
+                            for(let b=0,lb=this.entities.walls[a].length;b<lb;b++){
+                                this.entities.projectiles[a][b].update()
+                                this.entities.projectiles[a][b].collide(0,this.entities.players[a])
                             }
                         }
                         if(this.result.end&&this.result.anim<1){

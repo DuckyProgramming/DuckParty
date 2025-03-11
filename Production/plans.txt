@@ -1,21 +1,42 @@
-minigames:
+THEMATICS
+
+
+
+a lunar mine
+currency is ore 
+
+stars are just money
+
+
+
+MINIGAMES
+
+
 
 murder:
 gunfight in 2d but you can only take people's money by hitting them
 
-bumper balls?
-
 awful tower
 
-brownian motion
 
 
+duck farm battle
+
+second order duck but a 3v1
+
+the past
+
+duckfight multiplayer
+
+can't special mainline
+
+
+
+bash n cash
 
 mario's puzzle party
 
 exactly 10 seconds timer
-
-ridiculous relay
 
 literally pinball
 
@@ -27,14 +48,75 @@ locked out
 
 electric maze game?
 
-crane game
-
 parkour but the other players hate on you
 
 open all the boxes, but the shiny is always in the last box
 
 speed hockey
 
+bumper balloon cards but with 2 lives and i frames
+
+pipe maze
+
+coin shower flower
+
+buried treasure
+
+platform peril
+
+cast aways
+
+whack a plant
+
+lava tile isle
+
+t-72 gaming
+
+look away
+
+treadmill grill
+
+mpiq but math
+
+toadstool titan but the mushroom just spawns in a random place
+
+frigid bridges
+
+rapid river race
+
+tick tock hop
+
+all fired up (the one with the fires taht go in random pattersn)
+
+traveling salesman problem as a race
+
+fruit cahoots - everyone chooses to press or not press a button, at the end the conveyer belt moves that many spaces and gives everybody stuff
+
+bomb civilians - the cilians randomly move around and you have limited explosives
+
+toxic waste - push as much toxic waste onto the other player's side of the map
+
+gerrymandering
+
+the one where you have the clouds and you have to be special
+
+dizzy dancing
+
+touhou
+
+the one where you choose a tetris block
+
+unfriendly flying object
+
+
+
+
+
+
+
+game length:
+
+16 turns
 
 
 
@@ -44,33 +126,3 @@ speed hockey
 
 
 
-
-
-
-
-
-george - the agent: the bomber must be left alive
-lira - 
-sakura - 
-certes - 
-azis - 
-donakho - 
-setsuna - 
-airi - 
-edgar - the monopolist: nobody else can have money
-chip - 
-shiru - 
-dd-610 - 
-prehextorica - 
-vincent - 
-daiyousei - 
-sanae - 
-shinmyoumaru - 
-merlin - 
-ducopo - 
-randy - 
-sagume - 
-[] - 
-lanyan - 
-[] - 
-the bomber: wants to bomb the target
