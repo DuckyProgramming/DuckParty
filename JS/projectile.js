@@ -4,16 +4,20 @@ class projectile extends entity{
         this.type=type
         this.control=control
         switch(this.type){
-            case 0:
+            case 0: case 1:
                 this.past=elementArray({x:this.position.x,y:this.position.y},10)
                 this.radius=10
                 this.direction=control.direction
                 this.velocity={x:0,y:0}
-                this.speed=random(4,8)
+                switch(this.type){
+                    case 0: case 1:
+                        this.speed=random(4,8)
+                        this.size=1
+                    break
+                }
                 this.velocity.x=lsin(this.direction)*this.speed
                 this.velocity.y=lcos(this.direction)*this.speed
                 this.active=true
-                this.size=1
             break
         }
     }
@@ -22,7 +26,7 @@ class projectile extends entity{
         layer.translate(this.position.x,this.position.y)
         layer.noStroke()
         switch(this.type){
-            case 0:
+            case 0: case 1:
                 if(this.size>0){
                     for(let a=0,la=5;a<la;a++){
                         layer.fill(225,160-a*40,0,this.fade.main)
@@ -35,10 +39,10 @@ class projectile extends entity{
         }
         layer.pop()
     }
-    update(){
+    update(parent){
         super.update()
         switch(this.type){
-            case 0:
+            case 0: case 1:
                 this.past.push({x:this.position.x,y:this.position.y})
                 this.past.splice(0,1)
             break
@@ -70,11 +74,24 @@ class projectile extends entity{
                     this.size-=0.1
                 }
             break
+            case 1:
+                this.position.x+=this.velocity.x
+                this.position.y+=this.velocity.y
+                this.velocity.y+=constants.gravity*0.25
+                this.velocity.x*=0.98
+                this.velocity.y*=0.98
+                if(!this.active&&this.size>0){
+                    this.size-=0.1
+                }
+                if(this.position.x<-50||this.position.x>parent.control.bound.width+50||this.position.y<-50||this.position.y>parent.control.bound.height+50){
+                    this.active=false
+                }
+            break
         }
     }
-    collide(type,obj){
+    collide(type,obj,parent){
         switch(this.type){
-            case 0:
+            case 0: case 1:
                 switch(type){
                     case 0:
                         if(distPos(this,obj)<this.radius+obj.radius&&obj.active&&obj.timer.invincible<=0&&this.size>0){
@@ -96,6 +113,16 @@ class projectile extends entity{
                             obj.velocity.y=magnitude[0]*lcos(dir)
                             this.velocity.x=-magnitude[1]*lsin(dir)
                             this.velocity.y=-magnitude[1]*lcos(dir)
+                        }
+                    break
+                    case 2:
+                        if(inCircleBox(this,obj)&&this.size>0){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
+                            obj.velocity.x+=magnitude[0]*lsin(dir)*0.5
+                            obj.velocity.y+=magnitude[0]*lcos(dir)*0.5
+                            this.velocity.x=-magnitude[0]*lsin(dir)
+                            this.velocity.y=-magnitude[0]*lcos(dir)
                         }
                     break
                 }

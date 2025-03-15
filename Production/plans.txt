@@ -3,7 +3,7 @@ THEMATICS
 
 
 a lunar mine
-currency is ore 
+currency is shards
 
 stars are just money
 
@@ -31,6 +31,8 @@ duckfight multiplayer
 can't special mainline
 
 
+
+bowser's big blind
 
 bash n cash
 

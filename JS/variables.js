@@ -1,5 +1,6 @@
 stage={scene:`minigame`}
-constants={trig:[[],[]],gravity:0.5}
+constants={trig:[[],[]],gravity:1.25}
+dev={bound:false}
 transition={trigger:false,anim:0,scene:stage.scene}
 graphics={main:undefined}
 inputs={

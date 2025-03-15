@@ -14,7 +14,7 @@ class partisan extends entity{
     }
     update(){
         super.update()
-        this.position.x+=this.velocity.x
-        this.position.y+=this.velocity.y
+        this.previous.position.x=this.position.x
+        this.previous.position.y=this.position.y
     }
 }

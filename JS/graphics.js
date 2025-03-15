@@ -1,7 +1,7 @@
 function setupGraphics(){
     setupBase()
     setupTrig()
-    graphics.main=createGraphics(900,600)
+    graphics.main=createGraphics(960,600)
     setupLayer(graphics.main)
 }
 function setupBase(){

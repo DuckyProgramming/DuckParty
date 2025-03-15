@@ -13,7 +13,13 @@ class player extends partisan{
         switch(this.type){
             case 0:
                 this.width=8
-                this.height=27
+                this.height=24
+                this.infoAnim={dizzy:0}
+                this.jump={time:0,active:0}
+                this.controlDirection={x:0,y:0}
+                this.collided={wall:[0,0,0,0]}
+                this.offset.position.y+=12
+                this.dead={trigger:false}
             break
             case 1:
                 this.radius=12.5
@@ -24,6 +30,7 @@ class player extends partisan{
                 this.timer.attack=0
                 this.infoAnim={life:[1,1,1],dizzy:0}
                 this.hijack={timer:0,direction:0}
+                this.controlDirection={x:0,y:0}
             break
         }
     }
@@ -37,24 +44,24 @@ class player extends partisan{
             break
         }
         this.skin={
-            body:{fade:1,display:true,level:-19},
-            head:{fade:1,display:true,level:-38},
+            body:{fade:1,display:true,level:-9.5},
+            head:{fade:1,display:true,level:-19},
             legs:[
-                {fade:1,display:true,anim:{theta:24,phi:90},length:10,points:{set:{x:3,y:-15,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}},
-                {fade:1,display:true,anim:{theta:24,phi:-90},length:10,points:{set:{x:3,y:-15,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}}
+                {fade:1,display:true,anim:{theta:24,phi:90},length:5,points:{set:{x:1.5,y:-7.5,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}},
+                {fade:1,display:true,anim:{theta:24,phi:-90},length:5,points:{set:{x:1.5,y:-7.5,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}}
             ],arms:[
-                {fade:1,display:true,anim:{theta:54,phi:90},length:10,points:{set:{x:3,y:-25,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}},
-                {fade:1,display:true,anim:{theta:54,phi:-90},length:10,points:{set:{x:3,y:-25,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}}
+                {fade:1,display:true,anim:{theta:54,phi:90},length:5,points:{set:{x:1.5,y:-12.5,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}},
+                {fade:1,display:true,anim:{theta:54,phi:-90},length:5,points:{set:{x:1.5,y:-12.5,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}}
             ]
         }
         this.face={
             beak:{
-                main:{fade:1,display:true,level:-33},
-                mouth:{fade:1,display:true,level:-33},
-                nostril:{fade:1,display:true,level:-34.5}
+                main:{fade:1,display:true,level:-16.5},
+                mouth:{fade:1,display:true,level:-16.5},
+                nostril:{fade:1,display:true,level:-17.25}
             },eye:[
-                {fade:1,display:true,anim:0,spin:-18,level:-40},
-                {fade:1,display:true,anim:0,spin:18,level:-40}
+                {fade:1,display:true,anim:0,spin:-18,level:-20},
+                {fade:1,display:true,anim:0,spin:18,level:-20}
             ]
         }
         this.color=types.player[this.color].color
@@ -117,6 +124,18 @@ class player extends partisan{
     }
     display(layer=this.layer){
         this.calculateParts()
+        if(dev.bound){
+            layer.stroke(255,0,0,this.fade.main)
+            layer.strokeWeight(3)
+            switch(this.type){
+                case 0:
+                    layer.rect(this.position.x,this.position.y,this.width,this.height)
+                break
+                case 1:
+                    layer.ellipse(this.position.x,this.position.y,this.radius*2)
+                break
+            }
+        }
         layer.push()
         layer.translate(this.position.x+this.offset.position.x,this.position.y+this.offset.position.y)
         layer.scale(this.size)
@@ -127,97 +146,93 @@ class player extends partisan{
                     if(this.skin.arms[a].display&&lcos(this.direction.main+this.skin.arms[a].anim.phi)<=0){
                         layer.fill(this.color.skin.arms[0]+lcos(this.skin.arms[a].anim.phi+this.direction.main)*20,this.color.skin.arms[1]+lcos(this.skin.arms[a].anim.phi+this.direction.main)*20,this.color.skin.arms[2]+lcos(this.skin.arms[a].anim.phi+this.direction.main)*20,this.fade.main*this.skin.arms[a].fade)
                         layer.noStroke()
-                        layer.ellipse(this.skin.arms[a].points.end.x,this.skin.arms[a].points.end.y,12,12)
+                        layer.ellipse(this.skin.arms[a].points.end.x,this.skin.arms[a].points.end.y,6)
                     }
                 }
                 for(let a=0,la=2;a<la;a++){
                     if(this.skin.legs[a].display&&lcos(this.direction.main+this.skin.legs[a].anim.theta)<=0){
                         layer.fill(this.color.skin.legs[0]+lcos(this.skin.legs[a].anim.theta+this.direction.main)*20,this.color.skin.legs[1]+lcos(this.skin.legs[a].anim.theta+this.direction.main)*20,this.color.skin.legs[2]+lcos(this.skin.legs[a].anim.theta+this.direction.main)*20,this.fade.main*this.skin.legs[a].fade)
                         layer.noStroke()
-                        layer.ellipse(this.skin.legs[a].points.end.x,this.skin.legs[a].points.end.y,12,12)
+                        layer.ellipse(this.skin.legs[a].points.end.x,this.skin.legs[a].points.end.y,6)
                     }
                 }
                 if(this.skin.body.display){
                     layer.fill(this.color.skin.body[0],this.color.skin.body[1],this.color.skin.body[2],this.fade.main*this.skin.body.fade)
                     layer.noStroke()
-                    layer.ellipse(0,this.skin.body.level,14,24)
+                    layer.ellipse(0,this.skin.body.level,7,12)
                 }
                 for(let a=0,la=2;a<la;a++){
                     if(this.skin.legs[a].display&&lcos(this.direction.main+this.skin.legs[a].anim.theta)>0){
                         layer.fill(this.color.skin.legs[0]+lcos(this.skin.legs[a].anim.theta+this.direction.main)*20,this.color.skin.legs[1]+lcos(this.skin.legs[a].anim.theta+this.direction.main)*20,this.color.skin.legs[2]+lcos(this.skin.legs[a].anim.theta+this.direction.main)*20,this.fade.main*this.skin.legs[a].fade)
                         layer.noStroke()
-                        layer.ellipse(this.skin.legs[a].points.end.x,this.skin.legs[a].points.end.y,12,12)
+                        layer.ellipse(this.skin.legs[a].points.end.x,this.skin.legs[a].points.end.y,6)
                     }
                 }
                 if(this.face.beak.main.display){
                     layer.fill(this.color.beak.main[0],this.color.beak.main[1],this.color.beak.main[2],this.fade.main*this.face.beak.main.fade)
                     layer.noStroke()
-                    layer.ellipse(lsin(this.direction.main)*12,this.face.beak.main.level,12+2*lcos(this.direction.main),8)
+                    layer.ellipse(lsin(this.direction.main)*6,this.face.beak.main.level,6+lcos(this.direction.main),4)
                 }
                 if(this.face.beak.mouth.display){
                     layer.noFill()
                     layer.stroke(this.color.beak.mouth[0],this.color.beak.mouth[1],this.color.beak.mouth[2],this.fade.main*this.face.beak.mouth.fade)
                     layer.strokeWeight(0.5)
-                    layer.arc(lsin(this.direction.main)*12,this.face.beak.mouth.level,12+2*lcos(this.direction.main),1,0,180)
+                    layer.arc(lsin(this.direction.main)*6,this.face.beak.mouth.level,6+lcos(this.direction.main),0.5,0,180)
                 }
                 if(this.face.beak.nostril.display){
                     layer.noFill()
                     layer.stroke(this.color.beak.nostril[0],this.color.beak.nostril[1],this.color.beak.nostril[2],this.fade.main*this.face.beak.nostril.fade)
                     layer.strokeWeight(0.5)
                     for(let a=0,la=2;a<la;a++){
-                        layer.line(lsin(this.direction.main-6+a*12)*16,this.face.beak.nostril.level,lsin(this.direction.main-6+a*12)*16,this.face.beak.nostril.level+0.5)
+                        layer.line(lsin(this.direction.main-6+a*12)*8,this.face.beak.nostril.level,lsin(this.direction.main-6+a*12)*8,this.face.beak.nostril.level+0.25)
                     }
                 }
                 if(this.skin.head.display){
                     layer.fill(...this.color.skin.head,this.fade.main*this.skin.head.fade)
                     layer.noStroke()
-                    layer.ellipse(0,this.skin.head.level,25)
+                    layer.ellipse(0,this.skin.head.level,12.5)
                 }
                 for(let a=0,la=2;a<la;a++){
                     if(this.skin.arms[a].display&&lcos(this.direction.main+this.skin.arms[a].anim.phi)>0){
                         layer.fill(this.color.skin.arms[0]+lcos(this.skin.arms[a].anim.phi+this.direction.main)*20,this.color.skin.arms[1]+lcos(this.skin.arms[a].anim.phi+this.direction.main)*20,this.color.skin.arms[2]+lcos(this.skin.arms[a].anim.phi+this.direction.main)*20,this.fade.main*this.skin.arms[a].fade)
                         layer.noStroke()
-                        layer.ellipse(this.skin.arms[a].points.end.x,this.skin.arms[a].points.end.y,12,12)
+                        layer.ellipse(this.skin.arms[a].points.end.x,this.skin.arms[a].points.end.y,6)
                     }
                     if(this.face.eye[a].display){
-                        if(this.control==0){
-                            layer.stroke(this.color.eye.back[0],this.color.eye.back[1],this.color.eye.back[2],this.fade.main*this.face.eye[a].fade)
-                        }else{
-                            layer.stroke(255,0,0,this.fade.main*this.face.eye[a].fade)
-                        }
-                        layer.strokeWeight((2.5-this.face.eye[a].anim*1.5)*constrain(lcos(this.face.eye[a].spin+this.direction.main)*5,0,1))
+                        layer.stroke(this.color.eye.back[0],this.color.eye.back[1],this.color.eye.back[2],this.fade.main*this.face.eye[a].fade)
+                        layer.strokeWeight((1.25-this.face.eye[a].anim*0.75)*constrain(lcos(this.face.eye[a].spin+this.direction.main)*5,0,1))
                         if(this.face.eye[a].anim==0){
-                            layer.point(lsin(this.face.eye[a].spin+this.direction.main)*12-(a*2-1)*lcos(this.face.eye[a].spin+this.direction.main)*this.face.eye[a].anim*2,this.face.eye[a].level)
+                            layer.point(lsin(this.face.eye[a].spin+this.direction.main)*6-(a*2-1)*lcos(this.face.eye[a].spin+this.direction.main)*this.face.eye[a].anim,this.face.eye[a].level)
                         }else{
-                            layer.line(lsin(this.face.eye[a].spin+this.direction.main)*12-(a*2-1)*lcos(this.face.eye[a].spin+this.direction.main)*this.face.eye[a].anim*2,this.face.eye[a].level,lsin(this.face.eye[a].spin+this.direction.main)*12+(a*2-1)*lcos(this.face.eye[a].spin+this.direction.main)*this.face.eye[a].anim*2,this.face.eye[a].level-this.face.eye[a].anim*2)
-                            layer.line(lsin(this.face.eye[a].spin+this.direction.main)*12-(a*2-1)*lcos(this.face.eye[a].spin+this.direction.main)*this.face.eye[a].anim*2,this.face.eye[a].level,lsin(this.face.eye[a].spin+this.direction.main)*12+(a*2-1)*lcos(this.face.eye[a].spin+this.direction.main)*this.face.eye[a].anim*2,this.face.eye[a].level+this.face.eye[a].anim*2)
+                            layer.line(lsin(this.face.eye[a].spin+this.direction.main)*6-(a*2-1)*lcos(this.face.eye[a].spin+this.direction.main)*this.face.eye[a].anim,this.face.eye[a].level,lsin(this.face.eye[a].spin+this.direction.main)*6+(a*2-1)*lcos(this.face.eye[a].spin+this.direction.main)*this.face.eye[a].anim,this.face.eye[a].level-this.face.eye[a].anim)
+                            layer.line(lsin(this.face.eye[a].spin+this.direction.main)*6-(a*2-1)*lcos(this.face.eye[a].spin+this.direction.main)*this.face.eye[a].anim,this.face.eye[a].level,lsin(this.face.eye[a].spin+this.direction.main)*6+(a*2-1)*lcos(this.face.eye[a].spin+this.direction.main)*this.face.eye[a].anim,this.face.eye[a].level+this.face.eye[a].anim)
                         }
                     }
                 }
                 if(this.face.beak.main.display&&lcos(this.direction.main)>0){
                     layer.fill(this.color.beak.main[0],this.color.beak.main[1],this.color.beak.main[2],this.fade.main*this.face.beak.main.fade)
                     layer.noStroke()
-                    layer.ellipse(lsin(this.direction.main)*12,this.face.beak.main.level,12+2*lcos(this.direction.main),8)
+                    layer.ellipse(lsin(this.direction.main)*6,this.face.beak.main.level,6+lcos(this.direction.main),4)
                 }
                 if(this.face.beak.mouth.display&&lcos(this.direction.main)>0){
                     layer.noFill()
                     layer.stroke(this.color.beak.mouth[0],this.color.beak.mouth[1],this.color.beak.mouth[2],this.fade.main*this.face.beak.mouth.fade)
                     layer.strokeWeight(0.5)
-                    layer.arc(lsin(this.direction.main)*12,this.face.beak.mouth.level,12+2*lcos(this.direction.main),1,0,180)
+                    layer.arc(lsin(this.direction.main)*6,this.face.beak.mouth.level,6+lcos(this.direction.main),-0.5,0,180)
                 }
                 if(this.face.beak.nostril.display&&lcos(this.direction.main)>0){
                     layer.noFill()
                     layer.stroke(this.color.beak.nostril[0],this.color.beak.nostril[1],this.color.beak.nostril[2],this.fade.main*this.face.beak.nostril.fade)
                     layer.strokeWeight(0.5)
                     for(let a=0,la=2;a<la;a++){
-                        layer.line(lsin(this.direction.main-6+a*12)*16,this.face.beak.nostril.level,lsin(this.direction.main-6+a*12)*16,this.face.beak.nostril.level+0.5)
+                        layer.line(lsin(this.direction.main-6+a*12)*8,this.face.beak.nostril.level,lsin(this.direction.main-6+a*12)*8,this.face.beak.nostril.level+0.25)
                     }
                 }
                 if(this.infoAnim.dizzy>0){
                     layer.fill(255,this.fade.main*this.infoAnim.dizzy)
                     layer.noStroke()
                     for(let a=0,la=3;a<la;a++){
-                        layer.ellipse(18*lsin(this.timer.main*3+a*120),this.skin.head.level-18+4.5*lcos(this.timer.main*3+a*120),3)
+                        layer.ellipse(9*lsin(this.timer.main*3+a*120),this.skin.head.level-9+2.25*lcos(this.timer.main*3+a*120),1.5)
                     }
                 }
             break
@@ -280,25 +295,65 @@ class player extends partisan{
     }
     update(parent){
         super.update()
+        this.position.x+=this.velocity.x
+        this.position.y+=this.velocity.y
         let inputKeys=inputs.keys[this.id]
         let inputTap=inputs.tap[this.id]
         switch(this.type){
             case 0:
+                this.controlDirection={x:0,y:0}
                 if(inputKeys[0]&&!inputKeys[1]&&this.active){
                     this.velocity.x-=1.2
                     this.direction.goal=-54
+                    this.controlDirection.x--
                 }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
                     this.velocity.x+=1.2
                     this.direction.goal=54
-                }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
-                    controlDirection.x+=this.velocity.x>0?1:-1
+                    this.controlDirection.x++
+                }
+                if(inputKeys[2]&&(this.jump.time>0||this.jump.active>0)){
+                    if(this.jump.time>0){
+                        this.jump.time=0
+                        this.jump.active=8
+                    }
+                    this.velocity.y-=constrain(5+this.velocity.y*0.25,3,5)
+                    this.direction.goal=54
+                    this.controlDirection.x++
+                }else if(this.jump.time>0){
+                    this.jump.time--
+                }
+                if(this.jump.active>0){
+                    this.jump.active--
                 }
                 this.direction.main=spinControl(this.direction.main)
                 this.direction.goal=spinControl(this.direction.goal)
                 this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
                 this.velocity.x*=0.8
-                this.velocity.y*=0.8
+                this.velocity.y*=0.99
                 this.velocity.y+=constants.gravity
+                if(this.controlDirection.x!=0||this.animSet.loop>0&&this.animSet.loop%15!=0){
+                    this.runAnim(0,1)
+                }else{
+                    this.animSet.loop=0
+                }
+                this.mainAnim()
+                if(this.collided.wall[0]>0&&this.collided.wall[1]>0||this.collided.wall[2]>0&&this.collided.wall[3]>0){
+                    this.dead.trigger=true
+                }
+                for(let a=0,la=this.collided.wall.length;a<la;a++){
+                    if(this.collided.wall[a]>0){
+                        this.collided.wall[a]--
+                    }
+                }
+                if(this.dead.trigger){
+                    this.fade.trigger=false
+                    if(this.fade.main<=0){
+                        this.fade.trigger=true
+                        this.position.x=this.base.position.x
+                        this.position.y=this.base.position.y
+                        this.dead.trigger=false
+                    }
+                }
             break
             case 1:
                 if(this.position.x<0){
@@ -306,8 +361,8 @@ class player extends partisan{
                     this.velocity.x=0
                     this.hijack.timer=random(30,45)
                     this.hijack.direction=90
-                }else if(this.position.x>this.layer.width){
-                    this.position.x=this.layer.width
+                }else if(this.position.x>parent.control.bound.width){
+                    this.position.x=parent.control.bound.width
                     this.velocity.x*=-1
                     this.hijack.timer=random(30,45)
                     this.hijack.direction=270
@@ -317,8 +372,8 @@ class player extends partisan{
                     this.velocity.y*=-1
                     this.hijack.timer=random(30,45)
                     this.hijack.direction=0
-                }else if(this.position.y>this.layer.height){
-                    this.position.y=this.layer.height
+                }else if(this.position.y>parent.control.bound.height){
+                    this.position.y=parent.control.bound.height
                     this.velocity.y*=-1
                     this.hijack.timer=random(30,45)
                     this.hijack.direction=180
@@ -328,7 +383,7 @@ class player extends partisan{
                 this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
                 this.velocity.x*=0.8
                 this.velocity.y*=0.8
-                let controlDirection={x:0,y:0}
+                this.controlDirection={x:0,y:0}
                 if(this.hijack.timer>0){
                     this.hijack.timer--
                     this.velocity.x+=1.2*lsin(this.hijack.direction)
@@ -338,21 +393,21 @@ class player extends partisan{
                 }else if(this.timer.dizzy<=0){
                     if(inputKeys[0]&&!inputKeys[1]&&this.active){
                         this.velocity.x-=1.2
-                        controlDirection.x--
+                        this.controlDirection.x--
                     }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
                         this.velocity.x+=1.2
-                        controlDirection.x++
+                        this.controlDirection.x++
                     }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
-                        controlDirection.x+=this.velocity.x>0?1:-1
+                        this.controlDirection.x+=this.velocity.x>0?1:-1
                     }
                     if(inputKeys[2]&&!inputKeys[3]&&this.active){
                         this.velocity.y-=1.2
-                        controlDirection.y--
+                        this.controlDirection.y--
                     }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
                         this.velocity.y+=1.2
-                        controlDirection.y++
+                        this.controlDirection.y++
                     }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
-                        controlDirection.y+=this.velocity.y>0?1:-1
+                        this.controlDirection.y+=this.velocity.y>0?1:-1
                     }
                     if(this.timer.attack>0){
                         this.timer.attack--
@@ -363,10 +418,10 @@ class player extends partisan{
                         }
                         this.runAnim(1,1)
                     }
-                    if(controlDirection.x!=0||controlDirection.y!=0){
-                        this.direction.goal=atan2(controlDirection.x,controlDirection.y)
+                    if(this.controlDirection.x!=0||this.controlDirection.y!=0){
+                        this.direction.goal=atan2(this.controlDirection.x,this.controlDirection.y)
                     }
-                    if(controlDirection.x!=0||controlDirection.y!=0||this.animSet.loop>0&&this.animSet.loop%15!=0){
+                    if(this.controlDirection.x!=0||this.controlDirection.y!=0||this.animSet.loop>0&&this.animSet.loop%15!=0){
                         this.runAnim(0,1)
                     }else{
                         this.animSet.loop=0
@@ -404,7 +459,7 @@ class player extends partisan{
             break
         }
     }
-    collide(type,obj){
+    collide(type,obj,parent){
         switch(this.type){
             case 1:
                 switch(type){

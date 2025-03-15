@@ -6,6 +6,10 @@ class operation{
     }
     initialManagers(){
         this.minigameManager=new minigameManager(this.layer,this)
+        //this.propertyManager=new propertyManager(this.layer,this)
+        /*
+        assemble a manager to store money, stars, and items
+        */
     }
     setup(scene,control){
         switch(scene){
