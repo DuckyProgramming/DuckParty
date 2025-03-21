@@ -15,6 +15,7 @@ class operation{
         switch(scene){
             case 'minigame':
                 this.minigameManager.minigame=control.minigame
+                this.minigameManager.arbitraryTeams()
                 this.minigameManager.setup()
             break
         }

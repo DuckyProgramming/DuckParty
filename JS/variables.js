@@ -125,7 +125,7 @@ types={
 
         {name:`Cursed Dice Block`,desc:`Cause any player to roll from 1-3`,cost:3,rarity:0,useCase:1},
         {name:`Conducator Whistle`,desc:`Send any player to the Conducator`,cost:5,rarity:0,useCase:1},
-        {name:`Robber Whistle`,desc:`Steal lumps or a bit`,cost:25,rarity:0,useCase:1},
+        {name:`[] Whistle`,desc:`Steal lumps or a bit`,cost:25,rarity:0,useCase:1},
         {name:`Plunder Box`,desc:`Steal an item`,cost:20,rarity:0,useCase:1},
         {name:`Restart Box`,desc:`Send another player to the start`,cost:25,rarity:0,useCase:1},
 

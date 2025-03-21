@@ -1,7 +1,8 @@
 class player extends partisan{
-    constructor(layer,x,y,type,id,color){
+    constructor(layer,x,y,type,distinct,id,color){
         super(layer,x,y,{main:1,trigger:true,speed:5})
         this.type=type
+        this.distinct=distinct
         this.id=id
         this.color=color
         this.size=1
@@ -23,7 +24,6 @@ class player extends partisan{
             break
             case 1:
                 this.radius=12.5
-                this.life=3
                 this.timer.invincible=0
                 this.timer.dizzy=0
                 this.timer.dizzySafe=0
@@ -31,6 +31,11 @@ class player extends partisan{
                 this.infoAnim={life:[1,1,1],dizzy:0}
                 this.hijack={timer:0,direction:0}
                 this.controlDirection={x:0,y:0}
+                switch(this.distinct){
+                    case 0:
+                        this.life=3
+                    break
+                }
             break
         }
     }
@@ -50,8 +55,8 @@ class player extends partisan{
                 {fade:1,display:true,anim:{theta:24,phi:90},length:5,points:{set:{x:1.5,y:-7.5,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}},
                 {fade:1,display:true,anim:{theta:24,phi:-90},length:5,points:{set:{x:1.5,y:-7.5,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}}
             ],arms:[
-                {fade:1,display:true,anim:{theta:54,phi:90},length:5,points:{set:{x:1.5,y:-12.5,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}},
-                {fade:1,display:true,anim:{theta:54,phi:-90},length:5,points:{set:{x:1.5,y:-12.5,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}}
+                {fade:1,display:true,anim:{theta:54,phi:90},length:this.type==0?5:12,points:{set:{x:1.5,y:-12.5,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}},
+                {fade:1,display:true,anim:{theta:54,phi:-90},length:this.type==0?5:12,points:{set:{x:1.5,y:-12.5,z:0},start:{x:0,y:0,z:0},end:{x:0,y:0,z:0}}}
             ]
         }
         this.face={
@@ -238,10 +243,21 @@ class player extends partisan{
             break
             case 1:
                 layer.noStroke()
-                for(let a=0,la=this.infoAnim.life.length;a<la;a++){
-                    if(this.infoAnim.life[a]>0){
-                        layer.fill(250,225,225,this.fade.main*this.infoAnim.life[a])
-                        layer.ellipse(4-la*4+a*8,-22,5)
+                switch(this.distinct){
+                    case 0:
+                        for(let a=0,la=this.infoAnim.life.length;a<la;a++){
+                            if(this.infoAnim.life[a]>0){
+                                layer.fill(250,225,225,this.fade.main*this.infoAnim.life[a])
+                                layer.ellipse(4-la*4+a*8,-22,5)
+                            }
+                        }
+                    break
+                }
+                for(let a=0,la=2;a<la;a++){
+                    if(this.skin.legs[a].display){
+                        layer.fill(...this.color.skin.legs,this.fade.main*this.skin.legs[a].fade)
+                        layer.noStroke()
+                        layer.ellipse(this.skin.legs[a].points.end.x,this.skin.legs[a].points.end.z,12,12)
                     }
                 }
                 for(let a=0,la=2;a<la;a++){
@@ -279,6 +295,12 @@ class player extends partisan{
                         }else{
                             layer.line(-4+a*8+this.face.eye[a].anim*2,7,-4+a*8-this.face.eye[a].anim*2,7-this.face.eye[a].anim*2)
                             layer.line(-4+a*8+this.face.eye[a].anim*2,7,-4+a*8-this.face.eye[a].anim*2,7+this.face.eye[a].anim*2)
+                        }
+                        switch(this.distinct){
+                            case 2:
+                                layer.strokeWeight(1)
+                                layer.arc(-4+a*8,7,5,5,-165+a*90,-105+a*90)
+                            break
                         }
                     }
                 }
@@ -378,6 +400,12 @@ class player extends partisan{
                     this.hijack.timer=random(30,45)
                     this.hijack.direction=180
                 }
+                if(parent.control.bound.radius>0&&dist(this.position.x,this.position.y,this.layer.width*0.5,this.layer.height*0.5)>parent.control.bound.radius-this.radius){
+                    this.velocity.x=0
+                    this.velocity.y=0
+                    this.hijack.timer=random(30,45)
+                    this.hijack.direction=atan2(this.layer.width*0.5-this.position.x,this.layer.height*0.5-this.position.y)
+                }
                 this.direction.main=spinControl(this.direction.main)
                 this.direction.goal=spinControl(this.direction.goal)
                 this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
@@ -412,11 +440,22 @@ class player extends partisan{
                     if(this.timer.attack>0){
                         this.timer.attack--
                     }else if(inputKeys[4]){
-                        this.timer.attack=30
-                        for(let a=0,la=parent.entities.players.length;a<la;a++){
-                            this.collide(1,parent.entities.players[a])
+                        switch(this.distinct){
+                            case 0:
+                                this.timer.attack=30
+                                for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                    this.collide(1,parent.entities.players[a],parent)
+                                }
+                                this.runAnim(1,1)
+                            break
+                            case 1:
+                                this.timer.attack=30
+                                for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                    this.collide(2,parent.entities.players[a],parent)
+                                }
+                                this.runAnim(1,1)
+                            break
                         }
-                        this.runAnim(1,1)
                     }
                     if(this.controlDirection.x!=0||this.controlDirection.y!=0){
                         this.direction.goal=atan2(this.controlDirection.x,this.controlDirection.y)
@@ -430,7 +469,7 @@ class player extends partisan{
                 if(this.animSet.attack>0&&this.animSet.attack%15!=0){
                     this.runAnim(1,1)
                 }else{
-                    this.animSet.loop=0
+                    this.animSet.attack=0
                 }
                 this.mainAnim()
                 if(this.timer.dizzy>0){
@@ -482,6 +521,20 @@ class player extends partisan{
                                 obj.timer.dizzySafe=180
                                 obj.velocity.x=4*lsin(dir)
                                 obj.velocity.y=4*lcos(dir)
+                            }
+                        }
+                    break
+                    case 2:
+                        if(obj!=this){
+                            let hand={position:{x:this.position.x+lsin(this.direction.main)*30,y:this.position.y+lcos(this.direction.main)*30}}
+                            if(distPos(hand,obj)<10+obj.radius&&obj.timer.dizzySafe<=0){
+                                let dir=dirPos(this,obj)
+                                obj.timer.dizzy=30
+                                obj.timer.dizzySafe=45
+                                obj.velocity.x=4*lsin(dir)
+                                obj.velocity.y=4*lcos(dir)
+                                parent.payout.add[this.id]++
+                                parent.payout.add[obj.id]--
                             }
                         }
                     break

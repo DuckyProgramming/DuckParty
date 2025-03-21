@@ -49,6 +49,12 @@ function elementArray(base,number){
 	}
 	return result
 }
+function range(start,end){
+    return [...Array(end-start).keys()].map(a=>a+start)
+}
+function formatTime(frames){
+    return `${floor(frames/3600)%60}:${floor(frames/60)%60<10?`0`:``}${floor(frames/60)%60}`
+}
 //operational
 function onSegment(p,q,r){ 
     return q.x<=max(p.x,r.x)&&q.x>=min(p.x, r.x)&&q.y<=max(p.y,r.y)&&q.y>=min(p.y, r.y)
