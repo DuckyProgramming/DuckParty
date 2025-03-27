@@ -30,8 +30,6 @@ duckfight multiplayer
 
 bowser's big blind
 
-bash n cash
-
 mario's puzzle party
 
 exactly 10 seconds timer
@@ -74,8 +72,6 @@ look away
 
 treadmill grill
 
-mpiq but math
-
 toadstool titan but the mushroom just spawns in a random place
 
 frigid bridges
@@ -94,13 +90,9 @@ bomb civilians - the cilians randomly move around and you have limited explosive
 
 toxic waste - push as much toxic waste onto the other player's side of the map
 
-gerrymandering
-
 the one where you have the clouds and you have to be special
 
 dizzy dancing
-
-touhou
 
 the one where you choose a tetris block
 

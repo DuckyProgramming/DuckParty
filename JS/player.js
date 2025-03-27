@@ -37,6 +37,11 @@ class player extends partisan{
                     break
                 }
             break
+            case 2:
+                this.radius=1
+                this.select={trigger:false}
+                this.infoAnim={select:0}
+            break
         }
     }
     setupGraphics(){
@@ -128,7 +133,6 @@ class player extends partisan{
         }
     }
     display(layer=this.layer){
-        this.calculateParts()
         if(dev.bound){
             layer.stroke(255,0,0,this.fade.main)
             layer.strokeWeight(3)
@@ -147,6 +151,7 @@ class player extends partisan{
         layer.noStroke()
         switch(this.type){
             case 0:
+                this.calculateParts()
                 for(let a=0,la=2;a<la;a++){
                     if(this.skin.arms[a].display&&lcos(this.direction.main+this.skin.arms[a].anim.phi)<=0){
                         layer.fill(this.color.skin.arms[0]+lcos(this.skin.arms[a].anim.phi+this.direction.main)*20,this.color.skin.arms[1]+lcos(this.skin.arms[a].anim.phi+this.direction.main)*20,this.color.skin.arms[2]+lcos(this.skin.arms[a].anim.phi+this.direction.main)*20,this.fade.main*this.skin.arms[a].fade)
@@ -242,6 +247,7 @@ class player extends partisan{
                 }
             break
             case 1:
+                this.calculateParts()
                 layer.noStroke()
                 switch(this.distinct){
                     case 0:
@@ -310,6 +316,18 @@ class player extends partisan{
                     for(let a=0,la=3;a<la;a++){
                         layer.ellipse(12*lsin(this.timer.main*3+a/la*360),-12+4*lcos(this.timer.main*3+a/la*360),3)
                     }
+                }
+            break
+            case 2:
+                if(this.skin.head.display){
+                    layer.stroke(this.infoAnim.select*255,this.fade.main*this.skin.head.fade)
+                    layer.strokeWeight(3)
+                    layer.ellipse(-9,9,12)
+                    layer.triangle(-9,5,-5,9,0,0)
+                    layer.fill(...this.color.skin.head,this.fade.main*this.skin.head.fade)
+                    layer.noStroke()
+                    layer.ellipse(-9,9,12)
+                    layer.triangle(-9,5,-5,9,0,0)
                 }
             break
         }
@@ -496,6 +514,32 @@ class player extends partisan{
                     }
                 }
             break
+            case 2:
+                if(inputKeys[0]&&!inputKeys[1]&&this.active){
+                    this.position.x-=6
+                }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
+                    this.position.x+=6
+                }
+                if(inputKeys[2]&&!inputKeys[3]&&this.active){
+                    this.position.y-=6
+                }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
+                    this.position.y+=6
+                }
+                if(inputKeys[4]&&!this.select.trigger){
+                    switch(this.distinct){
+                        case 0:
+                            for(let a=0,la=parent.entities.walls.length;a<la;a++){
+                                if(!parent.entities.walls[a].select.trigger){
+                                    this.collide(0,parent.entities.walls[a],parent)
+                                }
+                            }
+                        break
+                    }
+                }
+                this.infoAnim.select=smoothAnim(this.infoAnim.select,this.select.trigger>0,0,1,5)
+                this.position.x=constrain(this.position.x,2,this.layer.width-2)
+                this.position.y=constrain(this.position.y,2,this.layer.height-2)
+            break
         }
     }
     collide(type,obj,parent){
@@ -535,6 +579,24 @@ class player extends partisan{
                                 obj.velocity.y=4*lcos(dir)
                                 parent.payout.add[this.id]++
                                 parent.payout.add[obj.id]--
+                            }
+                        }
+                    break
+                }
+            break
+            case 2:
+                switch(type){
+                    case 0:
+                        if(inCircleBox(this,obj)){
+                            this.select.trigger=true
+                            obj.select.trigger=true
+                            obj.select.color=this.color.skin.head
+                            obj.select.id=this.id
+                            for(let a=0,la=parent.entities.walls.length;a<la;a++){
+                                if(parent.entities.walls[a].select.group==obj.select.group){
+                                    parent.entities.walls[a].select.trigger=true
+                                    parent.entities.walls[a].select.color=this.color.skin.head
+                                }
                             }
                         }
                     break

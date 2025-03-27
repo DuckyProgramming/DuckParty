@@ -14,7 +14,12 @@ class wall extends partisan{
     setupValues(){
         switch(this.type){
             case 2:
-                this.animOffset=random(0,150)
+                this.anim={offset:random(0,150)}
+            break
+            case 3:
+                this.text={main:'',size:0}
+                this.select={trigger:false,disable:false,group:0,id:-1,color:[],anim:0}
+                this.anim={disable:0}
             break
         }
     }
@@ -87,6 +92,15 @@ class wall extends partisan{
                 layer.fill(...this.color.over,this.fade.main)
                 layer.rect(0,0,this.width-10,this.height-10)
             break
+            case 3:
+                layer.fill(...this.color.base,this.fade.main)
+                layer.rect(0,0,this.width,this.height)
+                layer.fill(this.color.over[0]*(1-this.anim.disable),this.color.over[1]*(1-this.anim.disable),this.color.over[2]*(1-this.anim.disable),this.fade.main)
+                layer.rect(0,0,this.width-5,this.height-5)
+                layer.fill(...this.color.text,this.fade.main)
+                layer.textSize(this.text.size)
+                layer.text(this.text.main,0,0)
+            break
         }
         layer.pop()
     }
@@ -112,9 +126,18 @@ class wall extends partisan{
         this.velocity.y=0
         switch(this.type){
             case 2:
-                if(this.timer.main>this.animOffset){
-                    this.move(0,((this.timer.main-this.animOffset)%150<75?-1:1)*2)
+                if(this.timer.main>this.anim.offset){
+                    this.move(0,((this.timer.main-this.anim.offset)%150<75?-1:1)*2)
                 }
+            break
+            case 3:
+                if(this.select.trigger&&this.select.anim<1){
+                    this.select.anim+=0.1
+                    this.color.base[0]+=0.1*this.select.color[0]
+                    this.color.base[1]+=0.1*this.select.color[1]
+                    this.color.base[2]+=0.1*this.select.color[2]
+                }
+                this.anim.disable=smoothAnim(this.anim.disable,this.select.disable,0,1,5)
             break
         }
     }

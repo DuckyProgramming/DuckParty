@@ -25,7 +25,7 @@ types={
         {name:`Unlucky Space`},
         {name:`Event Space`},
         {name:`Stop Space`},
-        {name:`Conducator Space`},
+        {name:`Conduckator Space`},
         {name:`Lucky Time Space`},
         {name:``},
     ],player:[
@@ -124,7 +124,7 @@ types={
         {name:`Bank Card`,desc:`Collect money from the bank when you pass it`,cost:-1,rarity:1,useCase:1},
 
         {name:`Cursed Dice Block`,desc:`Cause any player to roll from 1-3`,cost:3,rarity:0,useCase:1},
-        {name:`Conducator Whistle`,desc:`Send any player to the Conducator`,cost:5,rarity:0,useCase:1},
+        {name:`Conduckator Whistle`,desc:`Send any player to the Conduckator`,cost:5,rarity:0,useCase:1},
         {name:`[] Whistle`,desc:`Steal lumps or a bit`,cost:25,rarity:0,useCase:1},
         {name:`Plunder Box`,desc:`Steal an item`,cost:20,rarity:0,useCase:1},
         {name:`Restart Box`,desc:`Send another player to the start`,cost:25,rarity:0,useCase:1},
@@ -157,6 +157,34 @@ Reach the top, and collect lumps.
 Move with UP, DOWN, LEFT, RIGHT.
 1: Don't get hit!
 3: Punch wtih ACTION to take money.
+`,
+        },{
+            name:`Gerrymandering`,player:1,
+            desc:
+`
+Select with UP, DOWN, LEFT, RIGHT and ACTION.
+Chooe the largest area.
+`,
+        },{
+            name:`Math`,player:1,
+            desc:
+`
+Select answer with UP, DOWN, LEFT, RIGHT, and ACTION.
+Answer correctly to win.
+`,
+        },{
+            name:`Touhou`,player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Don't get hit.
+`,
+        },{
+            name:`Duckyball`,player:1,
+            desc:
+`
+Move with UP, DOWN.
+Score in the other team's goal.
 `,
         },
     ],
