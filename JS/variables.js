@@ -1,5 +1,5 @@
 stage={scene:`minigame`}
-constants={trig:[[],[]],gravity:1.25}
+constants={trig:[[],[]],gravity:1.25,itemSlots:3}
 dev={bound:false}
 transition={trigger:false,anim:0,scene:stage.scene}
 graphics={main:undefined}
@@ -166,21 +166,15 @@ Select with UP, DOWN, LEFT, RIGHT and ACTION.
 Chooe the largest area.
 `,
         },{
-            name:`Math`,player:1,
-            desc:
-`
-Select answer with UP, DOWN, LEFT, RIGHT, and ACTION.
-Answer correctly to win.
-`,
-        },{
-            name:`Touhou`,player:1,
+            name:`Touhou`,player:3,
             desc:
 `
 Move with UP, DOWN, LEFT, RIGHT.
-Don't get hit.
+1: Attack with ACTION.
+3: Don't get hit.
 `,
         },{
-            name:`Duckyball`,player:1,
+            name:`Duckyball`,player:2,
             desc:
 `
 Move with UP, DOWN.

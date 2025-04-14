@@ -4,17 +4,35 @@ class projectile extends entity{
         this.type=type
         this.control=control
         switch(this.type){
-            case 0: case 1:
+            case 0: case 1: case 3:
                 this.past=elementArray({x:this.position.x,y:this.position.y},10)
-                this.radius=10
+                this.radius=6
                 this.direction=control.direction
-                this.velocity={x:0,y:0}
                 switch(this.type){
                     case 0: case 1:
                         this.speed=random(4,8)
                         this.size=1
                     break
+                    case 3:
+                        this.speed=8
+                        this.size=1
+                        this.previous={position:{x:this.position.x,y:this.position.y}}
+                        this.base={position:{x:this.position.x,y:this.position.y}}
+                    break
                 }
+                this.velocity={x:0,y:0}
+                this.velocity.x=lsin(this.direction)*this.speed
+                this.velocity.y=lcos(this.direction)*this.speed
+                this.active=true
+            break
+            case 2:
+                this.direction=control.direction
+                this.size=control.size
+                this.id=control.id
+                this.color=control.color
+                this.speed=8-this.size*4
+                this.radius=this.size*6
+                this.velocity={x:0,y:0}
                 this.velocity.x=lsin(this.direction)*this.speed
                 this.velocity.y=lcos(this.direction)*this.speed
                 this.active=true
@@ -36,13 +54,29 @@ class projectile extends entity{
                     layer.ellipse(0,0,12*this.size)
                 }
             break
+            case 2:
+                for(let a=0,la=5;a<la;a++){
+                    layer.fill(...this.color.main,this.fade.main*0.25)
+                    layer.ellipse(0,0,(15-2.5*a)*this.size)
+                }
+            break
+            case 3:
+                if(this.size>0){
+                    for(let a=0,la=5;a<la;a++){
+                        layer.fill(225,160-a*40,0,this.fade.main)
+                        layer.ellipse(this.past[8-a*2].x-this.position.x,this.past[8-a*2].y-this.position.y,(7.5-a*1.5)*this.size)
+                    }
+                    layer.fill(50,this.fade.main)
+                    layer.ellipse(0,0,12*this.size)
+                }
+            break
         }
         layer.pop()
     }
     update(parent){
         super.update()
         switch(this.type){
-            case 0: case 1:
+            case 0: case 1: case 3:
                 this.past.push({x:this.position.x,y:this.position.y})
                 this.past.splice(0,1)
             break
@@ -51,18 +85,18 @@ class projectile extends entity{
             case 0:
                 this.position.x+=this.velocity.x*min(1,this.timer.main/300)
                 this.position.y+=this.velocity.y*min(1,this.timer.main/300)
-                if(this.position.x<0){
-                    this.position.x=0
+                if(this.position.x<parent.control.bound.base.x){
+                    this.position.x=parent.control.bound.base.x
                     this.velocity.x*=-1
-                }else if(this.position.x>this.layer.width){
-                    this.position.x=this.layer.width
+                }else if(this.position.x>parent.control.bound.base.x+parent.control.bound.width){
+                    this.position.x=parent.control.bound.base.x+parent.control.bound.width
                     this.velocity.x*=-1
                 }
-                if(this.position.y<0){
-                    this.position.y=0
+                if(this.position.y<parent.control.bound.base.y){
+                    this.position.y=parent.control.bound.base.y
                     this.velocity.y*=-1
-                }else if(this.position.y>this.layer.height){
-                    this.position.y=this.layer.height
+                }else if(this.position.y>parent.control.bound.base.y+parent.control.bound.height){
+                    this.position.y=parent.control.bound.base.y+parent.control.bound.height
                     this.velocity.y*=-1
                 }
                 if(floor(random(0,60))==0){
@@ -87,11 +121,104 @@ class projectile extends entity{
                     this.active=false
                 }
             break
+            case 2:
+                this.position.x+=this.velocity.x
+                this.position.y+=this.velocity.y
+                if(!this.active&&this.size>0){
+                    this.size-=0.1
+                }
+                if(this.position.x<-50||this.position.x>parent.control.bound.width+50||this.position.y<-50||this.position.y>parent.control.bound.height+50){
+                    this.active=false
+                }
+            break
+            case 3:
+                this.previous.position.x=this.position.x
+                this.previous.position.y=this.position.y
+                this.position.x+=this.velocity.x*min(1,this.timer.main/300)
+                this.position.y+=this.velocity.y*min(1,this.timer.main/300)
+                if(this.position.x<parent.control.bound.base.x){
+                    this.position.x=this.base.position.x
+                    this.position.y=this.base.position.y
+                    this.timer.main=0
+                    this.size=0
+                    this.direction=random(0,360)
+                    this.velocity.x=lsin(this.direction)*this.speed
+                    this.velocity.y=lcos(this.direction)*this.speed
+                    parent.result.score[1]++
+                }else if(this.position.x>parent.control.bound.base.x+parent.control.bound.width){
+                    this.position.x=this.base.position.x
+                    this.position.y=this.base.position.y
+                    this.timer.main=0
+                    this.size=0
+                    this.direction=random(0,360)
+                    this.velocity.x=lsin(this.direction)*this.speed
+                    this.velocity.y=lcos(this.direction)*this.speed
+                    parent.result.score[0]++
+                }
+                if(this.position.y<parent.control.bound.base.y){
+                    this.position.y=parent.control.bound.base.y
+                    this.velocity.y*=-1
+                }else if(this.position.y>parent.control.bound.base.y+parent.control.bound.height){
+                    this.position.y=parent.control.bound.base.y+parent.control.bound.height
+                    this.velocity.y*=-1
+                }
+                if((
+                    intersect(
+                        {x:100,y:parent.control.bound.base.y},
+                        {x:100,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
+                        this.position,this.previous.position
+                    )||intersect(
+                        {x:100,y:parent.control.bound.base.y+parent.control.bound.height},
+                        {x:100,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
+                        this.position,this.previous.position
+                    )
+                )&&this.position.x<100||(
+                    intersect(
+                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y},
+                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
+                        this.position,this.previous.position
+                    )||intersect(
+                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y+parent.control.bound.height},
+                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
+                        this.position,this.previous.position
+                    )
+                )&&this.position.x>parent.control.bound.width-100){
+                    this.velocity.x*=-1
+                }
+                if((
+                    intersect(
+                        {x:0,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
+                        {x:100,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
+                        this.position,this.previous.position
+                    )||intersect(
+                        {x:parent.control.bound.width,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
+                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
+                        this.position,this.previous.position
+                    )
+                )&&this.position.y<parent.control.bound.base.y+parent.control.bound.height*0.5-75||(
+                    intersect(
+                        {x:parent.control.bound.width,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
+                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
+                        this.position,this.previous.position
+                    )||intersect(
+                        {x:0,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
+                        {x:100,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
+                        this.position,this.previous.position
+                    )
+                )&&this.position.y>parent.control.bound.base.y+parent.control.bound.height*0.5+75){
+                    this.velocity.y*=-1
+                }
+                if(!this.active&&this.size>0){
+                    this.size-=0.1
+                }else if(this.active&&this.size<1){
+                    this.size+=0.1
+                }
+            break
         }
     }
     collide(type,obj,parent){
         switch(this.type){
-            case 0: case 1:
+            case 0: case 1: case 2: case 3:
                 switch(type){
                     case 0:
                         if(distPos(this,obj)<this.radius+obj.radius&&obj.active&&obj.timer.invincible<=0&&this.size>0){
@@ -123,6 +250,20 @@ class projectile extends entity{
                             obj.velocity.y+=magnitude[0]*lcos(dir)*0.5
                             this.velocity.x=-magnitude[0]*lsin(dir)
                             this.velocity.y=-magnitude[0]*lcos(dir)
+                        }
+                    break
+                    case 3:
+                        if(distPos(this,obj)<this.radius+obj.radius&&obj.id!=this.id&&obj.active&&obj.timer.invincible<=0&&this.size>0){
+                            obj.life--
+                            obj.timer.invincible=30
+                        }
+                    break
+                    case 4:
+                        if(distPos(this,obj)<this.radius+obj.radius){
+                            let dir=dirPos(this,obj)
+                            let magnitude=magVec(this.velocity)
+                            this.velocity.x=-magnitude*lsin(dir)
+                            this.velocity.y=-magnitude*lcos(dir)
                         }
                     break
                 }
