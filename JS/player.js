@@ -23,7 +23,6 @@ class player extends partisan{
                 this.dead={trigger:false}
             break
             case 1:
-                this.speed=1.2
                 this.radius=12.5
                 this.timer.invincible=0
                 this.timer.still=0
@@ -31,7 +30,7 @@ class player extends partisan{
                 this.timer.dizzySafe=0
                 this.timer.attack=0
                 this.infoAnim={life:[1,1,1],dizzy:0}
-                this.hijack={timer:0,direction:0}
+                this.hijack={timer:0,direction:0,reverse:false}
                 this.controlDirection={x:0,y:0}
                 switch(this.distinct){
                     case 0:
@@ -52,6 +51,19 @@ class player extends partisan{
                 this.select={trigger:false}
                 this.infoAnim={select:0}
             break
+            case 3:
+                this.speed=1.2
+                this.radius=12.5
+                this.infoAnim={life:[1,1,1]}
+            break
+        }
+    }
+    scale(value){
+        switch(this.type){
+            case 1:
+                this.size*=value
+                this.radius*=value
+            break
         }
     }
     setupGraphics(){
@@ -59,7 +71,7 @@ class player extends partisan{
             case 0:
                 this.direction={main:-54,goal:-54}
             break
-            case 1:
+            case 1: case 3:
                 this.direction={main:0,goal:0}
             break
         }
@@ -256,16 +268,31 @@ class player extends partisan{
                     }
                 }
             break
-            case 1:
+            case 1: case 3:
+                switch(this.type){
+                    case 3:
+                        layer.rotate(-this.direction.main)
+                        layer.fill(180,this.fade.main)
+                        layer.triangle(-6,12,6,12,0,27)
+                        layer.fill(100,this.fade.main)
+                        layer.arc(0,0,36,36,0,180)
+                        layer.arc(0,0,36,12,-180,0)
+                        layer.rotate(this.direction.main)
+                    break
+                }
                 this.calculateParts()
                 layer.noStroke()
-                switch(this.distinct){
-                    case 0:
-                        for(let a=0,la=this.infoAnim.life.length;a<la;a++){
-                            if(this.infoAnim.life[a]>0){
-                                layer.fill(250,225,225,this.fade.main*this.infoAnim.life[a])
-                                layer.ellipse(4-la*4+a*8,-22,5)
-                            }
+                switch(this.type){
+                    case 1:
+                        switch(this.distinct){
+                            case 0:
+                                for(let a=0,la=this.infoAnim.life.length;a<la;a++){
+                                    if(this.infoAnim.life[a]>0){
+                                        layer.fill(250,225,225,this.fade.main*this.infoAnim.life[a])
+                                        layer.ellipse(4-la*4+a*8,-22,5)
+                                    }
+                                }
+                            break
                         }
                     break
                 }
@@ -289,7 +316,7 @@ class player extends partisan{
                     layer.noStroke()
                     layer.ellipse(0,11,14,8)
                 }
-                if(this.face.beak.nostril.display&&lcos(this.direction.main)>0){
+                if(this.face.beak.nostril.display){
                     layer.noFill()
                     layer.stroke(this.color.beak.nostril[0],this.color.beak.nostril[1],this.color.beak.nostril[2],this.fade.main*this.face.beak.nostril.fade)
                     layer.strokeWeight(0.5)
@@ -367,8 +394,6 @@ class player extends partisan{
                         this.jump.active=8
                     }
                     this.velocity.y-=constrain(5+this.velocity.y*0.25,3,5)
-                    this.direction.goal=54
-                    this.controlDirection.x++
                 }else if(this.jump.time>0){
                     this.jump.time--
                 }
@@ -406,6 +431,9 @@ class player extends partisan{
                 }
             break
             case 1:
+                if(this.hijack.reverse){
+                    inputKeys=[inputKeys[1],inputKeys[0],inputKeys[3],inputKeys[2]]
+                }
                 if(this.position.x<parent.control.bound.base.x+this.radius){
                     this.position.x=parent.control.bound.base.x+this.radius
                     this.velocity.x*=-1
@@ -575,6 +603,38 @@ class player extends partisan{
                 this.position.x=constrain(this.position.x,2,this.layer.width-2)
                 this.position.y=constrain(this.position.y,2,this.layer.height-2)
             break
+            case 3:
+                if(inputKeys[0]&&!inputKeys[1]&&this.active){
+                    this.direction.goal+=3
+                }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
+                    this.direction.goal-=3
+                }
+                if(inputKeys[2]&&!inputKeys[3]&&this.active){
+                    this.velocity.x+=lsin(this.direction.main)*1.2
+                    this.velocity.y+=lcos(this.direction.main)*1.2
+                }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
+                    this.velocity.x-=lsin(this.direction.main)*0.8
+                    this.velocity.y-=lcos(this.direction.main)*0.8
+                }
+                if(parent.control.bound.radius>0&&dist(this.position.x,this.position.y,this.layer.width*0.5,this.layer.height*0.5)>parent.control.bound.radius-this.radius){
+                    let direction=atan2(this.position.x-this.layer.width*0.5,this.position.y-this.layer.height*0.5)
+                    let distance=dist(this.position.x,this.position.y,this.layer.width*0.5,this.layer.height*0.5)-parent.control.bound.radius+this.radius
+                    this.position.x-=distance*lsin(direction)
+                    this.position.y-=distance*lcos(direction)
+                    let currentDirection=atan2(this.velocity.x,this.velocity.y)
+                    let magnitude=magVec(this.velocity)
+                    this.velocity.x=lsin(direction*2-currentDirection)*magnitude*-0.8
+                    this.velocity.y=lcos(direction*2-currentDirection)*magnitude*-0.8
+                }
+                this.direction.main=spinControl(this.direction.main)
+                this.direction.goal=spinControl(this.direction.goal)
+                this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                this.velocity.x*=0.8
+                this.velocity.y*=0.8
+                if(!this.active){
+                    this.fade.trigger=false
+                }
+            break
         }
     }
     collide(type,obj,parent){
@@ -582,7 +642,7 @@ class player extends partisan{
             case 1:
                 switch(type){
                     case 0:
-                        if(distPos(this,obj)<this.radius+obj.radius){
+                        if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.active){
                             let dir=dirPos(this,obj)
                             let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
                             obj.velocity.x=magnitude[0]*lsin(dir)
@@ -592,7 +652,7 @@ class player extends partisan{
                         }
                     break
                     case 1:
-                        if(obj!=this){
+                        if(obj!=this&&this.active&&obj.active){
                             let hand={position:{x:this.position.x+lsin(this.direction.main)*30,y:this.position.y+lcos(this.direction.main)*30}}
                             if(distPos(hand,obj)<10+obj.radius&&obj.timer.dizzySafe<=0){
                                 let dir=dirPos(this,obj)
@@ -604,7 +664,7 @@ class player extends partisan{
                         }
                     break
                     case 2:
-                        if(obj!=this){
+                        if(obj!=this&&this.active&&obj.active){
                             let hand={position:{x:this.position.x+lsin(this.direction.main)*30,y:this.position.y+lcos(this.direction.main)*30}}
                             if(distPos(hand,obj)<10+obj.radius&&obj.timer.dizzySafe<=0){
                                 let dir=dirPos(this,obj)
@@ -633,6 +693,33 @@ class player extends partisan{
                                     parent.entities.walls[a].select.color=this.color.skin.head
                                 }
                             }
+                        }
+                    break
+                }
+            break
+            case 3:
+                switch(type){
+                    case 0:
+                        if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.active){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
+                            obj.velocity.x=magnitude[0]*lsin(dir)
+                            obj.velocity.y=magnitude[0]*lcos(dir)
+                            this.velocity.x=-magnitude[1]*lsin(dir)
+                            this.velocity.y=-magnitude[1]*lcos(dir)
+                        }
+                    break
+                    case 1:
+                        let spike={position:{x:this.position.x+lsin(this.direction.main)*27,y:this.position.y+lcos(this.direction.main)*27}}
+                        if(distPos(spike,obj)<obj.radius+3&&inDirArc(dirPos(spike,obj),obj.direction.main+90,obj.direction.main+270)&&this.active&&obj.active){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
+                            obj.velocity.x=(magnitude[0]+magnitude[1]*0.5+5)*lsin(dir)
+                            obj.velocity.y=(magnitude[0]+magnitude[1]*0.5+5)*lcos(dir)
+                            this.velocity.x=-magnitude[1]*0.5*lsin(dir)
+                            this.velocity.y=-magnitude[1]*0.5*lcos(dir)
+                        }else if(distPos(spike,obj)<obj.radius&&this.active&&obj.active){
+                            obj.active=false
                         }
                     break
                 }

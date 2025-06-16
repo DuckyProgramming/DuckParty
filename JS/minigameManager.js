@@ -17,7 +17,7 @@ class minigameManager{
         switch(types.minigame[this.minigame].player){
             case 2:
                 let possible=range(0,this.operation.player.length)
-                for(let a=0,la=2;a<la;a++){
+                for(let a=0,la=floor(this.operation.player.length/2);a<la;a++){
                     let index=floor(random(0,possible.length))
                     this.teams.split.push(possible[index])
                     possible.splice(index,1)
@@ -51,12 +51,13 @@ class minigameManager{
             case 1:
                 let extent=4
                 this.graphics={main:[]}
-                this.entities={players:[],walls:[[],[],[],[]],projectiles:[[],[],[],[]]}
+                this.entities={players:[],walls:[],projectiles:[]}
                 for(let a=0,la=this.operation.player.length;a<la;a++){
                     this.graphics.main.push(createGraphics(this.layer.width/4,this.layer.height))
                     setupLayer(this.graphics.main[a])
                     this.entities.players.push(new player(this.graphics.main[a],this.layer.width/8,this.layer.height*extent-50,0,0,a,this.operation.player[a]))
                     this.entities.walls.push([])
+                    this.entities.projectiles.push([])
                     this.entities.walls[a].push(new wall(this.graphics.main[a],120,30,200,30,1,{base:[[225,225,225],[50,50,50]]}))
                     this.entities.walls[a].push(new wall(this.graphics.main[a],10,this.layer.height*extent/2,20,this.layer.height*extent,0,{base:[100,100,100]}))
                     this.entities.walls[a].push(new wall(this.graphics.main[a],230,this.layer.height*extent/2,20,this.layer.height*extent,0,{base:[100,100,100]}))
@@ -67,7 +68,7 @@ class minigameManager{
                         ticker+=floor(random(0,2))+1
                     }
                 }
-                this.control.bound={base:{x:0,y:0},width:this.layer.width/4,height:this.layer.height*extent,radius:0 }
+                this.control.bound={base:{x:0,y:0},width:this.layer.width/4,height:this.layer.height*extent,radius:0}
                 this.control.spawner={tick:0,time:240,group:4}
             break
             case 2:
@@ -81,7 +82,7 @@ class minigameManager{
                         ticker++
                     }
                 }
-                this.control.bound={width:this.layer.width,height:this.layer.height,radius:this.layer.height*0.45}
+                this.control.bound={base:{x:0,y:0},width:this.layer.width,height:this.layer.height,radius:this.layer.height*0.45}
             break
             case 3:
                 this.entities={players:[],walls:[]}
@@ -168,30 +169,46 @@ class minigameManager{
                 this.control.bound={base:{x:0,y:0},width:this.layer.width,height:this.layer.height,radius:0}
             break
             case 5:
-                ticker=[floor(random(0,2)),floor(random(0,2))]
+                ticker=[floor(random(0,this.teams.split.length)),floor(random(0,this.operation.player.length-this.teams.split.length))]
                 this.entities={players:[],projectiles:[]}
                 for(let a=0,la=this.operation.player.length;a<la;a++){
                     if(this.teams.split.includes(a)){
-                        this.entities.players.push(new player(this.layer,this.layer.width/2-150-ticker[0]*100,this.layer.height/2-100+ticker[0]*200,1,4,a,this.operation.player[a]))
-                        this.entities.players[a].direction.main=90
-                        this.entities.players[a].direction.goal=90
-                        ticker[0]=1-ticker[0]
+                        for(let b=0,lb=this.operation.player.length==3?2:1;b<lb;b++){
+                            this.entities.players.push(new player(this.layer,this.layer.width/2-250+ticker[0]*100,this.layer.height/2-100+ticker[0]*200,1,4,a,this.operation.player[a]))
+                            last(this.entities.players).direction.main=90
+                            last(this.entities.players).direction.goal=90
+                            ticker[0]=1-ticker[0]
+                            last(this.entities.players).scale(1.5)
+                            if(b==1){
+                                last(this.entities.players).hijack.reverse=true
+                            }
+                        }
                     }else{
-                        this.entities.players.push(new player(this.layer,this.layer.width/2+150+ticker[1]*100,this.layer.height/2+100-ticker[1]*200,1,4,a,this.operation.player[a]))
-                        this.entities.players[a].direction.main=-90
-                        this.entities.players[a].direction.goal=-90
+                        this.entities.players.push(new player(this.layer,this.layer.width/2+250-ticker[1]*100,this.layer.height/2+100-ticker[1]*200,1,4,a,this.operation.player[a]))
+                        last(this.entities.players).direction.main=-90
+                        last(this.entities.players).direction.goal=-90
                         ticker[1]=1-ticker[1]
+                        last(this.entities.players).scale(1.5)
                     }
                 }
                 this.control.bound={base:{x:0,y:100},width:this.layer.width,height:this.layer.height-200,radius:0}
                 this.entities.projectiles.push(new projectile(this.layer,this.layer.width*0.5,this.layer.height*0.5,3,{direction:random(0,360)}))
+            break
+            case 6:
+                this.entities={players:[]}
+                for(let a=0,la=this.operation.player.length;a<la;a++){
+                    this.entities.players.push(new player(this.layer,this.layer.width/2-this.layer.height*0.3*lsin(a/la*360),this.layer.height/2-this.layer.height*0.3*lcos(a/la*360),3,0,a,this.operation.player[a]))
+                    last(this.entities.players).direction.main=a/la*360
+                    last(this.entities.players).direction.goal=a/la*360
+                }
+                this.control.bound={base:{x:0,y:0},width:this.layer.width,height:this.layer.height,radius:this.layer.height*0.45}
             break
         }
     }
     setup(){
         this.control.timer=0
         switch(this.minigame){
-            case 0: case 3:
+            case 0: case 3: case 6:
                 this.result.score=[]
                 for(let a=0,la=this.operation.player.length;a<la;a++){
                     this.result.score.push(0)
@@ -238,6 +255,7 @@ class minigameManager{
                         this.layer.textAlign(CENTER,CENTER)
                     break
                     case 1:
+                        this.layer.background(100)
                         for(let a=0,la=this.graphics.main.length;a<la;a++){
                             let layer=this.graphics.main[a]
                             layer.background(0)
@@ -251,7 +269,7 @@ class minigameManager{
                                 this.entities.projectiles[a][b].display()
                             }
                             layer.pop()
-                            this.layer.image(layer,this.layer.width*(a+0.5)/la,this.layer.height/2,this.layer.width/la,this.layer.height)
+                            this.layer.image(layer,this.layer.width*(2.5-la/2+a)/4,this.layer.height/2,this.layer.width/4,this.layer.height)
                         }
                     break
                     case 2:
@@ -304,9 +322,11 @@ class minigameManager{
                         this.layer.rect(this.layer.width*0.5,this.layer.height*0.5,this.layer.width-200,this.layer.height-200)
                         this.layer.fill(150)
                         this.layer.rect(this.layer.width*0.5-250,this.layer.height*0.5,5,this.layer.height-200)
-                        this.layer.rect(this.layer.width*0.5-150,this.layer.height*0.5,5,this.layer.height-200)
-                        this.layer.rect(this.layer.width*0.5+150,this.layer.height*0.5,5,this.layer.height-200)
                         this.layer.rect(this.layer.width*0.5+250,this.layer.height*0.5,5,this.layer.height-200)
+                        if(this.operation.player.length>=3){
+                            this.layer.rect(this.layer.width*0.5-150,this.layer.height*0.5,5,this.layer.height-200)
+                            this.layer.rect(this.layer.width*0.5+150,this.layer.height*0.5,5,this.layer.height-200)
+                        }
                         for(let a=0,la=this.entities.players.length;a<la;a++){
                             this.entities.players[a].display()
                         }
@@ -319,6 +339,21 @@ class minigameManager{
                         this.layer.text('Score: '+this.result.score[0],5,12)
                         this.layer.textAlign(RIGHT,CENTER)
                         this.layer.text('Score: '+this.result.score[1],this.layer.width-5,12)
+                        this.layer.textAlign(CENTER,CENTER)
+                    break
+                    case 6:
+                        this.layer.background(100)
+                        this.layer.fill(0)
+                        this.layer.ellipse(this.layer.width/2,this.layer.height/2,this.layer.height*0.9)
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].display()
+                        }
+                        this.layer.fill(255)
+                        this.layer.textAlign(LEFT,CENTER)
+                        this.layer.textSize(12)
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.layer.text(types.player[this.operation.player[a]].name+`: `+this.result.score[a],5,12+a*16)
+                        }
                         this.layer.textAlign(CENTER,CENTER)
                     break
                 }
@@ -406,7 +441,7 @@ class minigameManager{
                                         if(this.result.score[a]>=5){
                                             this.result.winner.push(a)
                                         }
-                                        this.payout.main.push((this.result.score[a]>=5?1:0)*this.payout.root*this.payout*mult+this.payout.add[a])
+                                        this.payout.main.push((this.result.score[a]>=5?1:0)*this.payout.root*this.payout.mult+this.payout.add[a])
                                     }
                                 }else{
                                     this.reset()
@@ -438,7 +473,7 @@ class minigameManager{
                                             this.result.end=true
                                             this.result.winner=[result[1]]
                                             for(let c=0,lc=this.entities.players.length;c<lc;c++){
-                                                this.payout.main.push((a==result[1]?1:0)*this.payout.root*this.payout*mult+this.payout.add[a])
+                                                this.payout.main.push((a==result[1]?1:0)*this.payout.root*this.payout.mult+this.payout.add[a])
                                             }
                                         }
                                     break
@@ -640,9 +675,6 @@ class minigameManager{
                                 a--
                                 la--
                             }
-                            if(this.entities.players[a].active){
-                                survive++
-                            }
                         }
                         for(let a=0,la=this.entities.projectiles.length;a<la;a++){
                             this.entities.projectiles[a].update(this)
@@ -667,6 +699,63 @@ class minigameManager{
                             for(let a=0,la=this.teams.split.length;a<la;a++){
                                 if(this.result.winner.includes(this.teams.split[a])){
                                     this.result.winner.splice(this.result.winner.indexOf(this.teams.split[a]),1)
+                                }
+                            }
+                        }
+                        if(this.result.end&&this.result.anim<1){
+                            this.result.anim+=0.1
+                        }
+                    break
+                    case 6:
+                        survive=0
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].update(this)
+                            for(let b=a+1,lb=this.entities.players.length;b<lb;b++){
+                                this.entities.players[a].collide(0,this.entities.players[b],this)
+                            }
+                            for(let b=0,lb=this.entities.players.length;b<lb;b++){
+                                this.entities.players[a].collide(1,this.entities.players[b],this)
+                            }
+                            if(this.entities.players[a].remove){
+                                this.entities.players.splice(a,1)
+                                a--
+                                la--
+                            }
+                            if(this.entities.players[a].active){
+                                survive++
+                            }
+                        }
+                        if(survive<=1){
+                            this.subResult.end=true
+                            this.subResult.winner=[]
+                            for(let a=0,la=this.entities.players.length;a<la;a++){
+                                if(this.entities.players[a].active){
+                                    this.subResult.winner.push(a)
+                                }
+                            }
+                        }
+                        if(this.subResult.end&&!this.result.end){
+                            if(this.subResult.anim<9){
+                                this.subResult.anim+=0.1
+                            }else{
+                                for(let a=0,la=this.subResult.winner.length;a<la;a++){
+                                    this.result.score[this.subResult.winner[a]]++
+                                    if(this.result.score[this.subResult.winner[a]]>=5){
+                                        this.result.end=true
+                                    }
+                                }
+                                if(this.result.end){
+                                    this.result.winner=[]
+                                    for(let a=0,la=this.entities.players.length;a<la;a++){
+                                        if(this.result.score[a]>=5){
+                                            this.result.winner.push(a)
+                                        }
+                                        this.payout.main.push((this.result.score[a]>=5?1:0)*this.payout.root*this.payout.mult+this.payout.add[a])
+                                    }
+                                }else{
+                                    this.reset()
+                                    this.subResult.end=false
+                                    this.subResult.anim=0
                                 }
                             }
                         }

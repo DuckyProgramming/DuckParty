@@ -33,6 +33,9 @@ function spinDirection(base,goal,speed){
 	}
 	return base+speed*(floor(random(0,2))*2-1)
 }
+function inDirArc(dir,start,end){
+    return dir>start&&dir<end||dir-360>start&&dir-360<end||dir+360>start&&dir+360<end
+}
 function smoothAnim(anim,trigger,minPoint,maxPoint,speed){
 	if(trigger&&anim<maxPoint){
 		return min(round(anim*speed+1)/speed,maxPoint)
@@ -66,6 +69,9 @@ function shuffleArray(array){
     }
     return array
 }
+function last(array){
+    return array[array.length-1]
+}
 //operational
 function onSegment(p,q,r){ 
     return q.x<=max(p.x,r.x)&&q.x>=min(p.x, r.x)&&q.y<=max(p.y,r.y)&&q.y>=min(p.y, r.y)
@@ -84,6 +90,9 @@ function intersect(p1,q1,p2,q2){
     o2==0&&onSegment(p1,q2,q1)||
     o3==0&&onSegment(p2,p1,q2)||
     o4==0&&onSegment(p2,q1,q2)
+}
+function inPointBox(point,box){
+    return point.position.x>box.position.x-box.width/2&&point.position.x<box.position.x+box.width/2&&point.position.y>box.position.y-box.height/2&&point.position.y<box.position.y+box.height/2
 }
 function inPointBox(point,box){
     return point.position.x>box.position.x-box.width/2&&point.position.x<box.position.x+box.width/2&&point.position.y>box.position.y-box.height/2&&point.position.y<box.position.y+box.height/2

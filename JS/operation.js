@@ -1,7 +1,7 @@
 class operation{
     constructor(layer){
         this.layer=layer
-        this.player=[0,1,2,3]
+        this.player=[0,1,2]
         this.initialManagers()
     }
     initialManagers(){

@@ -134,6 +134,9 @@ class projectile extends entity{
             case 3:
                 this.previous.position.x=this.position.x
                 this.previous.position.y=this.position.y
+                if(abs(this.velocity.x)<0.2){
+                    this.velocity.x=0.2*(floor(random(0,2))*2-1)
+                }
                 this.position.x+=this.velocity.x*min(1,this.timer.main/300)
                 this.position.y+=this.velocity.y*min(1,this.timer.main/300)
                 if(this.position.x<parent.control.bound.base.x){

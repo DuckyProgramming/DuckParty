@@ -180,6 +180,18 @@ Move with UP, DOWN, LEFT, RIGHT.
 Move with UP, DOWN.
 Score in the other team's goal.
 `,
+        },{
+            name:'Spiked Ducks',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Attack opponents from behind to defeat them.
+`,
         },
+    ],
+}
+listing={
+    minigame:[
+        'Brownian Motion','Awful Tower','Gerrymandering','Duckyball','Spiked Ducks',
     ],
 }
