@@ -37,6 +37,24 @@ class projectile extends entity{
                 this.velocity.y=lcos(this.direction)*this.speed
                 this.active=true
             break
+            case 4:
+                this.direction=control.direction
+                this.value=control.value
+                this.size=1
+                this.spots=[]
+                let begin=random(0,360)
+                for(let a=0,la=this.value;a<la;a++){
+                    let rad=random(8,10)
+                    let dir=begin+(a+random(-0.2,0.2))/la*360
+                    this.spots.push({main:[lsin(dir)*rad,lcos(dir)*rad,random(10,11)],spots:[]})
+                    let begin2=random(0,360)
+                    for(let b=0,lb=floor(random(2.5,5.5));b<lb;b++){
+                        let rad=random(2,3.5)
+                        let dir=begin2+(b+random(-0.2,0.2))/lb*360
+                        this.spots[a].spots.push([lsin(dir)*rad,lcos(dir)*rad,random(1.5,2.25)])
+                    }
+                }
+            break
         }
     }
     display(layer=this.layer){
@@ -68,6 +86,21 @@ class projectile extends entity{
                     }
                     layer.fill(50,this.fade.main)
                     layer.ellipse(0,0,12*this.size)
+                }
+            break
+            case 4:
+                layer.scale(this.size)
+                layer.fill(220,this.fade.main)
+                layer.ellipse(0,0,36)
+                layer.fill(160,130,80,this.fade.main)
+                for(let a=0,la=this.spots.length;a<la;a++){
+                    layer.ellipse(this.spots[a].main[0],this.spots[a].main[1],this.spots[a].main[2])
+                }
+                layer.fill(75,45,15,this.fade.main)
+                for(let a=0,la=this.spots.length;a<la;a++){
+                    for(let b=0,lb=this.spots[a].spots.length;b<lb;b++){
+                        layer.ellipse(this.spots[a].main[0]+this.spots[a].spots[b][0],this.spots[a].main[1]+this.spots[a].spots[b][1],this.spots[a].spots[b][2])
+                    }
                 }
             break
         }

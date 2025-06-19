@@ -41,6 +41,11 @@ class player extends partisan{
                     case 3:
                         this.speed=0.9
                     break
+                    case 5:
+                        this.choice=0
+                        this.reveal=false
+                        this.animSet.reveal=0
+                    break
                     default:
                         this.speed=1.2
                     break
@@ -293,6 +298,18 @@ class player extends partisan{
                                     }
                                 }
                             break
+                            case 5:
+                                layer.rotate(-this.direction.main)
+                                layer.fill(240,this.fade.main)
+                                layer.triangle(0,-20,-8,-44,8,-44)
+                                layer.ellipse(0,-65,50)
+                                layer.rotate(this.direction.main)
+                                layer.textSize(25)
+                                layer.fill(0,1-this.animSet.reveal)
+                                layer.text(this.choice==0||this.choice>=3?'?':'✓',lsin(this.direction.main)*-65,lcos(this.direction.main)*-65)
+                                layer.fill(0,this.animSet.reveal)
+                                layer.text(this.choice>=3?this.choice-2:this.choice,lsin(this.direction.main)*-65,lcos(this.direction.main)*-65)
+                            break
                         }
                     break
                 }
@@ -431,150 +448,164 @@ class player extends partisan{
                 }
             break
             case 1:
-                if(this.hijack.reverse){
-                    inputKeys=[inputKeys[1],inputKeys[0],inputKeys[3],inputKeys[2]]
-                }
-                if(this.position.x<parent.control.bound.base.x+this.radius){
-                    this.position.x=parent.control.bound.base.x+this.radius
-                    this.velocity.x*=-1
-                    if(this.distinct!=4){
-                        this.hijack.timer=random(30,45)
-                        this.hijack.direction=90
-                    }
-                }else if(this.position.x>parent.control.bound.base.x+parent.control.bound.width-this.radius){
-                    this.position.x=parent.control.bound.base.x+parent.control.bound.width-this.radius
-                    this.velocity.x*=-1
-                    if(this.distinct!=4){
-                        this.hijack.timer=random(30,45)
-                        this.hijack.direction=270
-                    }
-                }
-                if(this.position.y<parent.control.bound.base.y+this.radius){
-                    this.position.y=parent.control.bound.base.y+this.radius
-                    this.velocity.y*=-1
-                    if(this.distinct!=4){
-                        this.hijack.timer=random(30,45)
-                        this.hijack.direction=0
-                    }
-                }else if(this.position.y>parent.control.bound.base.y+parent.control.bound.height-this.radius){
-                    this.position.y=parent.control.bound.base.y+parent.control.bound.height-this.radius
-                    this.velocity.y*=-1
-                    if(this.distinct!=4){
-                        this.hijack.timer=random(30,45)
-                        this.hijack.direction=180
-                    }
-                }
-                if(parent.control.bound.radius>0&&dist(this.position.x,this.position.y,this.layer.width*0.5,this.layer.height*0.5)>parent.control.bound.radius-this.radius){
-                    this.velocity.x=0
-                    this.velocity.y=0
-                    this.hijack.timer=random(30,45)
-                    this.hijack.direction=atan2(this.layer.width*0.5-this.position.x,this.layer.height*0.5-this.position.y)
-                }
-                this.direction.main=spinControl(this.direction.main)
-                this.direction.goal=spinControl(this.direction.goal)
-                this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
-                this.velocity.x*=0.8
-                this.velocity.y*=0.8
-                this.controlDirection={x:0,y:0}
-                if(this.hijack.timer>0){
-                    this.hijack.timer--
-                    this.velocity.x+=this.speed*lsin(this.hijack.direction)
-                    this.velocity.y+=this.speed*lcos(this.hijack.direction)
-                    this.direction.goal+=10
-                    this.runAnim(0,1)
-                }else if(this.timer.still<=0&&this.timer.dizzy<=0){
-                    if(this.distinct!=4){
-                        if(inputKeys[0]&&!inputKeys[1]&&this.active){
-                            this.velocity.x-=this.speed
-                            this.controlDirection.x--
-                        }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
-                            this.velocity.x+=this.speed
-                            this.controlDirection.x++
-                        }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
-                            this.controlDirection.x+=this.velocity.x>0?1:-1
+                switch(this.distinct){
+                    case 5:
+                        this.animSet.reveal=smoothAnim(this.animSet.reveal,this.reveal,0,1,30)
+                        if(this.choice==0&&parent.control.cycle.phase==0){
+                            if(inputKeys[2]&&!inputKeys[3]){
+                                this.choice=2
+                            }else if(inputKeys[3]&&!inputKeys[2]){
+                                this.choice=1
+                            }
                         }
-                    }
-                    if(inputKeys[2]&&!inputKeys[3]&&this.active){
-                        this.velocity.y-=this.speed
-                        this.controlDirection.y--
-                    }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
-                        this.velocity.y+=this.speed
-                        this.controlDirection.y++
-                    }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
-                        this.controlDirection.y+=this.velocity.y>0?1:-1
-                    }
-                    if(this.timer.attack>0){
-                        this.timer.attack--
-                    }else if(inputKeys[4]){
-                        switch(this.distinct){
-                            case 0:
-                                this.timer.attack=30
-                                for(let a=0,la=parent.entities.players.length;a<la;a++){
-                                    this.collide(1,parent.entities.players[a],parent)
-                                }
-                                this.runAnim(1,1)
-                            break
-                            case 1:
-                                this.timer.attack=30
-                                for(let a=0,la=parent.entities.players.length;a<la;a++){
-                                    this.collide(2,parent.entities.players[a],parent)
-                                }
-                                this.runAnim(1,1)
-                            break
-                            case 3:
-                                this.timer.attack=15
-                                this.timer.still=15
-                                let size=random(0.75,1.5)
-                                for(let a=0,la=12;a<la;a++){
-                                    parent.entities.projectiles.push(new projectile(this.layer,
-                                        this.position.x+lcos(this.direction.main)*this.skin.arms[1].points.end.x+lsin(this.direction.main)*this.skin.arms[1].points.end.y,
-                                        this.position.y+lcos(this.direction.main)*this.skin.arms[1].points.end.y-lsin(this.direction.main)*this.skin.arms[1].points.end.x,
-                                        2,{direction:this.direction.main+a/la*360,size:size,id:this.id,color:{main:this.color.skin.body}}))
-                                }
-                                this.runAnim(1,1)
-                            break
+                    break
+                    default:
+                        if(this.hijack.reverse){
+                            inputKeys=[inputKeys[1],inputKeys[0],inputKeys[3],inputKeys[2]]
                         }
-                    }
-                    if(this.controlDirection.x!=0||this.controlDirection.y!=0){
-                        this.direction.goal=atan2(this.controlDirection.x,this.controlDirection.y)
-                    }
-                    if(this.controlDirection.x!=0||this.controlDirection.y!=0||this.animSet.loop>0&&this.animSet.loop%15!=0){
-                        this.runAnim(0,1)
-                    }else{
-                        this.animSet.loop=0
-                    }
-                }
-                if(this.animSet.attack>0&&this.animSet.attack%15!=0){
-                    this.runAnim(1,1)
-                }else{
-                    this.animSet.attack=0
-                }
-                this.mainAnim()
-                if(this.timer.still>0){
-                    this.timer.still--
-                }
-                if(this.timer.dizzy>0){
-                    this.timer.dizzy--
-                }
-                if(this.timer.dizzySafe>0){
-                    this.timer.dizzySafe--
-                }
-                for(let a=0,la=this.infoAnim.life.length;a<la;a++){
-                    this.infoAnim.life[a]=smoothAnim(this.infoAnim.life[a],this.life>=a+1,0,1,5)
-                }
-                this.infoAnim.dizzy=smoothAnim(this.infoAnim.dizzy,this.timer.dizzy>0,0,1,5)
-                if(this.life<=0){
-                    if(this.active){
-                        this.active=false
-                        this.fade.trigger=false
-                    }
-                }else{
-                    if(this.timer.invincible>0){
-                        this.timer.invincible--
-                        this.fade.trigger=this.timer.main%10<5
-                    }else{
-                        this.fade.trigger=true
-                    }
+                        if(this.position.x<parent.control.bound.base.x+this.radius){
+                            this.position.x=parent.control.bound.base.x+this.radius
+                            this.velocity.x*=-1
+                            if(this.distinct!=4){
+                                this.hijack.timer=random(30,45)
+                                this.hijack.direction=90
+                            }
+                        }else if(this.position.x>parent.control.bound.base.x+parent.control.bound.width-this.radius){
+                            this.position.x=parent.control.bound.base.x+parent.control.bound.width-this.radius
+                            this.velocity.x*=-1
+                            if(this.distinct!=4){
+                                this.hijack.timer=random(30,45)
+                                this.hijack.direction=270
+                            }
+                        }
+                        if(this.position.y<parent.control.bound.base.y+this.radius){
+                            this.position.y=parent.control.bound.base.y+this.radius
+                            this.velocity.y*=-1
+                            if(this.distinct!=4){
+                                this.hijack.timer=random(30,45)
+                                this.hijack.direction=0
+                            }
+                        }else if(this.position.y>parent.control.bound.base.y+parent.control.bound.height-this.radius){
+                            this.position.y=parent.control.bound.base.y+parent.control.bound.height-this.radius
+                            this.velocity.y*=-1
+                            if(this.distinct!=4){
+                                this.hijack.timer=random(30,45)
+                                this.hijack.direction=180
+                            }
+                        }
+                        if(parent.control.bound.radius>0&&dist(this.position.x,this.position.y,this.layer.width*0.5,this.layer.height*0.5)>parent.control.bound.radius-this.radius){
+                            this.velocity.x=0
+                            this.velocity.y=0
+                            this.hijack.timer=random(30,45)
+                            this.hijack.direction=atan2(this.layer.width*0.5-this.position.x,this.layer.height*0.5-this.position.y)
+                        }
+                        this.direction.main=spinControl(this.direction.main)
+                        this.direction.goal=spinControl(this.direction.goal)
+                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                        this.velocity.x*=0.8
+                        this.velocity.y*=0.8
+                        this.controlDirection={x:0,y:0}
+                        if(this.hijack.timer>0){
+                            this.hijack.timer--
+                            this.velocity.x+=this.speed*lsin(this.hijack.direction)
+                            this.velocity.y+=this.speed*lcos(this.hijack.direction)
+                            this.direction.goal+=10
+                            this.runAnim(0,1)
+                        }else if(this.timer.still<=0&&this.timer.dizzy<=0){
+                            if(this.distinct!=4){
+                                if(inputKeys[0]&&!inputKeys[1]&&this.active){
+                                    this.velocity.x-=this.speed
+                                    this.controlDirection.x--
+                                }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
+                                    this.velocity.x+=this.speed
+                                    this.controlDirection.x++
+                                }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
+                                    this.controlDirection.x+=this.velocity.x>0?1:-1
+                                }
+                            }
+                            if(inputKeys[2]&&!inputKeys[3]&&this.active){
+                                this.velocity.y-=this.speed
+                                this.controlDirection.y--
+                            }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
+                                this.velocity.y+=this.speed
+                                this.controlDirection.y++
+                            }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
+                                this.controlDirection.y+=this.velocity.y>0?1:-1
+                            }
+                            if(this.timer.attack>0){
+                                this.timer.attack--
+                            }else if(inputKeys[4]){
+                                switch(this.distinct){
+                                    case 0:
+                                        this.timer.attack=30
+                                        for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                            this.collide(1,parent.entities.players[a],parent)
+                                        }
+                                        this.runAnim(1,1)
+                                    break
+                                    case 1:
+                                        this.timer.attack=30
+                                        for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                            this.collide(2,parent.entities.players[a],parent)
+                                        }
+                                        this.runAnim(1,1)
+                                    break
+                                    case 3:
+                                        this.timer.attack=15
+                                        this.timer.still=15
+                                        let size=random(0.75,1.5)
+                                        for(let a=0,la=12;a<la;a++){
+                                            parent.entities.projectiles.push(new projectile(this.layer,
+                                                this.position.x+lcos(this.direction.main)*this.skin.arms[1].points.end.x+lsin(this.direction.main)*this.skin.arms[1].points.end.y,
+                                                this.position.y+lcos(this.direction.main)*this.skin.arms[1].points.end.y-lsin(this.direction.main)*this.skin.arms[1].points.end.x,
+                                                2,{direction:this.direction.main+a/la*360,size:size,id:this.id,color:{main:this.color.skin.body}}))
+                                        }
+                                        this.runAnim(1,1)
+                                    break
+                                }
+                            }
+                            if(this.controlDirection.x!=0||this.controlDirection.y!=0){
+                                this.direction.goal=atan2(this.controlDirection.x,this.controlDirection.y)
+                            }
+                            if(this.controlDirection.x!=0||this.controlDirection.y!=0||this.animSet.loop>0&&this.animSet.loop%15!=0){
+                                this.runAnim(0,1)
+                            }else{
+                                this.animSet.loop=0
+                            }
+                        }
+                        if(this.animSet.attack>0&&this.animSet.attack%15!=0){
+                            this.runAnim(1,1)
+                        }else{
+                            this.animSet.attack=0
+                        }
+                        this.mainAnim()
+                        if(this.timer.still>0){
+                            this.timer.still--
+                        }
+                        if(this.timer.dizzy>0){
+                            this.timer.dizzy--
+                        }
+                        if(this.timer.dizzySafe>0){
+                            this.timer.dizzySafe--
+                        }
+                        for(let a=0,la=this.infoAnim.life.length;a<la;a++){
+                            this.infoAnim.life[a]=smoothAnim(this.infoAnim.life[a],this.life>=a+1,0,1,5)
+                        }
+                        this.infoAnim.dizzy=smoothAnim(this.infoAnim.dizzy,this.timer.dizzy>0,0,1,5)
+                        if(this.life<=0){
+                            if(this.active){
+                                this.active=false
+                                this.fade.trigger=false
+                            }
+                        }else{
+                            if(this.timer.invincible>0){
+                                this.timer.invincible--
+                                this.fade.trigger=this.timer.main%10<5
+                            }else{
+                                this.fade.trigger=true
+                            }
+                        }
+                    break
                 }
             break
             case 2:

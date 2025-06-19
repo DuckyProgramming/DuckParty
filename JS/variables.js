@@ -142,6 +142,7 @@ types={
 Move with UP, DOWN, LEFT, RIGHT.
 Punch with ACTION to stun opponents.
 Don't get hit.
+Get to 5 wins first.
 `,
         },{
             name:'Awful Tower',player:1,
@@ -149,6 +150,7 @@ Don't get hit.
 `
 Move with UP, DOWN, LEFT, RIGHT.
 Reach the top, and collect lumps.
+Get to the top first.
 `,
         },{
             name:`Bash n' Cash`,player:3,
@@ -163,7 +165,8 @@ Move with UP, DOWN, LEFT, RIGHT.
             desc:
 `
 Select with UP, DOWN, LEFT, RIGHT and ACTION.
-Chooe the largest area.
+Choose the largest area.
+Get to 5 wins first.
 `,
         },{
             name:`Touhou`,player:3,
@@ -179,6 +182,7 @@ Move with UP, DOWN, LEFT, RIGHT.
 `
 Move with UP, DOWN.
 Score in the other team's goal.
+Get to 5 wins first.
 `,
         },{
             name:'Spiked Ducks',player:1,
@@ -186,6 +190,15 @@ Score in the other team's goal.
 `
 Move with UP, DOWN, LEFT, RIGHT.
 Attack opponents from behind to defeat them.
+Get to 5 wins first.
+`,
+        },{
+            name:'Cookie Wheel',player:1,
+            desc:
+`
+Press UP to choose 2 and DOWN to choose 1.
+The wheel will rotate based on total selection.
+Get to 10 cookies first.
 `,
         },
     ],
@@ -193,5 +206,6 @@ Attack opponents from behind to defeat them.
 listing={
     minigame:[
         'Brownian Motion','Awful Tower','Gerrymandering','Duckyball','Spiked Ducks',
+        'Cookie Wheel',
     ],
 }
