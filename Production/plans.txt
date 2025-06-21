@@ -76,13 +76,9 @@ all fired up (the one with the fires taht go in random pattersn)
 
 traveling salesman problem as a race
 
-fruit cahoots - everyone chooses to press or not press a button, at the end the conveyer belt moves that many spaces and gives everybody stuff
-
 bomb civilians - the cilians randomly move around and you have limited explosives
 
 toxic waste - push as much toxic waste onto the other player's side of the map
-
-the one where you have the clouds and you have to be special
 
 dizzy dancing
 

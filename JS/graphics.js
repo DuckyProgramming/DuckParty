@@ -41,6 +41,8 @@ function setupTrig(){
 		constants.trig[0].push(-constants.trig[0][a])
 		constants.trig[1].push(-constants.trig[1][a])
 	}
+	constants.sqrt2=sqrt(2)
+	constants.sqrt3=sqrt(3)
 }
 function lsin(direction){
 	return constants.trig[0][floor((direction%360+360)%360*2)]

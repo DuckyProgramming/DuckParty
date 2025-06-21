@@ -4,7 +4,7 @@ class projectile extends entity{
         this.type=type
         this.control=control
         switch(this.type){
-            case 0: case 1: case 3:
+            case 0: case 1: case 3: case 5: case 6:
                 this.past=elementArray({x:this.position.x,y:this.position.y},10)
                 this.radius=6
                 this.direction=control.direction
@@ -18,6 +18,15 @@ class projectile extends entity{
                         this.size=1
                         this.previous={position:{x:this.position.x,y:this.position.y}}
                         this.base={position:{x:this.position.x,y:this.position.y}}
+                    break
+                    case 5:
+                        this.speed=0
+                        this.size=0
+                    break
+                    case 6:
+                        this.speed=random(4,8)
+                        this.size=1
+                        this.insided=false
                     break
                 }
                 this.velocity={x:0,y:0}
@@ -62,7 +71,7 @@ class projectile extends entity{
         layer.translate(this.position.x,this.position.y)
         layer.noStroke()
         switch(this.type){
-            case 0: case 1:
+            case 0: case 1: case 6:
                 if(this.size>0){
                     for(let a=0,la=5;a<la;a++){
                         layer.fill(225,160-a*40,0,this.fade.main)
@@ -103,13 +112,23 @@ class projectile extends entity{
                     }
                 }
             break
+            case 5:
+                if(this.size>0){
+                    for(let a=0,la=5;a<la;a++){
+                        layer.fill(100,160,80+a*20,this.fade.main)
+                        layer.ellipse(this.past[8-a*2].x-this.position.x,this.past[8-a*2].y-this.position.y,(5-a)*this.size)
+                    }
+                    layer.fill(100,160,60,this.fade.main)
+                    layer.ellipse(0,0,8*this.size)
+                }
+            break
         }
         layer.pop()
     }
     update(parent){
         super.update()
         switch(this.type){
-            case 0: case 1: case 3:
+            case 0: case 1: case 3: case 5: case 6:
                 this.past.push({x:this.position.x,y:this.position.y})
                 this.past.splice(0,1)
             break
@@ -250,11 +269,43 @@ class projectile extends entity{
                     this.size+=0.1
                 }
             break
+            case 5:
+                if(this.size<1){
+                    this.size+=1/60
+                    this.speed=1/30
+                }else{
+                    this.speed+=constants.gravity*0.5
+                }
+                this.velocity.x=lsin(this.direction)*this.speed
+                this.velocity.y=lcos(this.direction)*this.speed
+                this.position.x+=this.velocity.x
+                this.position.y+=this.velocity.y
+                if(!this.active&&this.size>0){
+                    this.size-=0.1
+                }
+            break
+            case 6:
+                this.position.x+=this.velocity.x
+                this.position.y+=this.velocity.y
+                if(!this.active&&this.size>0){
+                    this.size-=0.1
+                }
+                if(this.size<=0){
+                    this.remove=true
+                }
+                if((this.position.x<-50||this.position.x>parent.control.bound.width+50||this.position.y<-50||this.position.y>parent.control.bound.height+50)&&(this.insided||this.time>600)){
+                    this.active=false
+                }
+                if(this.position.x>-50&&this.position.x<parent.control.bound.width+50&&this.position.y>-50&&this.position.y<parent.control.bound.height+50&&!this.insided){
+                    this.insided=true
+                }
+            break
+        
         }
     }
     collide(type,obj,parent){
         switch(this.type){
-            case 0: case 1: case 2: case 3:
+            case 0: case 1: case 2: case 3: case 6:
                 switch(type){
                     case 0:
                         if(distPos(this,obj)<this.radius+obj.radius&&obj.active&&obj.timer.invincible<=0&&this.size>0){
@@ -300,6 +351,16 @@ class projectile extends entity{
                             let magnitude=magVec(this.velocity)
                             this.velocity.x=-magnitude*lsin(dir)
                             this.velocity.y=-magnitude*lcos(dir)
+                        }
+                    break
+                }
+            break
+            case 5:
+                switch(type){
+                    case 0:
+                        if(inCircleBox(this,obj)&&obj.active&&obj.timer.invincible<=0&&this.size>0){
+                            obj.life--
+                            obj.timer.invincible=30
                         }
                     break
                 }

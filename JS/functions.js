@@ -73,6 +73,16 @@ function last(array){
     return array[array.length-1]
 }
 //operational
+function regTriangle(layer,x,y,radiusX,radiusY,direction){
+	layer.triangle(x+lsin(direction)*radiusX,y+lcos(direction)*radiusY,x+lsin(direction+120)*radiusX,y+lcos(direction+120)*radiusY,x+lsin(direction+240)*radiusX,y+lcos(direction+240)*radiusY)
+}
+function regPoly(layer,x,y,sides,radiusX,radiusY,direction){
+	layer.beginShape()
+	for(k=0;k<sides;k++){
+		layer.vertex(x+lsin(direction+k*360/sides)*radiusX,y+lcos(direction+k*360/sides)*radiusY)
+	}
+	layer.endShape(CLOSE)
+}
 function onSegment(p,q,r){ 
     return q.x<=max(p.x,r.x)&&q.x>=min(p.x, r.x)&&q.y<=max(p.y,r.y)&&q.y>=min(p.y, r.y)
 }

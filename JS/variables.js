@@ -1,5 +1,5 @@
 stage={scene:`minigame`}
-constants={trig:[[],[]],gravity:1.25,itemSlots:3}
+constants={trig:[[],[]],gravity:1.25,itemSlots:3,sqrt2:0,sqrt3:0}
 dev={bound:false}
 transition={trigger:false,anim:0,scene:stage.scene}
 graphics={main:undefined}
@@ -164,7 +164,7 @@ Move with UP, DOWN, LEFT, RIGHT.
             name:`Gerrymandering`,player:1,
             desc:
 `
-Select with UP, DOWN, LEFT, RIGHT and ACTION.
+Select with UP, DOWN, LEFT, RIGHT, ACTION.
 Choose the largest area.
 Get to 5 wins first.
 `,
@@ -200,12 +200,37 @@ Press UP to choose 2 and DOWN to choose 1.
 The wheel will rotate based on total selection.
 Get to 10 cookies first.
 `,
+        },{
+            name:'Cookie Piles',player:1,
+            desc:
+`
+Select direction with UP, DOWN, LEFT, RIGHT.
+Don't go to the same place as somebody else.
+Get to 10 cookies first.
+`,
+        },{
+            name:'Acid Rain',player:1,
+            desc:
+`
+Move with UP, LEFT, RIGHT.
+Don't get hit.
+Get to 5 wins first.
+`,
+        },{
+            name:'Vortex',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Punch with ACTION to knock back opponents.
+Don't get hit.
+Get to 5 wins first.
+`,
         },
     ],
 }
 listing={
     minigame:[
         'Brownian Motion','Awful Tower','Gerrymandering','Duckyball','Spiked Ducks',
-        'Cookie Wheel',
+        'Cookie Wheel','Cookie Piles','Acid Rain','Vortex',
     ],
 }

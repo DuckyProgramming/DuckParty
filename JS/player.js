@@ -15,12 +15,18 @@ class player extends partisan{
             case 0:
                 this.width=8
                 this.height=24
-                this.infoAnim={dizzy:0}
+                this.timer.invincible=0
+                this.infoAnim={life:[1,1,1],dizzy:0}
                 this.jump={time:0,active:0}
                 this.controlDirection={x:0,y:0}
                 this.collided={wall:[0,0,0,0]}
                 this.offset.position.y+=12
                 this.dead={trigger:false}
+                switch(this.distinct){
+                    case 1:
+                        this.life=3
+                    break
+                }
             break
             case 1:
                 this.radius=12.5
@@ -33,7 +39,7 @@ class player extends partisan{
                 this.hijack={timer:0,direction:0,reverse:false}
                 this.controlDirection={x:0,y:0}
                 switch(this.distinct){
-                    case 0:
+                    case 0: case 7:
                         this.life=3
                     break
                 }
@@ -44,7 +50,15 @@ class player extends partisan{
                     case 5:
                         this.choice=0
                         this.reveal=false
+                        this.animSet.choice=0
                         this.animSet.reveal=0
+                    break
+                    case 6:
+                        this.choice=-1
+                        this.reveal=false
+                        this.animSet.choice=0
+                        this.animSet.reveal=0
+                        this.rotations=0
                     break
                     default:
                         this.speed=1.2
@@ -178,6 +192,16 @@ class player extends partisan{
         layer.noStroke()
         switch(this.type){
             case 0:
+                switch(this.distinct){
+                    case 1:
+                        for(let a=0,la=this.infoAnim.life.length;a<la;a++){
+                            if(this.infoAnim.life[a]>0){
+                                layer.fill(250,225,225,this.fade.main*this.infoAnim.life[a])
+                                layer.ellipse(4-la*4+a*8,-36,5)
+                            }
+                        }
+                    break
+                }
                 this.calculateParts()
                 for(let a=0,la=2;a<la;a++){
                     if(this.skin.arms[a].display&&lcos(this.direction.main+this.skin.arms[a].anim.phi)<=0){
@@ -290,7 +314,7 @@ class player extends partisan{
                 switch(this.type){
                     case 1:
                         switch(this.distinct){
-                            case 0:
+                            case 0: case 7:
                                 for(let a=0,la=this.infoAnim.life.length;a<la;a++){
                                     if(this.infoAnim.life[a]>0){
                                         layer.fill(250,225,225,this.fade.main*this.infoAnim.life[a])
@@ -305,10 +329,70 @@ class player extends partisan{
                                 layer.ellipse(0,-65,50)
                                 layer.rotate(this.direction.main)
                                 layer.textSize(25)
-                                layer.fill(0,1-this.animSet.reveal)
-                                layer.text(this.choice==0||this.choice>=3?'?':'✓',lsin(this.direction.main)*-65,lcos(this.direction.main)*-65)
+                                layer.fill(0,(1-this.animSet.reveal)*this.animSet.choice)
+                                layer.text('✓',lsin(this.direction.main)*-65,lcos(this.direction.main)*-65)
+                                layer.fill(0,(1-this.animSet.reveal)*(1-this.animSet.choice))
+                                layer.text('v',lsin(this.direction.main)*-65,lcos(this.direction.main)*-65)
                                 layer.fill(0,this.animSet.reveal)
                                 layer.text(this.choice>=3?this.choice-2:this.choice,lsin(this.direction.main)*-65,lcos(this.direction.main)*-65)
+                            break
+                            case 6:
+                                layer.rotate(-this.direction.main)
+                                layer.fill(240,this.fade.main*(1-this.animSet.reveal))
+                                layer.triangle(0,-20,-8,-44,8,-44)
+                                layer.ellipse(0,-65,50)
+                                layer.fill(240,(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                switch(this.rotations){
+                                    case 2:
+                                        layer.rotate(135)
+                                        for(let a=0,la=3;a<la;a++){
+                                            layer.ellipse(0,-40,25)
+                                            layer.triangle(-5,-50,5,-50,0,-64)
+                                            layer.rotate(45)
+                                        }
+                                        layer.rotate(90)
+                                    break
+                                    case 3:
+                                        layer.rotate(120)
+                                        for(let a=0,la=3;a<la;a++){
+                                            layer.ellipse(0,-40,25)
+                                            layer.triangle(-5,-50,5,-50,0,-64)
+                                            layer.rotate(60)
+                                        }
+                                        layer.rotate(60)
+                                    break
+                                    case 4:
+                                        layer.rotate(90)
+                                        for(let a=0,la=3;a<la;a++){
+                                            layer.ellipse(0,-40,25)
+                                            layer.triangle(-5,-50,5,-50,0,-64)
+                                            layer.rotate(90)
+                                        }
+                                    break
+                                }
+                                layer.rotate(this.direction.main)
+                                layer.textSize(25)
+                                layer.fill(0,this.animSet.choice*(1-this.animSet.reveal))
+                                layer.text('✓',lsin(this.direction.main)*-65,lcos(this.direction.main)*-65)
+                                layer.fill(0,(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                layer.text('?',lsin(this.direction.main)*-65,lcos(this.direction.main)*-65)
+                                switch(this.rotations){
+                                    case 2:
+                                        displaySymbol(layer,lsin(this.direction.main)*40,lcos(this.direction.main)*40,0,-this.direction.main+90,1,[0,0,0],(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                        displaySymbol(layer,lsin(this.direction.main-45)*40,lcos(this.direction.main-45)*40,0,-this.direction.main+180,1,[0,0,0],(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                        displaySymbol(layer,lsin(this.direction.main+45)*40,lcos(this.direction.main+45)*40,0,-this.direction.main,1,[0,0,0],(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                    break
+                                    case 3:
+                                        displaySymbol(layer,lsin(this.direction.main)*40,lcos(this.direction.main)*40,0,-round(this.direction.main/90)*90+90,1,[0,0,0],(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                        displaySymbol(layer,lsin(this.direction.main-60)*40,lcos(this.direction.main-60)*40,0,-round(this.direction.main/90)*90+180,1,[0,0,0],(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                        displaySymbol(layer,lsin(this.direction.main+60)*40,lcos(this.direction.main+60)*40,0,-round(this.direction.main/90)*90,1,[0,0,0],(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                    break
+                                    case 4:
+                                        displaySymbol(layer,lsin(this.direction.main)*40,lcos(this.direction.main)*40,0,-this.direction.main+90,1,[0,0,0],(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                        displaySymbol(layer,lsin(this.direction.main-90)*40,lcos(this.direction.main-90)*40,0,-this.direction.main+180,1,[0,0,0],(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                        displaySymbol(layer,lsin(this.direction.main+90)*40,lcos(this.direction.main+90)*40,0,-this.direction.main,1,[0,0,0],(1-this.animSet.choice)*(1-this.animSet.reveal))
+                                    break
+                                }
                             break
                         }
                     break
@@ -437,25 +521,86 @@ class player extends partisan{
                         this.collided.wall[a]--
                     }
                 }
+                switch(this.distinct){
+                    case 1:
+                        for(let a=0,la=this.infoAnim.life.length;a<la;a++){
+                            this.infoAnim.life[a]=smoothAnim(this.infoAnim.life[a],this.life>=a+1,0,1,5)
+                        }
+                        if(this.life<=0){
+                            this.dead.trigger=true
+                        }else{
+                            if(this.timer.invincible>0){
+                                this.timer.invincible--
+                                this.fade.trigger=this.timer.main%10<5
+                            }else{
+                                this.fade.trigger=true
+                            }
+                        }
+                    break
+                }
                 if(this.dead.trigger){
                     this.fade.trigger=false
-                    if(this.fade.main<=0){
-                        this.fade.trigger=true
-                        this.position.x=this.base.position.x
-                        this.position.y=this.base.position.y
-                        this.dead.trigger=false
+                    this.active=false
+                    switch(this.distinct){
+                        case 0:
+                            if(this.fade.main<=0){
+                                this.fade.trigger=true
+                                this.position.x=this.base.position.x
+                                this.position.y=this.base.position.y
+                                this.dead.trigger=false
+                            }
+                        break
                     }
                 }
             break
             case 1:
                 switch(this.distinct){
                     case 5:
+                        this.animSet.choice=smoothAnim(this.animSet.choice,this.choice>=1&&this.choice<=2,0,1,10)
                         this.animSet.reveal=smoothAnim(this.animSet.reveal,this.reveal,0,1,30)
                         if(this.choice==0&&parent.control.cycle.phase==0){
                             if(inputKeys[2]&&!inputKeys[3]){
                                 this.choice=2
                             }else if(inputKeys[3]&&!inputKeys[2]){
                                 this.choice=1
+                            }
+                        }
+                    break
+                    case 6:
+                        this.animSet.choice=smoothAnim(this.animSet.choice,this.choice>=0,0,1,10)
+                        this.animSet.reveal=smoothAnim(this.animSet.reveal,this.reveal,0,1,10)
+                        this.direction.main=spinControl(this.direction.main)
+                        this.direction.goal=spinControl(this.direction.goal)
+                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                        if(this.choice==-1&&parent.control.cycle.phase==0){
+                            let set=[]
+                            switch(parent.operation.player.length){
+                                case 2:
+                                    switch(this.id){
+                                        case 0: set=[2,1,-1,0]; break
+                                        case 1: set=[2,1,0,-1]; break
+                                    }
+                                break
+                                case 3:
+                                    switch(this.id){
+                                        case 0: set=[3,1,-1,0]; break
+                                        case 1: set=[-1,0,3,2]; break
+                                        case 2: set=[0,-1,1,2]; break
+                                    }
+                                break
+                                case 4:
+                                    switch(this.id){
+                                        case 0: set=[4,1,-1,0]; break
+                                        case 1: set=[-1,0,4,3]; break
+                                        case 2: set=[3,2,0,-1]; break
+                                        case 3: set=[0,-1,1,2]; break
+                                    }
+                                break
+                            }
+                            for(let a=0,la=set.length;a<la;a++){
+                                if(inputKeys[a]&&set[a]>=0){
+                                    this.choice=set[a]
+                                }
                             }
                         }
                     break
@@ -562,6 +707,13 @@ class player extends partisan{
                                         }
                                         this.runAnim(1,1)
                                     break
+                                    case 7:
+                                        this.timer.attack=30
+                                        for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                            this.collide(3,parent.entities.players[a],parent)
+                                        }
+                                        this.runAnim(1,1)
+                                    break
                                 }
                             }
                             if(this.controlDirection.x!=0||this.controlDirection.y!=0){
@@ -588,22 +740,26 @@ class player extends partisan{
                         if(this.timer.dizzySafe>0){
                             this.timer.dizzySafe--
                         }
-                        for(let a=0,la=this.infoAnim.life.length;a<la;a++){
-                            this.infoAnim.life[a]=smoothAnim(this.infoAnim.life[a],this.life>=a+1,0,1,5)
-                        }
                         this.infoAnim.dizzy=smoothAnim(this.infoAnim.dizzy,this.timer.dizzy>0,0,1,5)
-                        if(this.life<=0){
-                            if(this.active){
-                                this.active=false
-                                this.fade.trigger=false
-                            }
-                        }else{
-                            if(this.timer.invincible>0){
-                                this.timer.invincible--
-                                this.fade.trigger=this.timer.main%10<5
-                            }else{
-                                this.fade.trigger=true
-                            }
+                        switch(this.distinct){
+                            case 0: case 7:
+                                for(let a=0,la=this.infoAnim.life.length;a<la;a++){
+                                    this.infoAnim.life[a]=smoothAnim(this.infoAnim.life[a],this.life>=a+1,0,1,5)
+                                }
+                                if(this.life<=0){
+                                    if(this.active){
+                                        this.active=false
+                                        this.fade.trigger=false
+                                    }
+                                }else{
+                                    if(this.timer.invincible>0){
+                                        this.timer.invincible--
+                                        this.fade.trigger=this.timer.main%10<5
+                                    }else{
+                                        this.fade.trigger=true
+                                    }
+                                }
+                            break
                         }
                     break
                 }
@@ -670,6 +826,20 @@ class player extends partisan{
     }
     collide(type,obj,parent){
         switch(this.type){
+            case 0:
+                switch(type){
+                    case 0:
+                        if(inBoxBox(this,obj)&&this.active&&obj.active){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
+                            obj.velocity.x=magnitude[0]*lsin(dir)
+                            obj.velocity.y=magnitude[0]*lcos(dir)
+                            this.velocity.x=-magnitude[1]*lsin(dir)
+                            this.velocity.y=-magnitude[1]*lcos(dir)
+                        }
+                    break
+                }
+            break
             case 1:
                 switch(type){
                     case 0:
@@ -705,6 +875,16 @@ class player extends partisan{
                                 obj.velocity.y=4*lcos(dir)
                                 parent.payout.add[this.id]++
                                 parent.payout.add[obj.id]--
+                            }
+                        }
+                    break
+                    case 3:
+                        if(obj!=this&&this.active&&obj.active){
+                            let hand={position:{x:this.position.x+lsin(this.direction.main)*30,y:this.position.y+lcos(this.direction.main)*30}}
+                            if(distPos(hand,obj)<10+obj.radius&&obj.timer.dizzySafe<=0){
+                                let dir=dirPos(this,obj)
+                                obj.velocity.x=20*lsin(dir)
+                                obj.velocity.y=20*lcos(dir)
                             }
                         }
                     break
