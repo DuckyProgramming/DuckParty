@@ -8,6 +8,9 @@ function dirPos(p1,p2){
 function magVec(vec){
 	return sqrt(vec.x**2+vec.y**2)
 }
+function near(value1,value2){
+	return abs(value1-value2)<1
+}
 function spinControl(base){
 	return base<-180?base+360:base>180?base-360:base
 }
@@ -35,6 +38,12 @@ function spinDirection(base,goal,speed){
 }
 function inDirArc(dir,start,end){
     return dir>start&&dir<end||dir-360>start&&dir-360<end||dir+360>start&&dir+360<end
+}
+function dirDist(base,goal){
+    return min(min(abs(base-goal),abs(base-goal+360)),abs(base-goal-360))
+}
+function mergeColor(color1,color2,value){
+	return [color1[0]*(1-value)+color2[0]*value,color1[1]*(1-value)+color2[1]*value,color1[2]*(1-value)+color2[2]*value]
 }
 function smoothAnim(anim,trigger,minPoint,maxPoint,speed){
 	if(trigger&&anim<maxPoint){
@@ -78,8 +87,15 @@ function regTriangle(layer,x,y,radiusX,radiusY,direction){
 }
 function regPoly(layer,x,y,sides,radiusX,radiusY,direction){
 	layer.beginShape()
-	for(k=0;k<sides;k++){
-		layer.vertex(x+lsin(direction+k*360/sides)*radiusX,y+lcos(direction+k*360/sides)*radiusY)
+	for(a=0,la=sides;a<la;a++){
+		layer.vertex(x+lsin(direction+a/la*360)*radiusX,y+lcos(direction+a/la*360)*radiusY)
+	}
+	layer.endShape(CLOSE)
+}
+function regStar(layer,x,y,sides,radiusX,radiusY,radiusX2,radiusY2,direction){
+	layer.beginShape()
+	for(a=0,la=sides*2;a<la;a++){
+		layer.vertex(x+lsin(direction+a/la*360)*(a%2==0?radiusX:radiusX2),y+lcos(direction+a/la*360)*(a%2==0?radiusY:radiusY2))
 	}
 	layer.endShape(CLOSE)
 }

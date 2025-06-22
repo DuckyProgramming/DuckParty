@@ -10,4 +10,8 @@ class entity{
         this.timer.main++
         this.fade.main=smoothAnim(this.fade.main,this.fade.trigger,0,1,this.fade.speed)
     }
+    stasis(){
+        this.timer.main++
+        this.fade.main=smoothAnim(this.fade.main,this.fade.trigger,0,1,this.fade.speed)
+    }
 }

@@ -1,5 +1,5 @@
 stage={scene:`minigame`}
-constants={trig:[[],[]],gravity:1.25,itemSlots:3,sqrt2:0,sqrt3:0}
+constants={trig:[[],[]],gravity:1.25,itemSlots:3,sqrt2:0,sqrt3:0,index:0}
 dev={bound:false}
 transition={trigger:false,anim:0,scene:stage.scene}
 graphics={main:undefined}
@@ -225,12 +225,39 @@ Punch with ACTION to knock back opponents.
 Don't get hit.
 Get to 5 wins first.
 `,
+        },{
+            name:'Treadmill',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Punch with ACTION to stun opponents.
+Don't get hit or fall off.
+Get to 5 wins first.
+`,
+        },{
+            name:'Maze Murder',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Shoot with ACTION to damage opponents.
+Don't get hit.
+Get to 5 wins first.s
+`,
+        },{
+            name:'Cookie Chaos',player:1,
+            desc:
+`
+Press UP to choose 2 and DOWN to choose 1.
+You'll receive that many cookies.
+Don't get the spiky ball.
+`,
         },
     ],
 }
 listing={
     minigame:[
-        'Brownian Motion','Awful Tower','Gerrymandering','Duckyball','Spiked Ducks',
-        'Cookie Wheel','Cookie Piles','Acid Rain','Vortex',
+        'Brownian Motion','Awful Tower','Gerrymandering','Duckyball',
+        'Spiked Ducks','Cookie Wheel','Cookie Piles','Acid Rain',
+        'Vortex','Treadmill','Maze Murder','Cookie Chaos',
     ],
 }
