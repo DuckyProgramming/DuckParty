@@ -440,7 +440,7 @@ class projectile extends entity{
             case 8:
                 switch(type){
                     case 0:
-                        if(distPos(this,obj)<this.radius+obj.radius&&obj.active&&obj.timer.invincible<=0&&this.size>0&&obj.id!=this.id){
+                        if(distPos(this,obj)<this.radius+obj.radius&&obj.active&&obj.timer.invincible<=0&&this.size>0&&(obj.id!=this.id||this.timer.main>60)){
                             obj.life--
                             obj.timer.invincible=30
                             let dir=dirPos(this,obj)

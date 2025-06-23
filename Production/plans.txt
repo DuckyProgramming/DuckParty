@@ -13,28 +13,7 @@ MINIGAMES
 
 
 
-murder:
-gunfight in 2d but you can only take people's money by hitting them
-
-
-
-duck farm battle
-
-second order duck but a 3v1
-
-the past
-
-duckfight multiplayer
-
-
-
-bowser's big blind
-
-mario's puzzle party
-
 literally pinball
-
-honeycomb havoc
 
 squared away
 
@@ -58,8 +37,6 @@ whack a plant
 
 lava tile isle
 
-t-72 gaming
-
 look away
 
 toadstool titan but the mushroom just spawns in a random place
@@ -73,8 +50,6 @@ all fired up (the one with the fires taht go in random pattersn)
 traveling salesman problem as a race
 
 bomb civilians - the cilians randomly move around and you have limited explosives
-
-toxic waste - push as much toxic waste onto the other player's side of the map
 
 dizzy dancing
 

@@ -94,7 +94,15 @@ types={
                 skin:{head:[],body:[],legs:[],arms:[]}
             },
         },
-    ],item:[
+    ],color:{
+        duck:[
+            {
+                eye:{back:[0,0,0]},
+                beak:{main:[255,140,25],mouth:[0,0,0],nostril:[0,0,0]},
+                skin:{head:[160,165,190],body:[150,155,180],legs:[140,145,170],arms:[145,150,175]}
+            }
+        ],
+    },item:[
         /*
         cost -1: cannot be bought
         rarity 0: common, rarity 1: rare
@@ -241,7 +249,7 @@ Get to 5 wins first.
 Move with UP, DOWN, LEFT, RIGHT.
 Shoot with ACTION to damage opponents.
 Don't get hit.
-Get to 5 wins first.s
+Get to 5 wins first.
 `,
         },{
             name:'Cookie Chaos',player:1,
@@ -251,6 +259,40 @@ Press UP to choose 2 and DOWN to choose 1.
 You'll receive that many cookies.
 Don't get the spiky ball.
 `,
+        },{
+            name:'Duck Crowd',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Punch with ACTION to kill opponents.
+Blend in with NPCs to avoid opponents.
+If you punch an NPC you die.
+Get to 5 wins first.
+`,
+        },{
+            name:'Tank Ducks',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Shoot with ACTION to damage opponents.
+Don't get hit.
+Get to 5 wins first.
+`,
+        },{
+            name:'Electric Maze',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Reach the end.
+Get to 5 wins first.
+`,
+        },{
+            name:'Overpopulation',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Get the ducks to the other players' zones.
+`,
         },
     ],
 }
@@ -259,5 +301,7 @@ listing={
         'Brownian Motion','Awful Tower','Gerrymandering','Duckyball',
         'Spiked Ducks','Cookie Wheel','Cookie Piles','Acid Rain',
         'Vortex','Treadmill','Maze Murder','Cookie Chaos',
+        'Duck Crowd','Tank Ducks','Electric Maze','Overpopulation',
+        '','','','',
     ],
 }

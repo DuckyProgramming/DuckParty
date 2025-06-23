@@ -66,6 +66,16 @@ class player extends partisan{
                         this.animSet.choice=0
                         this.animSet.visible=0
                     break
+                    case 10:
+                        this.speed=0.4
+                        if(this.id==-1){
+                            this.moving=[0,0]
+                        }
+                    break
+                    case 12:
+                        this.speed=0.9
+                        this.dead={trigger:false}
+                    break
                     default:
                         this.speed=1.2
                     break
@@ -77,9 +87,19 @@ class player extends partisan{
                 this.infoAnim={select:0}
             break
             case 3:
-                this.speed=1.2
                 this.radius=12.5
                 this.infoAnim={life:[1,1,1]}
+                switch(this.distinct){
+                    case 0:
+                        this.speed=1.2
+                    break
+                    case 1:
+                        this.speed=0.8
+                        this.timer.attack=0
+                        this.timer.invincible=0
+                        this.life=3
+                    break
+                }
             break
         }
     }
@@ -91,6 +111,9 @@ class player extends partisan{
             break
         }
     }
+    copyColor(color){
+        return {eye:{back:color.eye.back},beak:{main:color.beak.main,mouth:color.beak.mouth,nostril:color.beak.nostril},skin:{head:color.skin.head,body:color.skin.body,legs:color.skin.legs,arms:color.skin.arms}}
+    }
     setupGraphics(){
         switch(this.type){
             case 0:
@@ -98,6 +121,11 @@ class player extends partisan{
             break
             case 1: case 3:
                 this.direction={main:0,goal:0}
+                switch(this.distinct){
+                    case 10: case 12:
+                        this.sideColor=types.color.duck[0]
+                    break
+                }
             break
         }
         this.skin={
@@ -121,7 +149,14 @@ class player extends partisan{
                 {fade:1,display:true,anim:0,spin:18,level:-20}
             ]
         }
-        this.color=types.player[this.color].color
+        switch(this.color){
+            case -1:
+                this.color=this.copyColor(types.color.duck[0])
+            break
+            default:
+                this.color=types.player[this.color].color
+            break
+        }
         this.base.color={eye:{back:this.color.eye.back},beak:{main:this.color.beak.main,mouth:this.color.beak.mouth,nostril:this.color.beak.nostril},skin:{head:this.color.skin.head,body:this.color.skin.body,legs:this.color.skin.legs,arms:this.color.skin.arms}}
         this.animSet={loop:0,attack:0,flip:0}
     }
@@ -294,17 +329,6 @@ class player extends partisan{
                 }
             break
             case 1: case 3:
-                switch(this.type){
-                    case 3:
-                        layer.rotate(-this.direction.main)
-                        layer.fill(180,this.fade.main)
-                        layer.triangle(-6,12,6,12,0,27)
-                        layer.fill(100,this.fade.main)
-                        layer.arc(0,0,36,36,0,180)
-                        layer.arc(0,0,36,12,-180,0)
-                        layer.rotate(this.direction.main)
-                    break
-                }
                 this.calculateParts()
                 layer.noStroke()
                 switch(this.type){
@@ -404,6 +428,29 @@ class player extends partisan{
                             break
                         }
                     break
+                    case 3:
+                        switch(this.distinct){
+                            case 0:
+                                layer.rotate(-this.direction.main)
+                                layer.fill(180,this.fade.main)
+                                layer.triangle(-6,12,6,12,0,27)
+                                layer.fill(100,this.fade.main)
+                                layer.arc(0,0,36,36,0,180)
+                                layer.arc(0,0,36,12,-180,0)
+                                layer.rotate(this.direction.main)
+                            break
+                            case 1:
+                                layer.rotate(-this.direction.main)
+                                layer.fill(120,this.fade.main)
+                                layer.rect(0,18,8,6)
+                                layer.fill(100,this.fade.main)
+                                layer.arc(0,0,24,33,0,180)
+                                layer.arc(0,0,24,12,-180,0)
+                                layer.rotate(this.direction.main)
+                            break
+                        }
+                    break
+                    
                 }
                 for(let a=0,la=2;a<la;a++){
                     if(this.skin.legs[a].display){
@@ -523,6 +570,18 @@ class player extends partisan{
                             break
                         }
                     break
+                    case 3:
+                        switch(this.distinct){
+                            case 1:
+                                for(let a=0,la=this.infoAnim.life.length;a<la;a++){
+                                    if(this.infoAnim.life[a]>0){
+                                        layer.fill(250,225,225,this.fade.main*this.infoAnim.life[a])
+                                        layer.ellipse(4-la*4+a*8,-22,5)
+                                    }
+                                }
+                            break
+                        }
+                    break
                 }
             break
         }
@@ -597,7 +656,6 @@ class player extends partisan{
                 }
                 if(this.dead.trigger){
                     this.fade.trigger=false
-                    this.active=false
                     switch(this.distinct){
                         case 0:
                             if(this.fade.main<=0){
@@ -606,6 +664,9 @@ class player extends partisan{
                                 this.position.y=this.base.position.y
                                 this.dead.trigger=false
                             }
+                        break
+                        default:
+                            this.active=false
                         break
                     }
                 }
@@ -675,6 +736,38 @@ class player extends partisan{
                         this.direction.goal=spinControl(this.direction.goal)
                         this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
                     break
+                    case 12:
+                        if(parent.control.bound.radius>0&&dist(this.position.x,this.position.y,this.layer.width*0.5,this.layer.height*0.5)>parent.control.bound.radius-this.radius){
+                            this.velocity.x=0
+                            this.velocity.y=0
+                            this.hijack.timer=random(10,15)
+                            this.hijack.direction=atan2(this.layer.width*0.5-this.position.x,this.layer.height*0.5-this.position.y)
+                        }
+                        if(magVec(this.velocity)>1){
+                            this.direction.goal=atan2(this.velocity.x,this.velocity.y)
+                        }
+                        this.direction.main=spinControl(this.direction.main)
+                        this.direction.goal=spinControl(this.direction.goal)
+                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                        this.velocity.x*=0.9
+                        this.velocity.y*=0.9
+                        if(this.hijack.timer>0){
+                            this.hijack.timer--
+                            this.velocity.x+=this.speed*lsin(this.hijack.direction)
+                            this.velocity.y+=this.speed*lcos(this.hijack.direction)
+                            this.direction.goal+=10
+                            this.runAnim(0,1)
+                            switch(this.id){
+                                case -1:
+                                    this.moving=[0,0]
+                                break
+                            }
+                        }
+                        this.color.skin.head=mergeColor(this.sideColor.skin.head,this.base.color.skin.head,0.25)
+                        this.color.skin.body=mergeColor(this.sideColor.skin.body,this.base.color.skin.body,0.25)
+                        this.color.skin.legs=mergeColor(this.sideColor.skin.legs,this.base.color.skin.legs,0.25)
+                        this.color.skin.arms=mergeColor(this.sideColor.skin.arms,this.base.color.skin.arms,0.25)
+                    break
                     default:
                         if(this.hijack.reverse){
                             inputKeys=[inputKeys[1],inputKeys[0],inputKeys[3],inputKeys[2]]
@@ -727,73 +820,129 @@ class player extends partisan{
                             this.velocity.y+=this.speed*lcos(this.hijack.direction)
                             this.direction.goal+=10
                             this.runAnim(0,1)
-                        }else if(this.timer.still<=0&&this.timer.dizzy<=0){
-                            if(this.distinct!=4){
-                                if(inputKeys[0]&&!inputKeys[1]&&this.active){
-                                    this.velocity.x-=this.speed
-                                    this.controlDirection.x--
-                                }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
-                                    this.velocity.x+=this.speed
-                                    this.controlDirection.x++
-                                }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
-                                    this.controlDirection.x+=this.velocity.x>0?1:-1
-                                }
+                            switch(this.id){
+                                case -1:
+                                    this.moving=[0,0]
+                                break
                             }
-                            if(inputKeys[2]&&!inputKeys[3]&&this.active){
-                                this.velocity.y-=this.speed
-                                this.controlDirection.y--
-                            }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
-                                this.velocity.y+=this.speed
-                                this.controlDirection.y++
-                            }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
-                                this.controlDirection.y+=this.velocity.y>0?1:-1
-                            }
-                            if(this.timer.attack>0){
-                                this.timer.attack--
-                            }else if(inputKeys[4]){
-                                switch(this.distinct){
-                                    case 0:
-                                        this.timer.attack=30
-                                        for(let a=0,la=parent.entities.players.length;a<la;a++){
-                                            this.collide(1,parent.entities.players[a],parent)
+                        }else if(this.timer.still<=0&&this.timer.dizzy<=0&&this.timer.dizzy>-100){
+                            switch(this.id){
+                                case -1:
+                                    if(this.moving[0]==-1&&this.active){
+                                        this.velocity.x-=this.speed
+                                        this.controlDirection.x--
+                                    }else if(this.moving[0]==1&&this.active){
+                                        this.velocity.x+=this.speed
+                                        this.controlDirection.x++
+                                    }else if(abs(this.velocity.x)>2&&this.moving[1]!=0){
+                                        this.controlDirection.x+=this.velocity.x>0?1:-1
+                                    }
+                                    if(this.moving[1]==-1&&this.active){
+                                        this.velocity.y-=this.speed
+                                        this.controlDirection.y--
+                                    }else if(this.moving[1]==1&&this.active){
+                                        this.velocity.y+=this.speed
+                                        this.controlDirection.y++
+                                    }else if(abs(this.velocity.y)>2&&this.moving[0]!=0){
+                                        this.controlDirection.y+=this.velocity.y>0?1:-1
+                                    }
+                                    let set=this.moving[0]==0&&this.moving[1]==0?60:600
+                                    if(floor(random(0,set*(this.position.x<this.layer.width*0.25?0.5:1)))==0&&this.moving[0]<=0){
+                                        this.moving[0]++
+                                    }
+                                    if(floor(random(0,set*(this.position.x>this.layer.width*0.75?0.5:1)))==0&&this.moving[0]>=0){
+                                        this.moving[0]--
+                                    }
+                                    if(floor(random(0,set*(this.position.y<this.layer.height*0.25?0.5:1)))==0&&this.moving[1]<=0){
+                                        this.moving[1]++
+                                    }
+                                    if(floor(random(0,set*(this.position.y>this.layer.height*0.75?0.5:1)))==0&&this.moving[1]>=0){
+                                        this.moving[1]--
+                                    }
+                                break
+                                default:
+                                    if(this.distinct!=4){
+                                        if(inputKeys[0]&&!inputKeys[1]&&this.active){
+                                            this.velocity.x-=this.speed
+                                            this.controlDirection.x--
+                                        }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
+                                            this.velocity.x+=this.speed
+                                            this.controlDirection.x++
+                                        }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
+                                            this.controlDirection.x+=this.velocity.x>0?1:-1
                                         }
-                                        this.runAnim(1,1)
-                                    break
-                                    case 1:
-                                        this.timer.attack=30
-                                        for(let a=0,la=parent.entities.players.length;a<la;a++){
-                                            this.collide(2,parent.entities.players[a],parent)
+                                    }
+                                    if(inputKeys[2]&&!inputKeys[3]&&this.active){
+                                        this.velocity.y-=this.speed
+                                        this.controlDirection.y--
+                                    }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
+                                        this.velocity.y+=this.speed
+                                        this.controlDirection.y++
+                                    }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
+                                        this.controlDirection.y+=this.velocity.y>0?1:-1
+                                    }
+                                    if(this.timer.attack>0){
+                                        this.timer.attack--
+                                    }else if(inputKeys[4]){
+                                        switch(this.distinct){
+                                            case 0:
+                                                this.timer.attack=30
+                                                for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                                    this.collide(1,parent.entities.players[a],parent)
+                                                }
+                                                this.runAnim(1,1)
+                                            break
+                                            case 1: case 12:
+                                                this.timer.attack=30
+                                                for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                                    this.collide(2,parent.entities.players[a],parent)
+                                                }
+                                                this.runAnim(1,1)
+                                            break
+                                            case 3:
+                                                this.timer.attack=15
+                                                this.timer.still=15
+                                                let size=random(0.75,1.5)
+                                                for(let a=0,la=12;a<la;a++){
+                                                    parent.entities.projectiles.push(new projectile(this.layer,
+                                                        this.position.x+this.skin.arms[1].points.end.x*0.8,
+                                                        this.position.y+this.skin.arms[1].points.end.z*0.8,
+                                                        2,{direction:this.direction.main+a/la*360,size:size,id:this.id,color:{main:this.color.skin.body}}))
+                                                }
+                                                this.runAnim(1,1)
+                                            break
+                                            case 7:
+                                                this.timer.attack=30
+                                                for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                                    this.collide(3,parent.entities.players[a],parent)
+                                                }
+                                                this.runAnim(1,1)
+                                            break
+                                            case 8:
+                                                this.timer.attack=30
+                                                parent.entities.projectiles.push(new projectile(this.layer,
+                                                    this.position.x+this.skin.arms[1].points.end.x*0.8,
+                                                    this.position.y+this.skin.arms[1].points.end.z*0.8,
+                                                    8,{direction:this.direction.main,id:this.id,color:{main:this.color.skin.body},timer:300}))
+                                                this.runAnim(1,1)
+                                            break
+                                            case 10:
+                                                this.timer.attack=30
+                                                for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                                    this.collide(4,parent.entities.players[a],parent)
+                                                }
+                                                this.runAnim(1,1)
+                                            break
+                                            case 11:
+                                                this.timer.attack=30
+                                                for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                                    this.collide(5,parent.entities.players[a],parent)
+                                                }
+                                                this.runAnim(1,1)
+                                            break
                                         }
-                                        this.runAnim(1,1)
-                                    break
-                                    case 3:
-                                        this.timer.attack=15
-                                        this.timer.still=15
-                                        let size=random(0.75,1.5)
-                                        for(let a=0,la=12;a<la;a++){
-                                            parent.entities.projectiles.push(new projectile(this.layer,
-                                                this.position.x+this.skin.arms[1].points.end.x*0.8,
-                                                this.position.y+this.skin.arms[1].points.end.z*0.8,
-                                                2,{direction:this.direction.main+a/la*360,size:size,id:this.id,color:{main:this.color.skin.body}}))
-                                        }
-                                        this.runAnim(1,1)
-                                    break
-                                    case 7:
-                                        this.timer.attack=30
-                                        for(let a=0,la=parent.entities.players.length;a<la;a++){
-                                            this.collide(3,parent.entities.players[a],parent)
-                                        }
-                                        this.runAnim(1,1)
-                                    break
-                                    case 8:
-                                        this.timer.attack=30
-                                        parent.entities.projectiles.push(new projectile(this.layer,
-                                            this.position.x+this.skin.arms[1].points.end.x*0.8,
-                                            this.position.y+this.skin.arms[1].points.end.z*0.8,
-                                            8,{direction:this.direction.main,id:this.id,color:{main:this.color.skin.body},timer:300}))
-                                        this.runAnim(1,1)
-                                    break
-                                }
+                                    }
+                                break
                             }
                             if(this.controlDirection.x!=0||this.controlDirection.y!=0){
                                 this.direction.goal=atan2(this.controlDirection.x,this.controlDirection.y)
@@ -819,7 +968,7 @@ class player extends partisan{
                         if(this.timer.dizzySafe>0){
                             this.timer.dizzySafe--
                         }
-                        this.infoAnim.dizzy=smoothAnim(this.infoAnim.dizzy,this.timer.dizzy>0,0,1,5)
+                        this.infoAnim.dizzy=smoothAnim(this.infoAnim.dizzy,this.timer.dizzy>0||this.timer.dizzy<=-100,0,1,5)
                         switch(this.distinct){
                             case 0: case 7: case 8:
                                 for(let a=0,la=this.infoAnim.life.length;a<la;a++){
@@ -836,6 +985,26 @@ class player extends partisan{
                                         this.fade.trigger=this.timer.main%10<5
                                     }else{
                                         this.fade.trigger=true
+                                    }
+                                }
+                            break
+                            case 10:
+                                this.animSet.reveal=this.timer.main<=240?0.5-lcos(this.timer.main*6)*0.5:smoothAnim(this.animSet.reveal,this.reveal,0,1,10)
+                                if(this.timer.main<=240||this.reveal){
+                                    this.color.skin.head=mergeColor(this.sideColor.skin.head,this.base.color.skin.head,this.animSet.reveal)
+                                    this.color.skin.body=mergeColor(this.sideColor.skin.body,this.base.color.skin.body,this.animSet.reveal)
+                                    this.color.skin.legs=mergeColor(this.sideColor.skin.legs,this.base.color.skin.legs,this.animSet.reveal)
+                                    this.color.skin.arms=mergeColor(this.sideColor.skin.arms,this.base.color.skin.arms,this.animSet.reveal)
+                                }
+                            break
+                            case 12:
+                                if(this.dead.trigger){
+                                    this.fade.trigger=false
+                                    if(this.fade.main<=0){
+                                        this.fade.trigger=true
+                                        this.position.x=this.base.position.x
+                                        this.position.y=this.base.position.y
+                                        this.dead.trigger=false
                                     }
                                 }
                             break
@@ -871,16 +1040,16 @@ class player extends partisan{
             break
             case 3:
                 if(inputKeys[0]&&!inputKeys[1]&&this.active){
-                    this.direction.goal+=4.5
+                    this.direction.goal+=6
                 }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
-                    this.direction.goal-=4.5
+                    this.direction.goal-=6
                 }
                 if(inputKeys[2]&&!inputKeys[3]&&this.active){
-                    this.velocity.x+=lsin(this.direction.main)*1.8
-                    this.velocity.y+=lcos(this.direction.main)*1.8
+                    this.velocity.x+=lsin(this.direction.main)*this.speed
+                    this.velocity.y+=lcos(this.direction.main)*this.speed
                 }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
-                    this.velocity.x-=lsin(this.direction.main)*1.2
-                    this.velocity.y-=lcos(this.direction.main)*1.2
+                    this.velocity.x-=lsin(this.direction.main)*this.speed*2/3
+                    this.velocity.y-=lcos(this.direction.main)*this.speed*2/3
                 }
                 if(parent.control.bound.radius>0&&dist(this.position.x,this.position.y,this.layer.width*0.5,this.layer.height*0.5)>parent.control.bound.radius-this.radius){
                     let direction=atan2(this.position.x-this.layer.width*0.5,this.position.y-this.layer.height*0.5)
@@ -889,8 +1058,8 @@ class player extends partisan{
                     this.position.y-=distance*lcos(direction)
                     let currentDirection=atan2(this.velocity.x,this.velocity.y)
                     let magnitude=magVec(this.velocity)
-                    this.velocity.x=lsin(direction*2-currentDirection)*magnitude*-1.2
-                    this.velocity.y=lcos(direction*2-currentDirection)*magnitude*-1.2
+                    this.velocity.x=lsin(direction*2-currentDirection)*magnitude*-this.speed*2/3
+                    this.velocity.y=lcos(direction*2-currentDirection)*magnitude*-this.speed*2/3
                 }
                 this.direction.main=spinControl(this.direction.main)
                 this.direction.goal=spinControl(this.direction.goal)
@@ -899,6 +1068,40 @@ class player extends partisan{
                 this.velocity.y*=0.8
                 if(!this.active){
                     this.fade.trigger=false
+                }
+                switch(this.distinct){
+                    case 1:
+                        for(let a=0,la=this.infoAnim.life.length;a<la;a++){
+                            this.infoAnim.life[a]=smoothAnim(this.infoAnim.life[a],this.life>=a+1,0,1,5)
+                        }
+                        if(this.life<=0){
+                            if(this.active){
+                                this.active=false
+                                this.fade.trigger=false
+                            }
+                        }else{
+                            if(this.timer.invincible>0){
+                                this.timer.invincible--
+                                this.fade.trigger=this.timer.main%10<5
+                            }else{
+                                this.fade.trigger=true
+                            }
+                        }
+                    break
+                }
+                if(this.timer.attack>0){
+                    this.timer.attack--
+                }else if(inputKeys[4]){
+                    switch(this.distinct){
+                        case 1:
+                            this.timer.attack=150
+                            parent.entities.projectiles.push(new projectile(this.layer,
+                                this.position.x+lsin(this.direction.main)*9,
+                                this.position.y+lcos(this.direction.main)*9,
+                                8,{direction:this.direction.main,id:this.id,color:{main:this.color.skin.body},timer:300}))
+                            this.runAnim(1,1)
+                        break
+                    }
                 }
             break
         }
@@ -924,11 +1127,17 @@ class player extends partisan{
                     case 0:
                         if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.active){
                             let dir=dirPos(this,obj)
-                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
+                            let magnitude=[max(0.01,magVec(this.velocity)),max(0.01,magVec(obj.velocity))]
                             obj.velocity.x=magnitude[0]*lsin(dir)
                             obj.velocity.y=magnitude[0]*lcos(dir)
                             this.velocity.x=-magnitude[1]*lsin(dir)
                             this.velocity.y=-magnitude[1]*lcos(dir)
+                            if(this.id==-1){
+                                this.moving=[0,0]
+                            }
+                            if(obj.id==-1){
+                                obj.moving=[0,0]
+                            }
                         }
                     break
                     case 1:
@@ -966,6 +1175,36 @@ class player extends partisan{
                                 obj.velocity.y=40*lcos(dir)
                                 obj.timer.dizzy=30
                                 obj.timer.dizzySafe=45
+                            }
+                        }
+                    break
+                    case 4:
+                        if(obj!=this&&this.active&&obj.active){
+                            let hand={position:{x:this.position.x+lsin(this.direction.main)*30,y:this.position.y+lcos(this.direction.main)*30}}
+                            if(distPos(hand,obj)<10+obj.radius){
+                                if(obj.id==-1){
+                                    this.active=false
+                                    this.timer.dizzy=-100
+                                    this.reveal=true
+                                }else{
+                                    obj.active=false
+                                    obj.timer.dizzy=-100
+                                    obj.reveal=true
+                                }
+                            }
+                        }
+                    break
+                    case 5:
+                        if(obj!=this&&this.active&&obj.active){
+                            let hand={position:{x:this.position.x+lsin(this.direction.main)*30,y:this.position.y+lcos(this.direction.main)*30}}
+                            if(distPos(hand,obj)<10+obj.radius&&obj.timer.dizzySafe<=0){
+                                let dir=dirPos(this,obj)
+                                obj.velocity.x=10*lsin(dir)
+                                obj.velocity.y=10*lcos(dir)
+                                if(obj.id!=-1){
+                                    obj.timer.dizzy=30
+                                    obj.timer.dizzySafe=45
+                                }
                             }
                         }
                     break

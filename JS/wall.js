@@ -21,6 +21,11 @@ class wall extends partisan{
                 this.select={trigger:false,disable:false,group:0,id:-1,color:[],anim:0}
                 this.anim={disable:0}
             break
+            case 4: case 5:
+                this.cycle=random(120,360)
+                this.offset.time=random(0,this.cycle)
+                this.anim={active:0}
+            break
         }
     }
     combiner(){
@@ -381,6 +386,34 @@ class wall extends partisan{
                 layer.textSize(this.text.size)
                 layer.text(this.text.main,0,0)
             break
+            case 4:
+                layer.fill(...this.color.base,this.fade.main)
+                layer.rect(0,-this.height/2+2.5,this.width*2,5)
+                layer.rect(0,this.height/2-2.5,this.width*2,5)
+                layer.fill(...this.color.shock,this.fade.main*this.anim.active*0.8)
+                layer.rect(0,0,this.width,this.height-10)
+            break
+            case 5:
+                layer.fill(...this.color.base,this.fade.main)
+                layer.rect(-this.width/2+2.5,0,5,this.height*2)
+                layer.rect(this.width/2-2.5,0,5,this.height*2)
+                layer.fill(...this.color.shock,this.fade.main*this.anim.active*0.8)
+                layer.rect(0,0,this.width-10,this.height)
+            break
+            case 6:
+                layer.fill(...this.color.base,this.fade.main)
+                layer.rect(0,-this.height/2+2.5,this.width*2,5)
+                layer.rect(0,this.height/2-2.5,this.width*2,5)
+                layer.fill(...this.color.shock,this.fade.main*0.8)
+                layer.rect(0,0,this.width,this.height-10)
+            break
+            case 7:
+                layer.fill(...this.color.base,this.fade.main)
+                layer.rect(-this.width/2+2.5,0,5,this.height*2)
+                layer.rect(this.width/2-2.5,0,5,this.height*2)
+                layer.fill(...this.color.shock,this.fade.main*0.8)
+                layer.rect(0,0,this.width-10,this.height)
+            break
         }
         layer.pop()
     }
@@ -418,6 +451,9 @@ class wall extends partisan{
                     this.color.base[2]+=0.1*this.select.color[2]
                 }
                 this.anim.disable=smoothAnim(this.anim.disable,this.select.disable,0,1,5)
+            break
+            case 4: case 5:
+                this.anim.active=smoothAnim(this.anim.active,(this.timer.main+this.offset.time)%this.cycle<this.cycle-90,0,1,10)
             break
         }
     }
@@ -463,10 +499,16 @@ class wall extends partisan{
                     break
                     case 1:
                         if(inCircleBox(obj,this)){
-                            let basis={x:constrain(obj.position.x,this.position.x-this.width/2,this.position.x+this.width/2),y:constrain(obj.position.y,this.position.y-this.height/2,this.position.y+this.height/2)}
-                            let dir=dirPos({position:basis},obj)
-                            obj.position.x=basis.x+lsin(dir)*obj.radius
-                            obj.position.y=basis.y+lcos(dir)*obj.radius
+                            switch(this.type){
+                                case 1:
+                                    return [1,obj.id]
+                                default:
+                                    let basis={x:constrain(obj.position.x,this.position.x-this.width/2,this.position.x+this.width/2),y:constrain(obj.position.y,this.position.y-this.height/2,this.position.y+this.height/2)}
+                                    let dir=dirPos({position:basis},obj)
+                                    obj.position.x=basis.x+lsin(dir)*obj.radius
+                                    obj.position.y=basis.y+lcos(dir)*obj.radius
+                                break
+                            }
                         }
                     break
                     case 2:
@@ -504,6 +546,24 @@ class wall extends partisan{
                                     break
                                 }
                             }
+                        }
+                    break
+                }
+            break
+            case 4: case 5:
+                switch(type){
+                    case 1:
+                        if(inCircleBox(obj,this)&&this.anim.active>=1){
+                            obj.dead.trigger=true
+                        }
+                    break
+                }
+            break
+            case 6: case 7:
+                switch(type){
+                    case 1:
+                        if(inCircleBox(obj,this)){
+                            obj.dead.trigger=true
                         }
                     break
                 }
