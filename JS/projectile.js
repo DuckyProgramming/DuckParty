@@ -64,7 +64,7 @@ class projectile extends entity{
                     }
                 }
             break
-            case 8: case 9:
+            case 8: case 9: case 11:
                 this.direction=control.direction
                 this.id=control.id
                 this.color=control.color
@@ -84,11 +84,30 @@ class projectile extends entity{
                         this.width=4
                         this.height=4
                     break
+                    case 11:
+                        this.speed=12
+                        this.radius=2
+                        this.width=4
+                        this.height=4
+                    break
                 }
                 this.velocity={x:0,y:0}
                 this.velocity.x=lsin(this.direction)*this.speed
                 this.velocity.y=lcos(this.direction)*this.speed
                 this.previous={position:{x:this.position.x,y:this.position.y}}
+                this.active=true
+            break
+            case 10:
+                this.direction=control.direction
+                this.id=control.id
+                this.size=control.size
+                this.speed=8-control.size*0.8
+                this.radius=2.5*control.size
+                this.velocity={x:0,y:0}
+                this.velocity.x=lsin(this.direction)*this.speed
+                this.velocity.y=lcos(this.direction)*this.speed
+                this.previous={position:{x:this.position.x,y:this.position.y}}
+                this.fade.main=1
                 this.active=true
             break
         }
@@ -175,13 +194,29 @@ class projectile extends entity{
                     layer.ellipse(0,0,4*this.size)
                 }
             break
+            case 10:
+                if(this.size>0){
+                    layer.fill(200,240,250,this.fade.main)
+                    layer.ellipse(0,0,5*this.size)
+                }
+            break
+            case 11:
+                if(this.size>0){
+                    for(let a=0,la=5;a<la;a++){
+                        layer.fill(...mergeColor([250,250,250],this.color.main,0.5-0.5*a/la),this.fade.main)
+                        layer.ellipse(this.past[9-a].x-this.position.x,this.past[9-a].y-this.position.y,(2.5-a*0.5)*this.size)  
+                    }
+                    layer.fill(...this.color.main,this.fade.main)
+                    layer.ellipse(0,0,4*this.size)
+                }
+            break
         }
         layer.pop()
     }
     update(parent){
         super.update()
         switch(this.type){
-            case 0: case 1: case 3: case 5: case 6: case 7: case 8: case 9:
+            case 0: case 1: case 3: case 5: case 6: case 7: case 8: case 9: case 11:
                 this.past.push({x:this.position.x,y:this.position.y})
                 this.past.splice(0,1)
             break
@@ -374,7 +409,7 @@ class projectile extends entity{
                     this.size-=0.1
                 }
             break
-            case 8: case 9:
+            case 8: case 9: case 11:
                 this.previous.position.x=this.position.x
                 this.previous.position.y=this.position.y
                 this.position.x+=this.velocity.x
@@ -393,6 +428,30 @@ class projectile extends entity{
                 }
                 if((this.position.x<-50||this.position.x>parent.control.bound.width+50||this.position.y<-50||this.position.y>parent.control.bound.height+50)&&(this.insided||this.time>600)){
                     this.active=false
+                }
+            break
+            case 10:
+                this.previous.position.x=this.position.x
+                this.previous.position.y=this.position.y
+                this.position.x+=this.velocity.x
+                this.position.y+=this.velocity.y
+                if(!this.active&&this.fade<=0){
+                    this.remove=true
+                }
+                if(!this.active&&this.fade.trigger){
+                    if(this.size>0){
+                        this.size-=0.1
+                    }else{
+                        this.remove=true
+                    }
+                }
+                if((this.position.x<-50||this.position.x>parent.control.bound.width+50||this.position.y<-50||this.position.y>parent.control.bound.height+50)&&(this.insided||this.time>600)){
+                    this.active=false
+                }
+                if(dist(this.position.x,this.position.y,this.layer.width/2,this.layer.height/2)>parent.control.bound.projectileRadius+this.radius){
+                    this.active=false
+                    this.velocity.x*=0.5
+                    this.velocity.y*=0.5
                 }
             break
         
@@ -460,7 +519,7 @@ class projectile extends entity{
                     break
                 }
             break
-            case 8: case 9:
+            case 8: case 9: case 11:
                 switch(type){
                     case 0:
                         if(distPos(this,obj)<this.radius+obj.radius&&obj.active&&obj.timer.invincible<=0&&this.size>0&&(obj.id!=this.id||this.timer.main>60)){
@@ -493,6 +552,32 @@ class projectile extends entity{
                             this.velocity.x=-magnitude[0]*lsin(dir)
                             this.velocity.y=-magnitude[0]*lcos(dir)
                             this.active=false
+                        }
+                    break
+                }
+            break
+            case 10:
+                switch(type){
+                    case 0:
+                        if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.active&&(obj.id!=this.id||this.timer.main>60)){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity)*0.4,magVec(this.velocity)*0.6]
+                            obj.velocity.x=magnitude[0]*lsin(dir)*this.size/(1-this.size*0.1)
+                            obj.velocity.y=magnitude[0]*lcos(dir)*this.size/(1-this.size*0.1)
+                            this.velocity.x=-magnitude[1]*lsin(dir)
+                            this.velocity.y=-magnitude[1]*lcos(dir)
+                            this.active=false
+                            this.fade.trigger=false
+                        }
+                    break
+                    case 1:
+                        if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.activesss){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
+                            obj.velocity.x=magnitude[0]*lsin(dir)
+                            obj.velocity.y=magnitude[0]*lcos(dir)
+                            this.velocity.x=-magnitude[1]*lsin(dir)
+                            this.velocity.y=-magnitude[1]*lcos(dir)
                         }
                     break
                 }

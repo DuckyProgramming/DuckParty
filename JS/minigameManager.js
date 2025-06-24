@@ -1103,7 +1103,25 @@ class minigameManager{
                     }
                 }
             break
-            
+            case 21:
+                this.entities={players:[],projectiles:[]}
+                for(let a=0,la=this.operation.player.length;a<la;a++){
+                    this.entities.players.push(new player(this.layer,this.layer.width/2-this.layer.height*0.2*lsin(a/la*360),this.layer.height/2-this.layer.height*0.2*lcos(a/la*360),1,14,a,this.operation.player[a]))
+                    last(this.entities.players).direction.main=a/la*360
+                    last(this.entities.players).direction.goal=a/la*360
+                }
+                this.control.bound={base:{x:0,y:0},width:this.layer.width,height:this.layer.height,radius:0,projectileRadius:this.layer.height*0.45}
+            break
+            case 22:
+                this.entities={players:[],projectiles:[]}
+                for(let a=0,la=this.operation.player.length;a<la;a++){
+                    this.entities.players.push(new player(this.layer,this.layer.width/2+this.layer.height*0.1*lsin(a/la*360),this.layer.height/2+this.layer.height*0.1*lcos(a/la*360),3,2,a,this.operation.player[a]))
+                    last(this.entities.players).direction.main=a/la*360
+                    last(this.entities.players).direction.goal=a/la*360
+                }
+                this.control.bound={base:{x:0,y:0},width:this.layer.width,height:this.layer.height,radius:0}
+            break
+
         }
     }
     setup(){
@@ -1526,11 +1544,27 @@ class minigameManager{
                         for(let a=0,la=this.entities.players.length;a<la;a++){
                             this.entities.players[a].display()
                         }
-                        for(let a=0,la=this.entities.walls.length;a<la;a++){
-                            this.entities.walls[a].display()
+                        for(let a=0,la=this.entities.projectiles.length;a<la;a++){
+                            this.entities.projectiles[a].display()
+                        }
+                        this.layer.fill(255)
+                        this.layer.textAlign(LEFT,CENTER)
+                        this.layer.textSize(12)
+                        for(let a=0,la=this.operation.player.length;a<la;a++){
+                            this.layer.text(types.player[this.operation.player[a]].name+`: `+this.result.score[a],5,12+a*16)
+                        }
+                        this.layer.textAlign(CENTER,CENTER)
+                    break
+                    case 22:
+                        this.layer.background(0)
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].display()
                         }
                         for(let a=0,la=this.entities.projectiles.length;a<la;a++){
                             this.entities.projectiles[a].display()
+                        }
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].displayOver()
                         }
                         this.layer.fill(255)
                         this.layer.textAlign(LEFT,CENTER)
@@ -1553,7 +1587,7 @@ class minigameManager{
                     this.layer.text((winners==``?`Nobody`:winners)+` Win!`,this.layer.width/2,this.layer.height/2)
                 }else if(this.subResult.anim>0){
                     this.layer.fill(255,this.subResult.anim)
-                    this.layer.stroke(0,this.result.anim)
+                    this.layer.stroke(0,this.subResult.anim)
                     this.layer.strokeWeight(2)
                     this.layer.textSize(this.result.winner.length>=3?40:50)
                     let winners=``
@@ -2900,7 +2934,142 @@ class minigameManager{
                             this.result.anim+=0.1
                         }
                     break
-                    
+                    case 21:
+                        survive=0
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            if(dist(this.layer.width/2,this.layer.height/2,this.entities.players[a].position.x,this.entities.players[a].position.y)>this.layer.height*0.45+this.entities.players[a].radius){
+                                this.entities.players[a].active=false
+                                if(this.entities.players[a].size>0){
+                                    this.entities.players[a].size-=0.1
+                                    this.entities.players[a].stasis()
+                                }else{
+                                    this.entities.players[a].size=0
+                                }
+                            }else{
+                                this.entities.players[a].update(this)
+                                for(let b=a+1,lb=this.entities.players.length;b<lb;b++){
+                                    this.entities.players[a].collide(0,this.entities.players[b],this)
+                                }
+                                survive++
+                            }
+                        }
+                        for(let a=0,la=this.entities.projectiles.length;a<la;a++){
+                            this.entities.projectiles[a].update(this)
+                            for(let b=0,lb=this.entities.players.length;b<lb;b++){
+                                this.entities.projectiles[a].collide(0,this.entities.players[b],this)
+                            }
+                            for(let b=a+1,lb=this.entities.projectiles.length;b<lb;b++){
+                                this.entities.projectiles[a].collide(1,this.entities.projectiles[b],this)
+                            }
+                            if(this.entities.projectiles[a].remove){
+                                this.entities.projectiles.splice(a,1)
+                                a--
+                                la--
+                            }
+                        }
+                        if(survive<=1){
+                            this.subResult.end=true
+                            this.subResult.winner=[]
+                            for(let a=0,la=this.entities.players.length;a<la;a++){
+                                if(this.entities.players[a].active){
+                                    this.subResult.winner.push(a)
+                                }
+                            }
+                            for(let a=0,la=this.entities.projectiles.length;a<la;a++){
+                                this.entities.projectiles[a].active=false
+                            }
+                        }
+                        if(this.subResult.end&&!this.result.end){
+                            if(this.subResult.anim<9){
+                                this.subResult.anim+=0.1
+                            }else{
+                                for(let a=0,la=this.subResult.winner.length;a<la;a++){
+                                    this.result.score[this.subResult.winner[a]]++
+                                    if(this.result.score[this.subResult.winner[a]]>=5){
+                                        this.result.end=true
+                                    }
+                                }
+                                if(this.result.end){
+                                    this.result.winner=[]
+                                    for(let a=0,la=this.entities.players.length;a<la;a++){
+                                        if(this.result.score[a]>=5){
+                                            this.result.winner.push(a)
+                                        }
+                                        this.payout.main.push((this.result.score[a]>=5?1:0)*this.payout.root*this.payout.mult+this.payout.add[a])
+                                    }
+                                }else{
+                                    this.reset()
+                                    this.subResult.end=false
+                                    this.subResult.anim=0
+                                }
+                            }
+                        }
+                        if(this.result.end&&this.result.anim<1){
+                            this.result.anim+=0.1
+                        }
+                    break
+                    case 22:
+                        survive=0
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].update(this)
+                            for(let b=a+1,lb=this.entities.players.length;b<lb;b++){
+                                this.entities.players[a].collide(2,this.entities.players[b],this)
+                            }
+                            if(this.entities.players[a].active){
+                                survive++
+                            }
+                        }
+                        for(let a=0,la=this.entities.projectiles.length;a<la;a++){
+                            this.entities.projectiles[a].update(this)
+                            for(let b=0,lb=this.entities.players.length;b<lb;b++){
+                                this.entities.projectiles[a].collide(0,this.entities.players[b],this)
+                            }
+                            for(let b=a+1,lb=this.entities.projectiles.length;b<lb;b++){
+                                this.entities.projectiles[a].collide(1,this.entities.projectiles[b],this)
+                            }
+                        }
+                        if(survive<=1){
+                            this.subResult.end=true
+                            this.subResult.winner=[]
+                            for(let a=0,la=this.entities.players.length;a<la;a++){
+                                if(this.entities.players[a].active){
+                                    this.subResult.winner.push(a)
+                                }
+                            }
+                            for(let a=0,la=this.entities.projectiles.length;a<la;a++){
+                                this.entities.projectiles[a].active=false
+                            }
+                        }
+                        if(this.subResult.end&&!this.result.end){
+                            if(this.subResult.anim<9){
+                                this.subResult.anim+=0.1
+                            }else{
+                                for(let a=0,la=this.subResult.winner.length;a<la;a++){
+                                    this.result.score[this.subResult.winner[a]]++
+                                    if(this.result.score[this.subResult.winner[a]]>=5){
+                                        this.result.end=true
+                                    }
+                                }
+                                if(this.result.end){
+                                    this.result.winner=[]
+                                    for(let a=0,la=this.entities.players.length;a<la;a++){
+                                        if(this.result.score[a]>=5){
+                                            this.result.winner.push(a)
+                                        }
+                                        this.payout.main.push((this.result.score[a]>=5?1:0)*this.payout.root*this.payout.mult+this.payout.add[a])
+                                    }
+                                }else{
+                                    this.reset()
+                                    this.subResult.end=false
+                                    this.subResult.anim=0
+                                }
+                            }
+                        }
+                        if(this.result.end&&this.result.anim<1){
+                            this.result.anim+=0.1
+                        }
+                    break
+
                 }
             break
         }
