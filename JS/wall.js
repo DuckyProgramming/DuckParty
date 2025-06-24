@@ -1,3 +1,4 @@
+
 class wall extends partisan{
     constructor(layer,x,y,width,height,type,color){
         super(layer,x,y,{main:1,trigger:true,speed:5})
@@ -414,6 +415,41 @@ class wall extends partisan{
                 layer.fill(...this.color.shock,this.fade.main*0.8)
                 layer.rect(0,0,this.width-10,this.height)
             break
+            case 8:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width,this.height)
+                layer.fill(...this.color.base[1],this.fade.main)
+                for(let a=0,la=this.width/5;a<la;a++){
+                    for(let b=0,lb=this.height/5;b<lb;b++){
+                        if((a+b)%2==0){
+                            layer.rect(-this.width/2+2.5+a*5,-this.height/2+2.5+b*5,5)
+                        }
+                    }
+                }
+            break
+            case 9: case 10:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width,this.height)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,0,this.width-10,this.height-10)
+                layer.fill(...this.color.text,this.fade.main)
+                layer.textSize(25)
+                layer.text(this.text,0,0)
+            break
+            case 11:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width,this.height)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,0,this.width-8,this.height-8)
+                layer.stroke(...this.color.base[0],this.fade.main)
+                layer.strokeWeight(4)
+                layer.line(-this.width/2+2,-this.height/2+2,this.width/2-2,this.height/2-2)
+                layer.line(-this.width/2+2,this.height/2-2,this.width/2-2,-this.height/2+2)
+                layer.noStroke()
+                layer.fill(...this.color.text,this.fade.main)
+                layer.textSize(25)
+                layer.text(this.text,0,0)
+            break
         }
         layer.pop()
     }
@@ -459,15 +495,17 @@ class wall extends partisan{
     }
     collide(type,obj,parent){
         switch(this.type){
-            case 0: case 1: case 2:
+            case 0: case 1: case 2: case 8: case 9: case 10: case 11:
                 switch(type){
                     case 0:
                         if(inBoxBox(this.bounder,obj)){
                             let edge=collideBoxBox(this,obj)
                             if(edge>=0){
                                 switch(this.type){
-                                    case 1:
+                                    case 1: case 8:
                                         return [1,obj.id]
+                                    case 10: case 11:
+                                        return [1,this.text]
                                     default:
                                         switch(edge){
                                             case 0:
@@ -500,8 +538,10 @@ class wall extends partisan{
                     case 1:
                         if(inCircleBox(obj,this)){
                             switch(this.type){
-                                case 1:
+                                case 1: case 8:
                                     return [1,obj.id]
+                                case 10: case 11:
+                                    return [1,this.text]
                                 default:
                                     let basis={x:constrain(obj.position.x,this.position.x-this.width/2,this.position.x+this.width/2),y:constrain(obj.position.y,this.position.y-this.height/2,this.position.y+this.height/2)}
                                     let dir=dirPos({position:basis},obj)

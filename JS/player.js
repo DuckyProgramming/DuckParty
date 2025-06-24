@@ -17,13 +17,17 @@ class player extends partisan{
                 this.height=24
                 this.timer.invincible=0
                 this.infoAnim={life:[1,1,1],dizzy:0}
-                this.jump={time:0,active:0}
+                this.jump={time:0,active:0,mult:1}
                 this.controlDirection={x:0,y:0}
                 this.collided={wall:[0,0,0,0]}
                 this.offset.position.y+=12
                 this.dead={trigger:false}
                 switch(this.distinct){
                     case 1:
+                        this.life=3
+                    break
+                    case 2:
+                        this.timer.attack=0
                         this.life=3
                     break
                 }
@@ -72,7 +76,7 @@ class player extends partisan{
                             this.moving=[0,0]
                         }
                     break
-                    case 12:
+                    case 13:
                         this.speed=0.9
                         this.dead={trigger:false}
                     break
@@ -105,6 +109,13 @@ class player extends partisan{
     }
     scale(value){
         switch(this.type){
+            case 0:
+                this.size*=value
+                this.width*=value
+                this.height*=value
+                this.offset.position.x*=value
+                this.offset.position.y*=value
+            break
             case 1:
                 this.size*=value
                 this.radius*=value
@@ -610,7 +621,7 @@ class player extends partisan{
                         this.jump.time=0
                         this.jump.active=8
                     }
-                    this.velocity.y-=constrain(5+this.velocity.y*0.25,3,5)
+                    this.velocity.y-=constrain(5*this.jump.mult+this.velocity.y*0.25,3*this.jump.mult,5*this.jump.mult)
                 }else if(this.jump.time>0){
                     this.jump.time--
                 }
@@ -622,7 +633,7 @@ class player extends partisan{
                 this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
                 this.velocity.x*=0.8
                 this.velocity.y*=0.99
-                this.velocity.y+=constants.gravity
+                this.velocity.y+=constants.gravity*this.size
                 if(this.controlDirection.x!=0||this.animSet.loop>0&&this.animSet.loop%15!=0){
                     this.runAnim(0,1)
                 }else{
@@ -653,11 +664,28 @@ class player extends partisan{
                             }
                         }
                     break
+                    case 2:
+                        if(this.timer.attack>0){
+                            this.timer.attack--
+                        }else if(inputKeys[3]||inputKeys[4]){
+                            this.timer.attack=60
+                            parent.entities.projectiles.push(new projectile(this.layer,
+                                this.position.x+lsin(this.direction.main)*8*this.size,
+                                this.position.y+2*this.size,
+                                9,{direction:this.direction.main*5/3,id:this.id,color:{main:this.color.skin.body},timer:300}))
+                            this.runAnim(1,1)
+                        }
+                        if(this.animSet.attasck>0&&this.animSet.attack%15!=0){
+                            this.runAnim(1,1)
+                        }else{
+                            this.animSet.attack=0
+                        }
+                    break
                 }
                 if(this.dead.trigger){
                     this.fade.trigger=false
                     switch(this.distinct){
-                        case 0:
+                        case 0: case 2:
                             if(this.fade.main<=0){
                                 this.fade.trigger=true
                                 this.position.x=this.base.position.x
@@ -997,7 +1025,7 @@ class player extends partisan{
                                     this.color.skin.arms=mergeColor(this.sideColor.skin.arms,this.base.color.skin.arms,this.animSet.reveal)
                                 }
                             break
-                            case 12:
+                            case 13:
                                 if(this.dead.trigger){
                                     this.fade.trigger=false
                                     if(this.fade.main<=0){

@@ -64,17 +64,27 @@ class projectile extends entity{
                     }
                 }
             break
-            case 8:
+            case 8: case 9:
                 this.direction=control.direction
                 this.id=control.id
                 this.color=control.color
                 this.timer.active=control.timer
-                this.speed=8
                 this.size=1
                 this.past=elementArray({x:this.position.x,y:this.position.y},10)
-                this.radius=3
-                this.width=6
-                this.height=6
+                switch(this.type){
+                    case 8:
+                        this.speed=8
+                        this.radius=3
+                        this.width=6
+                        this.height=6
+                    break
+                    case 9:
+                        this.speed=4
+                        this.radius=2
+                        this.width=4
+                        this.height=4
+                    break
+                }
                 this.velocity={x:0,y:0}
                 this.velocity.x=lsin(this.direction)*this.speed
                 this.velocity.y=lcos(this.direction)*this.speed
@@ -155,13 +165,23 @@ class projectile extends entity{
                     layer.ellipse(0,0,6*this.size)
                 }
             break
+            case 9:
+                if(this.size>0){
+                    for(let a=0,la=5;a<la;a++){
+                        layer.fill(...mergeColor([250,250,250],this.color.main,0.5-0.5*a/la),this.fade.main)
+                        layer.ellipse(this.past[8-a*2].x-this.position.x,this.past[8-a*2].y-this.position.y,(2.5-a*0.5)*this.size)  
+                    }
+                    layer.fill(...this.color.main,this.fade.main)
+                    layer.ellipse(0,0,4*this.size)
+                }
+            break
         }
         layer.pop()
     }
     update(parent){
         super.update()
         switch(this.type){
-            case 0: case 1: case 3: case 5: case 6: case 7: case 8:
+            case 0: case 1: case 3: case 5: case 6: case 7: case 8: case 9:
                 this.past.push({x:this.position.x,y:this.position.y})
                 this.past.splice(0,1)
             break
@@ -354,7 +374,7 @@ class projectile extends entity{
                     this.size-=0.1
                 }
             break
-            case 8:
+            case 8: case 9:
                 this.previous.position.x=this.position.x
                 this.previous.position.y=this.position.y
                 this.position.x+=this.velocity.x
@@ -370,6 +390,9 @@ class projectile extends entity{
                     }else{
                         this.remove=true
                     }
+                }
+                if((this.position.x<-50||this.position.x>parent.control.bound.width+50||this.position.y<-50||this.position.y>parent.control.bound.height+50)&&(this.insided||this.time>600)){
+                    this.active=false
                 }
             break
         
@@ -437,7 +460,7 @@ class projectile extends entity{
                     break
                 }
             break
-            case 8:
+            case 8: case 9:
                 switch(type){
                     case 0:
                         if(distPos(this,obj)<this.radius+obj.radius&&obj.active&&obj.timer.invincible<=0&&this.size>0&&(obj.id!=this.id||this.timer.main>60)){
@@ -459,6 +482,17 @@ class projectile extends entity{
                             obj.velocity.y=magnitude[0]*lcos(dir)
                             this.velocity.x=-magnitude[1]*lsin(dir)
                             this.velocity.y=-magnitude[1]*lcos(dir)
+                        }
+                    break
+                    case 2:
+                        if(inCircleBox(this,obj)&&this.size>0&&(obj.id!=this.id||this.timer.main>60)){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
+                            obj.velocity.x+=magnitude[0]*lsin(dir)
+                            obj.velocity.y+=magnitude[0]*lcos(dir)
+                            this.velocity.x=-magnitude[0]*lsin(dir)
+                            this.velocity.y=-magnitude[0]*lcos(dir)
+                            this.active=false
                         }
                     break
                 }

@@ -35,6 +35,8 @@ class minigameManager{
         for(let a=0,la=this.operation.player.length;a<la;a++){
             this.payout.add.push(0)
         }
+        let extent
+        let set
         let ticker
         let spawnable
         let cellWidth
@@ -58,7 +60,7 @@ class minigameManager{
                 this.control.bound={base:{x:0,y:0},width:this.layer.width,height:this.layer.height,radius:0}
             break
             case 1:
-                let extent=4
+                extent=4
                 this.graphics={main:[]}
                 this.entities={players:[],walls:[],projectiles:[]}
                 for(let a=0,la=this.operation.player.length;a<la;a++){
@@ -82,7 +84,7 @@ class minigameManager{
                         }
                         for(let c=0,lc=this.entities.walls.length;c<lc;c++){
                             if(this.entities.walls[a][c].remove){
-                                this.entities.walls.splice(c,1)
+                                this.entities.walls[a].splice(c,1)
                                 c--
                                 lc--
                             }
@@ -122,7 +124,7 @@ class minigameManager{
                     }
                 }
                 let size=shuffleArray([19,20,21,22,23,24,25,26])
-                let set=0
+                set=0
                 while(remain.length>0){
                     let sizing=size[set]
                     let loc=[]
@@ -772,7 +774,7 @@ class minigameManager{
                     }
                 }
                 for(let a=0,la=this.operation.player.length;a<la;a++){
-                    this.entities.players.push(new player(this.layer,67.5+a%2*30,47.5+floor(a/2)*30,1,12,a,this.operation.player[a]))
+                    this.entities.players.push(new player(this.layer,67.5+a%2*30,47.5+floor(a/2)*30,1,13,a,this.operation.player[a]))
                     last(this.entities.players).direction.main=45
                     last(this.entities.players).direction.goal=45
                 }
@@ -797,13 +799,317 @@ class minigameManager{
                 }
                 this.control.bound={base:{x:0,y:0},width:this.layer.width,height:this.layer.height,radius:this.layer.height*0.45}
             break
-
+            case 18:
+                extent=1
+                this.entities={players:[],walls:[],projectiles:[]}
+                for(let a=0,la=this.operation.player.length;a<la;a++){
+                    this.entities.players.push(new player(this.layer,this.layer.width*(0.5+a/4-la/8+1/8),this.layer.height*extent-50,0,2,a,this.operation.player[a]))
+                    last(this.entities.players).scale(0.6)
+                    last(this.entities.players).jump.mult=0.5
+                    this.entities.walls.push(new wall(this.layer,this.layer.width*(0.5+a/4-la/8)+120,15,220,10,8,{base:[[225,225,225],[50,50,50]]}))
+                    this.entities.walls.push(new wall(this.layer,this.layer.width*(0.5+a/4-la/8)+5,this.layer.height*extent/2,10,this.layer.height*extent,0,{base:[100,100,100]}))
+                    this.entities.walls.push(new wall(this.layer,this.layer.width*(0.5+a/4-la/8)+235,this.layer.height*extent/2,10,this.layer.height*extent,0,{base:[100,100,100]}))
+                    this.entities.walls.push(new wall(this.layer,this.layer.width*(0.5+a/4-la/8)+120,this.layer.height*extent+20,220,100,0,{base:[100,100,100]}))
+                    let nudge=floor(random(0,4))
+                    for(let b=0,lb=27;b<lb;b++){
+                        this.entities.walls.push(new wall(this.layer,this.layer.width*(0.5+a/4-la/8)+[60-floor(random(0,3))*20,80+floor(random(0,5))*20,180+floor(random(0,3))*20,80+floor(random(0,5))*20][(b+nudge)%4],this.layer.height*extent-32.5-b*20,20,5,0,{base:[100,100,100]}))
+                    }
+                }
+                for(let a=0,la=8;a<la;a++){
+                    for(let b=0,lb=this.entities.walls.length;b<lb;b++){
+                        this.entities.walls[b].ladder(a,this.entities.walls)
+                    }
+                    for(let b=0,lb=this.entities.walls.length;b<lb;b++){
+                        if(this.entities.walls[b].remove){
+                            this.entities.walls.splice(b,1)
+                            b--
+                            lb--
+                        }
+                    }
+                }
+                this.control.bound={base:{x:0,y:0},width:this.layer.width,height:this.layer.height*extent,radius:0}
+            break
+            case 19:
+                let nums=[floor(random(3,13)),floor(random(3,13)),floor(random(3,13)),floor(random(3,13))]
+                let operation=floor(random(0,6))
+                this.control.result=[
+                    nums[0]+nums[1]*nums[2]*nums[3],
+                    nums[0]*nums[1]+nums[2]*nums[3],
+                    nums[0]*nums[1]*nums[2]+nums[3],
+                    nums[0]+nums[1]+nums[2]*nums[3],
+                    nums[0]*nums[1]+nums[2]+nums[3],
+                    nums[0]+nums[1]*nums[2]+nums[3]
+                ][operation]
+                this.entities={players:[],walls:[]}
+                for(let a=0,la=this.operation.player.length;a<la;a++){
+                    this.entities.players.push(new player(this.layer,this.layer.width/2+100-la*100+a*200,this.layer.height/2,1,1,a,this.operation.player[a]))
+                }
+                this.entities.walls.push(new wall(this.layer,this.layer.width/2,this.layer.height*0.2,260,65,9,{base:[[50,50,50],[225,225,225]],text:[0,0,0]}))
+                last(this.entities.walls).text=[
+                    `${nums[0]} + ${nums[1]} x ${nums[2]} x ${nums[3]}`,
+                    `${nums[0]} x ${nums[1]} + ${nums[2]} x ${nums[3]}`,
+                    `${nums[0]} x ${nums[1]} x ${nums[2]} + ${nums[3]}`,
+                    `${nums[0]} + ${nums[1]} + ${nums[2]} x ${nums[3]}`,
+                    `${nums[0]} x ${nums[1]} + ${nums[2]} + ${nums[3]}`,
+                    `${nums[0]} + ${nums[1]} x ${nums[2]} + ${nums[3]}`
+                ][operation]+' = ?'
+                let num=8
+                let correct=floor(random(0,num))
+                let values=elementArray(0,num)
+                values[correct]=this.control.result
+                for(let a=correct-1;a>=0;a--){
+                    values[a]=values[a+1]-floor(random(1,1+abs(a-(num/2-0.5))*2))
+                }
+                for(let a=correct+1,la=values.length;a<la;a++){
+                    values[a]=values[a-1]+floor(random(1,1+abs(a-(num/2-0.5))*2))
+                }
+                for(let a=0,la=values.length;a<la;a++){
+                    this.entities.walls.push(new wall(this.layer,this.layer.width/2-225+a%4*150,this.layer.height*(0.7+floor(a/4)*0.15),75,50,10,{base:[[50,50,50],[225,225,225]],text:[0,0,0]}))
+                    last(this.entities.walls).text=values[a]
+                }
+                for(let a=0,la=8;a<la;a++){
+                    for(let b=0,lb=this.entities.walls.length;b<lb;b++){
+                        this.entities.walls[b].ladder(a,this.entities.walls)
+                    }
+                    for(let b=0,lb=this.entities.walls.length;b<lb;b++){
+                        if(this.entities.walls[b].remove){
+                            this.entities.walls.splice(b,1)
+                            b--
+                            lb--
+                        }
+                    }
+                }
+                this.control.bound={base:{x:0,y:0},width:this.layer.width,height:this.layer.height,radius:0}
+            break
+            case 20:
+                this.graphics={main:[createGraphics(this.layer.width,this.layer.height)]}
+                setupLayer(this.graphics.main[0])
+                cellWidth=11
+                cellHeight=7
+                cells=[]
+                let blockings=[]
+                for(let a=0,la=cellHeight;a<la;a++){
+                    cells.push([])
+                    blockings.push([])
+                    for(let b=0,lb=cellWidth;b<lb;b++){
+                        cells[a].push(a*lb+b)
+                        blockings[a].push((a==0||a==la-1?1:0)+(b==0||b==lb-1?1:0))
+                    }
+                }
+                walls=[]
+                for(let a=0,la=cellHeight;a<la;a++){
+                    for(let b=0,lb=cellWidth-1;b<lb;b++){
+                        walls.push([[a,b],[a,b+1]])
+                    }
+                }
+                for(let a=0,la=cellHeight-1;a<la;a++){
+                    for(let b=0,lb=cellWidth;b<lb;b++){
+                        walls.push([[a,b],[a+1,b]])
+                    }
+                }
+                survivorWalls=[]
+                while(walls.length>0){
+                    let index=floor(random(0,walls.length))
+                    if(cells[walls[index][0][0]][walls[index][0][1]]==cells[walls[index][1][0]][walls[index][1][1]]){
+                        if(floor(random(0,
+                            walls[index][0][0]==0&&walls[index][1][0]==0||
+                            walls[index][0][1]==0&&walls[index][1][1]==0||
+                            walls[index][0][0]==cellHeight-1&&walls[index][1][0]==cellHeight-1||
+                            walls[index][0][1]==cellWidth-1&&walls[index][1][1]==cellWidth-1
+                            ?2:10))!=0){
+                            survivorWalls.push(walls[index])
+                            blockings[walls[index][0][0]][walls[index][0][1]]++
+                            blockings[walls[index][1][0]][walls[index][1][1]]++
+                        }
+                    }else{
+                        let setter=cells[walls[index][1][0]][walls[index][1][1]]
+                        for(let a=0,la=cells.length;a<la;a++){
+                            for(let b=0,lb=cells[a].length;b<lb;b++){
+                                if(cells[a][b]==setter){
+                                    cells[a][b]=cells[walls[index][0][0]][walls[index][0][1]]
+                                }
+                            }
+                        }
+                    }
+                    walls.splice(index,1)
+                }
+                mapping=[]
+                for(let a=0,la=cellHeight*4+1;a<la;a++){
+                    mapping.push([])
+                    for(let b=0,lb=cellWidth*4+1;b<lb;b++){
+                        mapping[a].push(a==0||a==la-1||b==0||b==lb-1?1:0)
+                    }
+                }
+                for(let a=0,la=survivorWalls.length;a<la;a++){
+                    for(let b=0,lb=3;b<lb;b++){
+                        if(survivorWalls[a][0][0]==survivorWalls[a][1][0]){
+                            mapping[survivorWalls[a][0][0]*4+1+b][survivorWalls[a][0][1]*2+survivorWalls[a][1][1]*2+2]=1
+                        }else{
+                            mapping[survivorWalls[a][0][0]*2+survivorWalls[a][1][0]*2+2][survivorWalls[a][0][1]*4+1+b]=1
+                        }
+                    }
+                }
+                let mids=[]
+                for(let a=0,la=cellHeight-1;a<la;a++){
+                    for(let b=0,lb=cellWidth-1;b<lb;b++){
+                        if(
+                            mapping[a*4+3][b*4+4]==1||
+                            mapping[a*4+5][b*4+4]==1||
+                            mapping[a*4+4][b*4+3]==1||
+                            mapping[a*4+4][b*4+5]==1
+                        ){
+                            mapping[a*4+4][b*4+4]=1
+                        }else if(!(b>=3&&b<lb-3&&a<2)){
+                            mids.push([a+0.5,b+0.5])
+                        }
+                    }
+                }
+                spent=[]
+                for(let a=0,la=mapping.length;a<la;a++){
+                    spent.push([])
+                    for(let b=0,lb=mapping[a].length;b<lb;b++){
+                        spent[a].push(false)
+                    }
+                }
+                this.entities={players:[],walls:[[],[]],projectiles:[]}
+                this.control.bound={base:{x:0,y:0},width:this.layer.width,height:this.layer.height,radius:0}
+                for(let a=0,la=mapping.length;a<la;a++){
+                    for(let b=0,lb=mapping[a].length;b<lb;b++){
+                        if(!spent[a][b]){
+                            spent[a][b]=true
+                            switch(mapping[a][b]){
+                                case 1:
+                                    let total=1
+                                    for(let c=0,lc=la-a-1;c<lc;c++){
+                                        if(mapping[a][b]==mapping[a+c+1][b]){
+                                            total++
+                                            spent[a+c+1][b]=true
+                                        }else{
+                                            c=lc
+                                        }
+                                    }
+                                    this.entities.walls[1].push(new wall(this.layer,20*(b+0.5+1.5),20*(a+total*0.5+0.5),20,20*total,0,{base:[100,100,100]}))
+                                break
+                            }
+                        }
+                    }
+                }
+                this.entities.walls[1].push(new wall(this.layer,15,this.layer.height*0.5,30,this.layer.height,0,{base:[100,100,100]}))
+                this.entities.walls[1].push(new wall(this.layer,this.layer.width-15,this.layer.height*0.5,30,this.layer.height,0,{base:[100,100,100]}))
+                this.entities.walls[1].push(new wall(this.layer,this.layer.width*0.5,5,this.layer.width-60,10,0,{base:[100,100,100]}))
+                this.entities.walls[1].push(new wall(this.layer,this.layer.width*0.5,this.layer.height-5,this.layer.width-60,10,0,{base:[100,100,100]}))
+                let ends=[]
+                let boxes=[]
+                for(let a=0,la=cellHeight;a<la;a++){
+                    for(let b=0,lb=cellWidth;b<lb;b++){
+                        if(!(b>=3&&b<lb-3&&a<2)){
+                            if(blockings[a][b]>=3){
+                                ends.push([a,b])
+                            }else{
+                                boxes.push([a,b])
+                            }
+                        }
+                    }
+                }
+                this.control.box=floor(random(0,20))
+                set=shuffleArray(range(0,20))
+                let backBoxes=[]
+                let lastBoxes=[]
+                for(let a=0,la=20;a<la;a++){
+                    if(ends.length>0){
+                        let index=floor(random(0,ends.length))
+                        this.entities.walls[0].push(new wall(this.layer,80+ends[index][1]*80,60+ends[index][0]*80,40,40,11,{base:[[160,100,40],[120,70,20]],text:[25,25,25]}))
+                        last(this.entities.walls[0]).text=set[a]
+                        for(let b=0,lb=boxes.length;b<lb;b++){
+                            if(
+                                boxes[b][0]==ends[index][0]-1&&boxes[b][1]==ends[index][1]||
+                                boxes[b][0]==ends[index][0]+1&&boxes[b][1]==ends[index][1]||
+                                boxes[b][0]==ends[index][0]&&boxes[b][1]==ends[index][1]-1||
+                                boxes[b][0]==ends[index][0]&&boxes[b][1]==ends[index][1]+1
+                            ){
+                                backBoxes.push(boxes[b])
+                                boxes.splice(b,1)
+                                b--
+                                lb--
+                            }
+                        }
+                        ends.splice(index,1)
+                    }else if(mids.length>0){
+                        let index=floor(random(0,mids.length))
+                        this.entities.walls[0].push(new wall(this.layer,80+mids[index][1]*80,60+mids[index][0]*80,40,40,11,{base:[[160,100,40],[120,70,20]],text:[25,25,25]}))
+                        last(this.entities.walls[0]).text=set[a]
+                        for(let b=0,lb=boxes.length;b<lb;b++){
+                            if(abs(boxes[b][0]-mids[index][0]<1)&&abs(boxes[b][1]-mids[index][1]<1)){
+                                lastBoxes.push(boxes[b])
+                                boxes.splice(b,1)
+                                b--
+                                lb--
+                            }
+                        }
+                        mids.splice(index,1)
+                    }else if(boxes.length>0){
+                        let index=floor(random(0,boxes.length))
+                        this.entities.walls[0].push(new wall(this.layer,80+boxes[index][1]*80,60+boxes[index][0]*80,40,40,11,{base:[[160,100,40],[120,70,20]],text:[25,25,25]}))
+                        last(this.entities.walls[0]).text=set[a]
+                        boxes.splice(index,1)
+                    }else if(backBoxes.length>0){
+                        let index=floor(random(0,backBoxes.length))
+                        this.entities.walls[0].push(new wall(this.layer,80+backBoxes[index][1]*80,60+backBoxes[index][0]*80,40,40,11,{base:[[160,100,40],[120,70,20]],text:[25,25,25]}))
+                        last(this.entities.walls[0]).text=set[a]
+                        backBoxes.splice(index,1)
+                    }else if(lastBoxes.length>0){
+                        let index=floor(random(0,lastBoxes.length))
+                        this.entities.walls[0].push(new wall(this.layer,80+lastBoxes[index][1]*80,60+lastBoxes[index][0]*80,40,40,11,{base:[[160,100,40],[120,70,20]],text:[25,25,25]}))
+                        last(this.entities.walls[0]).text=set[a]
+                        lastBoxes.splice(index,1)
+                    }
+                }
+                for(let a=0,la=this.operation.player.length;a<la;a++){
+                    switch(a){
+                        case 0:
+                            this.entities.players.push(new player(this.layer,this.layer.width/2,60,1,13,a,this.operation.player[a]))
+                            last(this.entities.players).direction.main=45
+                            last(this.entities.players).direction.goal=45
+                        break
+                        case 1:
+                            this.entities.players.push(new player(this.layer,this.layer.width/2-80,60,1,13,a,this.operation.player[a]))
+                            last(this.entities.players).direction.main=225
+                            last(this.entities.players).direction.goal=225
+                        break
+                        case 2:
+                            this.entities.players.push(new player(this.layer,this.layer.width/2+80,60,1,13,a,this.operation.player[a]))
+                            last(this.entities.players).direction.main=135
+                            last(this.entities.players).direction.goal=135
+                        break
+                        case 3:
+                            this.entities.players.push(new player(this.layer,this.layer.width/2,140,1,13,a,this.operation.player[a]))
+                            last(this.entities.players).direction.main=315
+                            last(this.entities.players).direction.goal=315
+                        break
+                    }
+                }
+                for(let a=0,la=8;a<la;a++){
+                    for(let b=0,lb=this.entities.walls.length;b<lb;b++){
+                        for(let c=0,lc=this.entities.walls[b].length;c<lc;c++){
+                            this.entities.walls[b][c].ladder(a,this.entities.walls[b])
+                        }
+                        for(let c=0,lc=this.entities.walls[b].length;c<lc;c++){
+                            if(this.entities.walls[b][c].remove){
+                                this.entities.walls[b].splice(c,1)
+                                c--
+                                lc--
+                            }
+                        }
+                    }
+                }
+            break
+            
         }
     }
     setup(){
         switch(this.minigame){
             case 0: case 3: case 6: case 7: case 8: case 9: case 10: case 11: case 12: case 14:
-            case 15: case 16:
+            case 15: case 16: case 18: case 19: case 20: case 21: case 22:
                 this.result.score=[]
                 for(let a=0,la=this.operation.player.length;a<la;a++){
                     this.result.score.push(0)
@@ -1149,6 +1455,88 @@ class minigameManager{
                         this.layer.text(formatTime(this.result.timer[0]),5,12)
                         for(let a=0,la=this.operation.player.length;a<la;a++){
                             this.layer.text(types.player[this.operation.player[a]].name+`: `+this.result.score[a],5,28+a*16)
+                        }
+                        this.layer.textAlign(CENTER,CENTER)
+                    break
+                    case 18:
+                        this.layer.background(0)
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].display()
+                        }
+                        for(let a=0,la=this.entities.walls.length;a<la;a++){
+                            this.entities.walls[a].display()
+                        }
+                        for(let a=0,la=this.entities.projectiles.length;a<la;a++){
+                            this.entities.projectiles[a].display()
+                        }
+                        this.layer.fill(255)
+                        this.layer.textAlign(LEFT,CENTER)
+                        this.layer.textSize(12)
+                        for(let a=0,la=this.operation.player.length;a<la;a++){
+                            this.layer.text(types.player[this.operation.player[a]].name+`: `+this.result.score[a],5,12+a*16)
+                        }
+                        this.layer.textAlign(CENTER,CENTER)
+                    break
+                    case 19:
+                        this.layer.background(0)
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].display()
+                        }
+                        for(let a=0,la=this.entities.walls.length;a<la;a++){
+                            this.entities.walls[a].display()
+                        }
+                        this.layer.fill(255)
+                        this.layer.textAlign(LEFT,CENTER)
+                        this.layer.textSize(12)
+                        for(let a=0,la=this.operation.player.length;a<la;a++){
+                            this.layer.text(types.player[this.operation.player[a]].name+`: `+this.result.score[a],5,12+a*16)
+                        }
+                        this.layer.textAlign(CENTER,CENTER)
+                    break
+                    case 20:
+                        this.layer.background(0)
+                        for(let a=0,la=this.entities.walls[0].length;a<la;a++){
+                            this.entities.walls[0][a].display()
+                        }
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].display()
+                        }
+                        for(let a=0,la=this.entities.walls[1].length;a<la;a++){
+                            this.entities.walls[1][a].display()
+                        }
+                        this.graphics.main[0].background(0)
+                        this.graphics.main[0].erase()
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.graphics.main[0].ellipse(this.entities.players[a].position.x,this.entities.players[a].position.y,150)
+                        }
+                        this.layer.image(this.graphics.main[0],this.layer.width/2,this.layer.height/2)
+                        this.layer.fill(255)
+                        this.layer.textAlign(LEFT,CENTER)
+                        this.layer.textSize(12)
+                        for(let a=0,la=this.operation.player.length;a<la;a++){
+                            this.layer.text(types.player[this.operation.player[a]].name+`: `+this.result.score[a],5,12+a*16)
+                        }
+                        this.layer.textAlign(CENTER,CENTER)
+                        this.layer.text(`Find Box ${this.control.box}`,this.layer.width/2,12)
+                    break
+                    case 21:
+                        this.layer.background(0)
+                        this.layer.fill(150,200,225)
+                        this.layer.ellipse(this.layer.width/2,this.layer.height/2,this.layer.height*0.9)
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].display()
+                        }
+                        for(let a=0,la=this.entities.walls.length;a<la;a++){
+                            this.entities.walls[a].display()
+                        }
+                        for(let a=0,la=this.entities.projectiles.length;a<la;a++){
+                            this.entities.projectiles[a].display()
+                        }
+                        this.layer.fill(255)
+                        this.layer.textAlign(LEFT,CENTER)
+                        this.layer.textSize(12)
+                        for(let a=0,la=this.operation.player.length;a<la;a++){
+                            this.layer.text(types.player[this.operation.player[a]].name+`: `+this.result.score[a],5,12+a*16)
                         }
                         this.layer.textAlign(CENTER,CENTER)
                     break
@@ -2338,7 +2726,181 @@ class minigameManager{
                             this.result.anim+=0.1
                         }
                     break
-
+                    case 18:
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].update(this)
+                        }
+                        let resetter=[]
+                        for(let a=0,la=this.entities.walls.length;a<la;a++){
+                            this.entities.walls[a].update(this)
+                            for(let b=0,lb=this.entities.players.length;b<lb;b++){
+                                let result=this.entities.walls[a].collide(0,this.entities.players[b],this)
+                                switch(result[0]){
+                                    case 1:
+                                        this.result.score[b]++
+                                        this.entities.players[b].dead.trigger=true
+                                        resetter.push(b)
+                                    break
+                                }
+                            }
+                        }
+                        for(let a=0,la=resetter.length;a<la;a++){
+                            let nudge=floor(random(0,4))
+                            let ticker=0
+                            for(let b=0,lb=this.entities.walls.length;b<lb;b++){
+                                if(this.entities.walls[b].height<10&&this.entities.walls[b].position.x>this.layer.width*(0.5+resetter[a]/4-this.entities.players.length/8)&&this.entities.walls[b].position.x<this.layer.width*(0.75+resetter[a]/4-this.entities.players.length/8)){
+                                    this.entities.walls[b].move(this.layer.width*(0.5+resetter[a]/4-this.entities.players.length/8)+[60-floor(random(0,3))*20,80+floor(random(0,5))*20,180+floor(random(0,3))*20,80+floor(random(0,5))*20][(ticker+nudge)%4]-this.entities.walls[b].position.x,0)
+                                    ticker++
+                                }
+                            }
+                        }
+                        for(let a=0,la=this.entities.projectiles.length;a<la;a++){
+                            this.entities.projectiles[a].update(this)
+                            for(let b=a+1,lb=this.entities.projectiles.length;b<lb;b++){
+                                this.entities.projectiles[a].collide(1,this.entities.projectiles[b],this)
+                            }
+                            for(let b=0,lb=this.entities.players.length;b<lb;b++){
+                                this.entities.projectiles[a].collide(2,this.entities.players[b],this)
+                            }
+                            if(this.entities.projectiles[a].remove){
+                                this.entities.projectiles.splice(a,1)
+                                a--
+                                la--
+                            }
+                        }
+                        for(let a=0,la=this.result.score.length;a<la;a++){
+                            if(this.result.score[a]>=5&&!this.result.end){
+                                this.result.end=true
+                                this.result.winner=[a]
+                            }
+                        }
+                        if(this.result.end&&this.result.anim<1){
+                            this.result.anim+=0.1
+                        }
+                    break
+                    case 19:
+                        survive=0
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].update(this)
+                            for(let b=a+1,lb=this.entities.players.length;b<lb;b++){
+                                this.entities.players[a].collide(0,this.entities.players[b],this)
+                            }
+                            if(this.entities.players[a].active){
+                                survive++
+                            }
+                        }
+                        for(let a=0,la=this.entities.walls.length;a<la;a++){
+                            this.entities.walls[a].update(this)
+                            for(let b=0,lb=this.entities.players.length;b<lb;b++){
+                                let result=this.entities.walls[a].collide(1,this.entities.players[b],this)
+                                switch(result[0]){
+                                    case 1:
+                                        if(!this.result.end){
+                                            if(result[1]==this.control.result){
+                                                this.subResult.end=true
+                                                this.subResult.winner=[b]
+                                            }else{
+                                                this.entities.players[b].active=false
+                                                this.entities.players[b].timer.dizzy=-100
+                                            }
+                                        }
+                                    break
+                                }
+                            }
+                        }
+                        if(survive<=0){
+                            this.subResult.end=true
+                            this.subResult.winner=[]
+                        }
+                        if(this.subResult.end&&!this.result.end){
+                            if(this.subResult.anim<9){
+                                this.subResult.anim+=0.1
+                            }else{
+                                for(let a=0,la=this.subResult.winner.length;a<la;a++){
+                                    this.result.score[this.subResult.winner[a]]++
+                                    if(this.result.score[this.subResult.winner[a]]>=5){
+                                        this.result.end=true
+                                    }
+                                }
+                                if(this.result.end){
+                                    this.result.winner=[]
+                                    for(let a=0,la=this.entities.players.length;a<la;a++){
+                                        if(this.result.score[a]>=5){
+                                            this.result.winner.push(a)
+                                        }
+                                        this.payout.main.push((this.result.score[a]>=5?1:0)*this.payout.root*this.payout.mult+this.payout.add[a])
+                                    }
+                                }else{
+                                    this.reset()
+                                    this.subResult.end=false
+                                    this.subResult.anim=0
+                                }
+                            }
+                        }
+                        if(this.result.end&&this.result.anim<1){
+                            this.result.anim+=0.1
+                        }
+                    break
+                    case 20:
+                        survive=0
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].update(this)
+                            for(let b=a+1,lb=this.entities.players.length;b<lb;b++){
+                                this.entities.players[a].collide(0,this.entities.players[b],this)
+                            }
+                            if(this.entities.players[a].active){
+                                survive++
+                            }
+                        }
+                        for(let a=0,la=this.entities.walls.length;a<la;a++){
+                            for(let b=0,lb=this.entities.walls[a].length;b<lb;b++){
+                                this.entities.walls[a][b].update(this)
+                                for(let c=0,lc=this.entities.players.length;c<lc;c++){
+                                    let result=this.entities.walls[a][b].collide(1,this.entities.players[c],this)
+                                    switch(result[0]){
+                                        case 1:
+                                            if(!this.result.end&&result[1]==this.control.box){
+                                                this.subResult.end=true
+                                                this.subResult.winner=[c]
+                                            }
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                        if(this.subResult.end&&!this.result.end){
+                            if(this.subResult.anim<9){
+                                this.subResult.anim+=0.1
+                            }else{
+                                for(let a=0,la=this.subResult.winner.length;a<la;a++){
+                                    this.result.score[this.subResult.winner[a]]++
+                                    if(this.result.score[this.subResult.winner[a]]>=5){
+                                        this.result.end=true
+                                    }
+                                }
+                                if(this.result.end){
+                                    this.result.winner=[]
+                                    for(let a=0,la=this.entities.players.length;a<la;a++){
+                                        if(this.result.score[a]>=5){
+                                            this.result.winner.push(a)
+                                        }
+                                        this.payout.main.push((this.result.score[a]>=5?1:0)*this.payout.root*this.payout.mult+this.payout.add[a])
+                                    }
+                                }else{
+                                    for(let a=0,la=this.entities.players.length;a<la;a++){
+                                        this.entities.players[a].dead.trigger=true
+                                    }
+                                    this.control.box=floor(random(0,20))
+                                    this.subResult.end=false
+                                    this.subResult.anim=0
+                                }
+                            }
+                        }
+                        if(this.result.end&&this.result.anim<1){
+                            this.result.anim+=0.1
+                        }
+                    break
+                    
                 }
             break
         }

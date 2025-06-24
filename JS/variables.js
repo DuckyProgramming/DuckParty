@@ -156,8 +156,7 @@ Get to 5 wins first.
             name:'Awful Tower',player:1,
             desc:
 `
-Move with UP, DOWN, LEFT, RIGHT.
-Reach the top, and collect lumps.
+Move with UP, LEFT, RIGHT.
 Get to the top first.
 `,
         },{
@@ -293,6 +292,47 @@ Get to 5 wins first.
 Move with UP, DOWN, LEFT, RIGHT.
 Get the ducks to the other players' zones.
 `,
+        },{
+            name:'Toxic Tower',player:1,
+            desc:
+`
+Move with UP, LEFT, RIGHT.
+Attack with DOWN, ACTION to push opponents.
+Get to the top first.
+`,
+        },{
+            name:'Math Mania',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Go to the box with the correct answer.
+Get to 5 wins first.
+`,
+        },{
+            name:'Blackened Boxes',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Find the demanded numbered box.
+Get to 5 wins first.
+`,
+        },{
+            name:'Snowballers',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Press ACTION to build or release a ball.
+Knock everyone else off.
+Get to 5 wins first.
+`,
+        },{
+            name:'Runner Ducks',player:1,
+            desc:
+`
+Turn with LEFT, RIGHT. You can't stop moving forward.
+Attack with ACTION to damage opponents.
+Get to 5 wins first.
+`,
         },
     ],
 }
@@ -302,6 +342,7 @@ listing={
         'Spiked Ducks','Cookie Wheel','Cookie Piles','Acid Rain',
         'Vortex','Treadmill','Maze Murder','Cookie Chaos',
         'Duck Crowd','Tank Ducks','Electric Maze','Overpopulation',
-        '','','','',
+        'Toxic Tower','Math Mania','Blackened Boxes','Snowballers',
+        'Runner Ducks','','','',
     ],
 }
