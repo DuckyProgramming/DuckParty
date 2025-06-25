@@ -27,6 +27,16 @@ class wall extends partisan{
                 this.offset.time=random(0,this.cycle)
                 this.anim={active:0}
             break
+            case 12:
+                this.select={trigger:false,group:0,id:-1,color:[],anim:0}
+                this.set=[]
+                this.fade.main=true
+            break
+            case 13:
+                this.select={id:-1}
+                this.set=[]
+                this.fall=0
+            break
         }
     }
     combiner(){
@@ -450,6 +460,46 @@ class wall extends partisan{
                 layer.textSize(25)
                 layer.text(this.text,0,0)
             break
+            case 12:
+                layer.fill(...this.color.base,this.fade.main)
+                layer.rect(0,0,this.width,this.height,4)
+                layer.fill(...this.color.internal,this.fade.main)
+                layer.rect(0,0,this.width-10,this.height-10,2)
+                layer.noFill()
+                layer.stroke(...this.color.wire,this.fade.main)
+                let cap=0
+                for(let a=0,la=this.set.length;a<la;a++){
+                    cap=max(this.set[a][1],cap)
+                }
+                layer.strokeWeight(2)
+                layer.rect(0,0,60,cap*20)
+                layer.rect(0,0,20,cap*20)
+                switch(cap){
+                    case 2:
+                        layer.line(-30,0,30,0)
+                    break
+                    case 3:
+                        layer.rect(0,0,60,20)
+                    break
+                }
+                layer.fill(...this.color.block,this.fade.main)
+                layer.stroke(...this.color.grid,this.fade.main)
+                for(let a=0,la=this.set.length;a<la;a++){
+                    for(let b=0,lb=this.set[a][1]-this.set[a][0];b<lb;b++){
+                        layer.rect(-20+a*20,cap*10-10-this.set[a][0]*20-b*20,20)
+                    }
+                }
+            break
+            case 13:
+                layer.fill(...this.color.block,this.fade.main)
+                layer.stroke(...this.color.grid,this.fade.main)
+                layer.strokeWeight(2)
+                for(let a=0,la=this.set.length;a<la;a++){
+                    for(let b=0,lb=this.set[a][1]-this.set[a][0];b<lb;b++){
+                        layer.rect(-20+a*20,-10-this.set[a][0]*20-b*20,20)
+                    }
+                }
+            break
         }
         layer.pop()
     }
@@ -490,6 +540,23 @@ class wall extends partisan{
             break
             case 4: case 5:
                 this.anim.active=smoothAnim(this.anim.active,(this.timer.main+this.offset.time)%this.cycle<this.cycle-90,0,1,10)
+            break
+            case 12:
+                if(this.select.trigger&&this.select.anim<1){
+                    this.select.anim+=0.1
+                    this.color.base[0]+=0.1*this.select.color[0]
+                    this.color.base[1]+=0.1*this.select.color[1]
+                    this.color.base[2]+=0.1*this.select.color[2]
+                }
+                if(this.fade.main<=0&&!this.fade.trigger){
+                    this.remove=true
+                }
+            break
+            case 13:
+                if(this.fall>0){
+                    this.fall-=5
+                    this.position.y+=5
+                }
             break
         }
     }

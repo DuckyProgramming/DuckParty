@@ -30,6 +30,11 @@ class player extends partisan{
                         this.timer.attack=0
                         this.life=3
                     break
+                    case 3:
+                        this.timer.bomb=0
+                        this.timer.bombTick=0
+                        this.timer.explode=0
+                    break
                 }
             break
             case 1:
@@ -267,6 +272,24 @@ class player extends partisan{
         layer.noStroke()
         switch(this.type){
             case 0:
+                switch(this.distinct){
+                    case 3:
+                        if(this.timer.explode>0){
+                            layer.fill(240,240,40,this.timer.explode/15)
+                            layer.ellipse(0,-10,150-this.timer.explode/15*150)
+                            layer.fill(240,160,40,this.timer.explode/15)
+                            layer.ellipse(0,-10,100-this.timer.explode/15*100)
+                            layer.fill(240,80,40,this.timer.explode/15)
+                            layer.ellipse(0,-10,50-this.timer.explode/15*50)
+                        }else if(this.timer.bomb>0){
+                            layer.fill(175+lcos(this.timer.bomb*10)*75,60-lcos(this.timer.bomb*10)*40,60-lcos(this.timer.bomb*10)*40)
+                            layer.ellipse(0,-10,14)
+                            layer.fill(255,0,0,this.fade.main)
+                            layer.textSize(12)
+                            layer.text(ceil(this.timer.bomb/60),0,-40)
+                        }
+                    break
+                }
                 this.calculateParts()
                 for(let a=0,la=2;a<la;a++){
                     if(this.skin.arms[a].display&&lcos(this.direction.main+this.skin.arms[a].anim.phi)<=0){
@@ -731,6 +754,31 @@ class player extends partisan{
                             this.animSet.attack=0
                         }
                     break
+                    case 3:
+                        if(this.timer.bomb>0){
+                            this.timer.bomb--
+                            if(this.timer.bomb<=0){
+                                this.active=false
+                                this.dead.trigger=true
+                                this.timer.explode=15
+                                let possible=[]
+                                for(let a=0,la=parent.entities.players.length;a<la;a++){
+                                    if(parent.entities.players[a].active){
+                                        possible.push(a)
+                                    }
+                                }
+                                if(possible.length>1){
+                                    parent.entities.players[possible[floor(random(0,possible.length))]].timer.bomb=600
+                                }
+                            }
+                        }
+                        if(this.timer.bombTick>0){
+                            this.timer.bombTick--
+                        }
+                        if(this.timer.explode>0){
+                            this.timer.explode--
+                        }
+                    break
                 }
                 if(this.dead.trigger){
                     this.fade.trigger=false
@@ -1192,6 +1240,13 @@ class player extends partisan{
                                 }
                             }
                         break
+                        case 1:
+                            for(let a=0,la=parent.entities.walls[1].length;a<la;a++){
+                                if(!parent.entities.walls[1][a].select.trigger){
+                                    this.collide(1,parent.entities.walls[1][a],parent)
+                                }
+                            }
+                        break
                     }
                 }
                 this.infoAnim.select=smoothAnim(this.infoAnim.select,this.select.trigger>0,0,1,5)
@@ -1315,6 +1370,25 @@ class player extends partisan{
                             this.velocity.y=-magnitude[1]*lcos(dir)
                         }
                     break
+                    case 1:
+                        if(inBoxBox(this,obj)&&this.active&&obj.active){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
+                            obj.velocity.x=magnitude[0]*lsin(dir)
+                            obj.velocity.y=magnitude[0]*lcos(dir)
+                            this.velocity.x=-magnitude[1]*lsin(dir)
+                            this.velocity.y=-magnitude[1]*lcos(dir)
+                            if(this.timer.bomb>0&&this.timer.bombTick<=0){
+                                obj.timer.bomb=this.timer.bomb
+                                obj.timer.bombTick=15
+                                this.timer.bomb=0
+                            }else if(obj.timer.bomb>0&&obj.timer.bombTick<=0){
+                                this.timer.bomb=obj.timer.bomb
+                                this.timer.bombTick=15
+                                obj.timer.bomb=0
+                            }
+                        }
+                    break
                 }
             break
             case 1:
@@ -1432,6 +1506,14 @@ class player extends partisan{
                                     parent.entities.walls[a].select.color=this.color.skin.head
                                 }
                             }
+                        }
+                    break
+                    case 1:
+                        if(inCircleBox(this,obj)){
+                            this.select.trigger=true
+                            obj.select.trigger=true
+                            obj.select.color=this.color.skin.head
+                            obj.select.id=this.id
                         }
                     break
                 }
