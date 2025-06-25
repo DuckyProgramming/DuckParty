@@ -3,6 +3,10 @@ class projectile extends entity{
         super(layer,x,y,{main:0,trigger:true,speed:5})
         this.type=type
         this.control=control
+        this.setupValues(control)
+    }
+    setupValues(control){
+        let begin
         switch(this.type){
             case 0: case 1: case 3: case 5: case 6: case 7:
                 this.past=elementArray({x:this.position.x,y:this.position.y},10)
@@ -51,7 +55,7 @@ class projectile extends entity{
                 this.value=control.value
                 this.size=1
                 this.spots=[]
-                let begin=random(0,360)
+                begin=random(0,360)
                 for(let a=0,la=this.value;a<la;a++){
                     let rad=random(8,10)
                     let dir=begin+(a+random(-0.2,0.2))/la*360
@@ -108,6 +112,23 @@ class projectile extends entity{
                 this.velocity.y=lcos(this.direction)*this.speed
                 this.previous={position:{x:this.position.x,y:this.position.y}}
                 this.fade.main=1
+                this.active=true
+            break
+            case 12:
+                this.speed=3
+                this.radius=random(7.5,8.25)
+                this.insided=false
+                this.direction=atan2(this.layer.width/2-this.position.x,this.layer.height/2-this.position.y)+random(-30,30)
+                this.velocity={x:0,y:0}
+                this.velocity.x=lsin(this.direction)*this.speed
+                this.velocity.y=lcos(this.direction)*this.speed
+                this.spots=[]
+                begin=random(0,360)
+                for(let a=0,la=floor(random(2.5,5.5));a<la;a++){
+                    let rad=random(3,5.25)
+                    let dir=begin+(a+random(-0.2,0.2))/la*360
+                    this.spots.push([lsin(dir)*rad,lcos(dir)*rad,random(2.25,3.375)])
+                }
                 this.active=true
             break
         }
@@ -210,6 +231,15 @@ class projectile extends entity{
                     layer.ellipse(0,0,4*this.size)
                 }
             break
+            case 12:
+                layer.rotate(this.timer.main)
+                layer.fill(160,130,80,this.fade.main)
+                layer.ellipse(0,0,this.radius*2)
+                layer.fill(75,45,15,this.fade.main)
+                for(let a=0,la=this.spots.length;a<la;a++){
+                    layer.ellipse(this.spots[a][0],this.spots[a][1],this.spots[a][2])
+                }
+            break
         }
         layer.pop()
     }
@@ -279,7 +309,7 @@ class projectile extends entity{
                 }
                 this.position.x+=this.velocity.x*min(1,this.timer.main/300)
                 this.position.y+=this.velocity.y*min(1,this.timer.main/300)
-                if(this.position.x<parent.control.bound.base.x){
+                if(this.position.x<0){
                     this.position.x=this.base.position.x
                     this.position.y=this.base.position.y
                     this.timer.main=0
@@ -288,7 +318,8 @@ class projectile extends entity{
                     this.velocity.x=lsin(this.direction)*this.speed
                     this.velocity.y=lcos(this.direction)*this.speed
                     parent.result.score[1]++
-                }else if(this.position.x>parent.control.bound.base.x+parent.control.bound.width){
+                    parent.result.score[2]++
+                }else if(this.position.x>this.layer.width){
                     this.position.x=this.base.position.x
                     this.position.y=this.base.position.y
                     this.timer.main=0
@@ -297,59 +328,143 @@ class projectile extends entity{
                     this.velocity.x=lsin(this.direction)*this.speed
                     this.velocity.y=lcos(this.direction)*this.speed
                     parent.result.score[0]++
+                    parent.result.score[2]++
                 }
-                if(this.position.y<parent.control.bound.base.y){
-                    this.position.y=parent.control.bound.base.y
-                    this.velocity.y*=-1
-                }else if(this.position.y>parent.control.bound.base.y+parent.control.bound.height){
-                    this.position.y=parent.control.bound.base.y+parent.control.bound.height
-                    this.velocity.y*=-1
-                }
-                if((
-                    intersect(
-                        {x:100,y:parent.control.bound.base.y},
-                        {x:100,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
-                        this.position,this.previous.position
-                    )||intersect(
-                        {x:100,y:parent.control.bound.base.y+parent.control.bound.height},
-                        {x:100,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
-                        this.position,this.previous.position
-                    )
-                )&&this.position.x<100||(
-                    intersect(
-                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y},
-                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
-                        this.position,this.previous.position
-                    )||intersect(
-                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y+parent.control.bound.height},
-                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
-                        this.position,this.previous.position
-                    )
-                )&&this.position.x>parent.control.bound.width-100){
-                    this.velocity.x*=-1
-                }
-                if((
-                    intersect(
-                        {x:0,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
-                        {x:100,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
-                        this.position,this.previous.position
-                    )||intersect(
-                        {x:parent.control.bound.width,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
-                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75},
-                        this.position,this.previous.position
-                    )
-                )&&this.position.y<parent.control.bound.base.y+parent.control.bound.height*0.5-75||(
-                    intersect(
-                        {x:parent.control.bound.width,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
-                        {x:parent.control.bound.width-100,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
-                        this.position,this.previous.position
-                    )||intersect(
-                        {x:0,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
-                        {x:100,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75},
-                        this.position,this.previous.position
-                    )
-                )&&this.position.y>parent.control.bound.base.y+parent.control.bound.height*0.5+75){
-                    this.velocity.y*=-1
+                if(parent.entities.players.length==3){
+                    if(this.position.y<0){
+                        this.position.x=this.base.position.x
+                        this.position.y=this.base.position.y
+                        this.timer.main=0
+                        this.size=0
+                        this.direction=random(0,360)
+                        this.velocity.x=lsin(this.direction)*this.speed
+                        this.velocity.y=lcos(this.direction)*this.speed
+                        parent.result.score[0]++
+                        parent.result.score[1]++
+                    }else if(this.position.y>parent.control.bound.base.y+parent.control.bound.height-this.radius){
+                        this.position.y=parent.control.bound.base.y+parent.control.bound.height-this.radius
+                        this.velocity.y*=-1
+                    }
+                    if((
+                        intersect(
+                            {x:100+this.radius,y:parent.control.bound.base.y},
+                            {x:100+this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5-15+this.radius},
+                            this.position,this.previous.position
+                        )||intersect(
+                            {x:100+this.radius,y:parent.control.bound.base.y+parent.control.bound.height},
+                            {x:100+this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5+135-this.radius},
+                            this.position,this.previous.position
+                        )
+                    )&&this.position.x<100+this.radius||(
+                        intersect(
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y},
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5-15+this.radius},
+                            this.position,this.previous.position
+                        )||intersect(
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y+parent.control.bound.height},
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5+135-this.radius},
+                            this.position,this.previous.position
+                        )
+                    )&&this.position.x>this.layer.width-100-this.radius||
+                        intersect(
+                            {x:this.layer.width/2-75+this.radius,y:0},
+                            {x:this.layer.width/2-75+this.radius,y:parent.control.bound.base.y},
+                            this.position,this.previous.position
+                        )&&this.position.x<this.layer.width/2-75+this.radius||
+                        intersect(
+                            {x:this.layer.width/2+75-this.radius,y:0},
+                            {x:this.layer.width/2+75-this.radius,y:parent.control.bound.base.y},
+                            this.position,this.previous.position
+                        )&&this.position.x>this.layer.width/2+75-this.radius){
+                        this.velocity.x*=-1
+                    }
+                    if((
+                        intersect(
+                            {x:0,y:parent.control.bound.base.y+parent.control.bound.height*0.5-15+this.radius},
+                            {x:100+this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5-15+this.radius},
+                            this.position,this.previous.position
+                        )||intersect(
+                            {x:this.layer.width,y:parent.control.bound.base.y+parent.control.bound.height*0.5-15+this.radius},
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5-15+this.radius},
+                            this.position,this.previous.position
+                        )
+                    )&&this.position.y<parent.control.bound.base.y+parent.control.bound.height*0.5-15+this.radius||(
+                        intersect(
+                            {x:this.layer.width,y:parent.control.bound.base.y+parent.control.bound.height*0.5+135-this.radius},
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5+135-this.radius},
+                            this.position,this.previous.position
+                        )||intersect(
+                            {x:0,y:parent.control.bound.base.y+parent.control.bound.height*0.5+135-this.radius},
+                            {x:100+this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5+135-this.radius},
+                            this.position,this.previous.position
+                        )
+                    )&&this.position.y>parent.control.bound.base.y+parent.control.bound.height*0.5+135-this.radius||
+                        intersect(
+                            {x:100,y:100+this.radius},
+                            {x:this.layer.width/2-75+this.radius,y:100+this.radius},
+                            this.position,this.previous.position
+                        )&&this.position.y<100+this.radius||
+                        intersect(
+                            {x:this.layer.width/2+75-this.radius,y:100+this.radius},
+                            {x:this.layer.width-100,y:100+this.radius},
+                            this.position,this.previous.position
+                        )&&this.position.y<100+this.radius){
+                        this.velocity.y*=-1
+                    }
+                }else{
+                    if(this.position.y<parent.control.bound.base.y+this.radius){
+                        this.position.y=parent.control.bound.base.y+this.radius
+                        this.velocity.y*=-1
+                    }else if(this.position.y>parent.control.bound.base.y+parent.control.bound.height-this.radius){
+                        this.position.y=parent.control.bound.base.y+parent.control.bound.height-this.radius
+                        this.velocity.y*=-1
+                    }
+                    if((
+                        intersect(
+                            {x:100+this.radius,y:parent.control.bound.base.y},
+                            {x:100+this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75+this.radius},
+                            this.position,this.previous.position
+                        )||intersect(
+                            {x:100+this.radius,y:parent.control.bound.base.y+parent.control.bound.height},
+                            {x:100+this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75-this.radius},
+                            this.position,this.previous.position
+                        )
+                    )&&this.position.x<100+this.radius||(
+                        intersect(
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y},
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75+this.radius},
+                            this.position,this.previous.position
+                        )||intersect(
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y+parent.control.bound.height},
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75-this.radius},
+                            this.position,this.previous.position
+                        )
+                    )&&this.position.x>this.layer.width-100-this.radius){
+                        this.velocity.x*=-1
+                    }
+                    if((
+                        intersect(
+                            {x:0,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75+this.radius},
+                            {x:100+this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75+this.radius},
+                            this.position,this.previous.position
+                        )||intersect(
+                            {x:this.layer.width,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75+this.radius},
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5-75+this.radius},
+                            this.position,this.previous.position
+                        )
+                    )&&this.position.y<parent.control.bound.base.y+parent.control.bound.height*0.5-75+this.radius||(
+                        intersect(
+                            {x:this.layer.width,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75-this.radius},
+                            {x:this.layer.width-100-this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75-this.radius},
+                            this.position,this.previous.position
+                        )||intersect(
+                            {x:0,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75-this.radius},
+                            {x:100+this.radius,y:parent.control.bound.base.y+parent.control.bound.height*0.5+75-this.radius},
+                            this.position,this.previous.position
+                        )
+                    )&&this.position.y>parent.control.bound.base.y+parent.control.bound.height*0.5+75-this.radius){
+                        this.velocity.y*=-1
+                    }
                 }
                 if(!this.active&&this.size>0){
                     this.size-=0.1
@@ -454,6 +569,32 @@ class projectile extends entity{
                     this.velocity.y*=0.5
                 }
             break
+            case 12:
+                this.position.x+=this.velocity.x
+                this.position.y+=this.velocity.y
+                if(this.fade<=0){
+                    this.remove=true
+                }
+                if(this.position.x>-50&&this.position.x<parent.control.bound.width+50&&this.position.y>-50&&this.position.y<parent.control.bound.height+50&&!this.insided){
+                    this.insided=true
+                }
+                if(this.insided){
+                    if(this.position.x<parent.control.bound.base.x){
+                        this.position.x=parent.control.bound.base.x
+                        this.velocity.x*=-1
+                    }else if(this.position.x>parent.control.bound.base.x+parent.control.bound.width){
+                        this.position.x=parent.control.bound.base.x+parent.control.bound.width
+                        this.velocity.x*=-1
+                    }
+                    if(this.position.y<parent.control.bound.base.y){
+                        this.position.y=parent.control.bound.base.y
+                        this.velocity.y*=-1
+                    }else if(this.position.y>parent.control.bound.base.y+parent.control.bound.height){
+                        this.position.y=parent.control.bound.base.y+parent.control.bound.height
+                        this.velocity.y*=-1
+                    }
+                }
+            break
         
         }
     }
@@ -501,10 +642,13 @@ class projectile extends entity{
                     break
                     case 4:
                         if(distPos(this,obj)<this.radius+obj.radius){
+                            let bar=this.radius+obj.radius-distPos(this,obj)
                             let dir=dirPos(this,obj)
                             let magnitude=magVec(this.velocity)
                             this.velocity.x=-magnitude*lsin(dir)
                             this.velocity.y=-magnitude*lcos(dir)
+                            this.position.x-=lsin(dir)*bar
+                            this.position.y-=lcos(dir)*bar
                         }
                     break
                 }
@@ -572,6 +716,27 @@ class projectile extends entity{
                     break
                     case 1:
                         if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.activesss){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
+                            obj.velocity.x=magnitude[0]*lsin(dir)
+                            obj.velocity.y=magnitude[0]*lcos(dir)
+                            this.velocity.x=-magnitude[1]*lsin(dir)
+                            this.velocity.y=-magnitude[1]*lcos(dir)
+                        }
+                    break
+                }
+            break
+            case 12:
+                switch(type){
+                    case 0:
+                        if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.active){
+                            obj.timer.stuffed+=360
+                            this.active=false
+                            this.fade.trigger=false
+                        }
+                    break
+                    case 1:
+                        if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.active){
                             let dir=dirPos(this,obj)
                             let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
                             obj.velocity.x=magnitude[0]*lsin(dir)

@@ -165,7 +165,7 @@ Get to the top first.
 `
 Move with UP, DOWN, LEFT, RIGHT.
 1: Don't get hit!
-3: Punch wtih ACTION to take money.
+3: Punch with ACTION to take money.
 `,
         },{
             name:`Gerrymandering`,player:1,
@@ -259,7 +259,7 @@ You'll receive that many cookies.
 Don't get the spiky ball.
 `,
         },{
-            name:'Duck Crowd',player:1,
+            name:'Hidden Hunt',player:1,
             desc:
 `
 Move with UP, DOWN, LEFT, RIGHT.
@@ -333,16 +333,48 @@ Turn with LEFT, RIGHT. You can't stop moving forward.
 Attack with ACTION to damage opponents.
 Get to 5 wins first.
 `,
+        },{
+            name:'Lemmings',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Don't get pushed off.
+Get to 5 wins first.
+`,
+        },{
+            name:'Stuffed Up',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Grab a cookie to grow big temporarily.
+While big, overrun your opponents.
+`,
+        },{
+            name:'The Bomber',player:1,
+            desc:
+`
+Move with UP, LEFT, RIGHT.
+Don't have the bomb when it detonates.
+Get to 5 wins first.
+`,
+        },{
+            name:'Blocked',player:1,
+            desc:
+`
+Move cursor with UP, DOWN, LEFT, RIGHT.
+Select with ACTION.
+Each round, choose a block to drop.
+Reach the top first to win.
+`,
         },
     ],
 }
 listing={
     minigame:[
-        'Brownian Motion','Awful Tower','Gerrymandering','Duckyball',
-        'Spiked Ducks','Cookie Wheel','Cookie Piles','Acid Rain',
-        'Vortex','Treadmill','Maze Murder','Cookie Chaos',
-        'Duck Crowd','Tank Ducks','Electric Maze','Overpopulation',
-        'Toxic Tower','Math Mania','Blackened Boxes','Snowballers',
-        'Runner Ducks','','','',
+        'Brownian Motion','Awful Tower','Gerrymandering','Duckyball','Spiked Ducks',
+        'Cookie Wheel','Cookie Piles','Acid Rain','Vortex','Treadmill',
+        'Maze Murder','Cookie Chaos','Hidden Hunt','Tank Ducks','Electric Maze',
+        'Overpopulation','Toxic Tower','Math Mania','Blackened Boxes','Snowballers',
+        'Runner Ducks','Lemmings','Stuffed Up','The Bomber','Blocked',
     ],
 }
