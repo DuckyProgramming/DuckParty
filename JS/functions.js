@@ -42,6 +42,52 @@ function inDirArc(dir,start,end){
 function dirDist(base,goal){
     return min(min(abs(base-goal),abs(base-goal+360)),abs(base-goal-360))
 }
+function HSVtoRGB(h,s,v){
+	let i,f,p,q,t,r,g,b=0
+	if(s==0){
+		r,g,b=v
+	}else{
+		h/=60
+		i=floor(h)
+		f=h-i
+		p=v*(1-s)
+		q=v*(1-s*f)
+		t=v*(1-s*(1-f))
+		switch(i){
+			case 0:
+				r=v
+				g=t
+				b=p
+			break
+			case 1:
+				r=q
+				g=v
+				b=p
+			break
+			case 2:
+				r=p
+				g=v
+				b=t
+			break
+			case 3:
+				r=p
+				g=q
+				b=v
+			break
+			case 4:
+				r=t
+				g=p
+				b=v
+			break
+			default:
+				r=v
+				g=p
+				b=q
+			break
+		}
+	}
+    return [r,g,b]
+}
 function mergeColor(color1,color2,value){
 	return [color1[0]*(1-value)+color2[0]*value,color1[1]*(1-value)+color2[1]*value,color1[2]*(1-value)+color2[2]*value]
 }

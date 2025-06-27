@@ -100,6 +100,11 @@ class player extends partisan{
                         this.base.radius=this.radius
                         this.timer.stuffed=0
                     break
+                    case 18:
+                        this.run=false
+                        this.timer.reset=0
+                        this.speed=0.6
+                    break
                     default:
                         this.speed=1.2
                     break
@@ -680,14 +685,16 @@ class player extends partisan{
         switch(this.type){
             case 0:
                 this.controlDirection={x:0,y:0}
-                if(inputKeys[0]&&!inputKeys[1]&&this.active){
-                    this.velocity.x-=1.2
-                    this.direction.goal=-54
-                    this.controlDirection.x--
-                }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
-                    this.velocity.x+=1.2
-                    this.direction.goal=54
-                    this.controlDirection.x++
+                if(this.distinct!=4){
+                    if(inputKeys[0]&&!inputKeys[1]&&this.active){
+                        this.velocity.x-=1.2
+                        this.direction.goal=-54
+                        this.controlDirection.x--
+                    }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
+                        this.velocity.x+=1.2
+                        this.direction.goal=54
+                        this.controlDirection.x++
+                    }
                 }
                 if(inputKeys[2]&&(this.jump.time>0||this.jump.active>0)){
                     if(this.jump.time>0){
@@ -906,6 +913,42 @@ class player extends partisan{
                         this.runAnim(0,1)
                         this.mainAnim()
                     break
+                    case 18:
+                        if(dist(this.position.x,this.position.y,this.layer.width/2,this.layer.height/2)<60-this.radius){
+                            if(this.size>0){
+                                this.size-=0.06
+                            }else{
+                                this.size=0
+                                this.timer.reset++
+                            }
+                            this.velocity.x=0
+                            this.velocity.y=0
+                            if(this.timer.reset>=60){
+                                this.run=false
+                                this.position.x=this.base.position.x
+                                this.position.y=this.base.position.y
+                                this.animSet.loop=0
+                                this.mainAnim()
+                            }
+                        }else{
+                            if(this.size<0.6){
+                                this.size+=0.06
+                            }else{
+                                this.size=0.6
+                                if(this.run){
+                                    this.velocity.x+=lsin(this.direction.main)*this.speed
+                                    this.velocity.y+=lcos(this.direction.main)*this.speed
+                                    this.runAnim(0,1)
+                                    this.mainAnim()
+                                }else if(inputKeys[2]){
+                                    this.run=true
+                                    this.timer.reset=0
+                                }
+                                this.velocity.x*=0.8
+                                this.velocity.y*=0.8
+                            }
+                        }
+                    break
                     default:
                         if(this.hijack.reverse){
                             inputKeys=[inputKeys[1],inputKeys[0],inputKeys[3],inputKeys[2]]
@@ -1037,7 +1080,7 @@ class player extends partisan{
                                         this.timer.attack--
                                     }else if(inputKeys[4]){
                                         switch(this.distinct){
-                                            case 0:
+                                            case 0: case 19:
                                                 this.timer.attack=30
                                                 for(let a=0,la=parent.entities.players.length;a<la;a++){
                                                     this.collide(1,parent.entities.players[a],parent)

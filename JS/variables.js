@@ -17,7 +17,13 @@ inputs={
     ],
 }
 types={
-    space:[
+    board:[
+        {
+            name:'Miniboards',
+            spaces:[
+            ]
+        },
+    ],space:[
         {name:`Blank Space`},
         {name:`Blue Space`},
         {name:`Red Space`},
@@ -27,7 +33,6 @@ types={
         {name:`Stop Space`},
         {name:`Conduckator Space`},
         {name:`Lucky Time Space`},
-        {name:``},
     ],player:[
         {
             name:'Yellow Duck',
@@ -133,7 +138,7 @@ types={
 
         {name:`Cursed Dice Block`,desc:`Cause any player to roll from 1-3`,cost:3,rarity:0,useCase:1},
         {name:`Conduckator Whistle`,desc:`Send any player to the Conduckator`,cost:5,rarity:0,useCase:1},
-        {name:`[] Whistle`,desc:`Steal lumps or a bit`,cost:25,rarity:0,useCase:1},
+        {name:`Hunterbob Whistle`,desc:`Steal lumps or a bit`,cost:25,rarity:0,useCase:1},
         {name:`Plunder Box`,desc:`Steal an item`,cost:20,rarity:0,useCase:1},
         {name:`Restart Box`,desc:`Send another player to the start`,cost:25,rarity:0,useCase:1},
 
@@ -366,6 +371,49 @@ Select with ACTION.
 Each round, choose a block to drop.
 Reach the top first to win.
 `,
+        },{
+            name:'Duck in the Box',player:1,
+            desc:
+`
+Jump with UP.
+Hit the box on the duck to go up.
+Reach the top first to win.
+`,
+        },{
+            name:'Cookie Conveyor',player:1,
+            desc:
+`
+Move with UP.
+Collect the most cookies to in 60 seconds.
+`,
+        },{
+            name:'Marble Mess',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Punch with ACTION to stun opponents.
+Reach the end.
+Get to 5 wins first.
+`,
+        },{
+            name:'Fire At Will',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Punch with ACTION to stun opponents.
+Don't get hit by the randomly targetted attacks.
+Get to 5 wins first.
+`,
+        },{
+            name:'Pie Production',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Interact or grab with ACTION.
+Interact dough to produce crust.
+Cook crust with filling to make pie.
+Deliver the most pies in 60 seconds.
+`,
         },
     ],
 }
@@ -376,5 +424,6 @@ listing={
         'Maze Murder','Cookie Chaos','Hidden Hunt','Tank Ducks','Electric Maze',
         'Overpopulation','Toxic Tower','Math Mania','Blackened Boxes','Snowballers',
         'Runner Ducks','Lemmings','Stuffed Up','The Bomber','Blocked',
+        'Duck in the Box','Cookie Conveyor','Marble Mess','Fire At Will',//'Pie Production',
     ],
 }

@@ -37,6 +37,25 @@ class wall extends partisan{
                 this.set=[]
                 this.fall=0
             break
+            case 14:
+                this.hit={trigger:false,time:0}
+                this.direction=0
+                this.angularSpeed=0
+                this.rise=20
+                this.stack=0
+                this.maxSpeed=2
+                this.lift=0.5
+            break
+            case 15:
+                this.rise=25
+            break
+            case 16:
+                this.radius=this.width/2
+                this.height=this.width
+                this.timer.shuffle=0
+                this.copy=-1
+                this.player=new player(this.layer,0,45,1,1,0,-1)
+            break
         }
     }
     combiner(){
@@ -382,7 +401,7 @@ class wall extends partisan{
                     }
                 }
             break
-            case 2:
+            case 2: case 15:
                 layer.fill(...this.color.base,this.fade.main)
                 layer.rect(0,0,this.width,this.height)
                 layer.fill(...this.color.over,this.fade.main)
@@ -500,6 +519,30 @@ class wall extends partisan{
                     }
                 }
             break
+            case 14:
+                for(let a=0,la=4;a<la;a++){
+                    if(lcos(this.direction+a/la*360)>=0){
+                        layer.fill(...this.color.base,this.fade.main)
+                        layer.rect(this.width/2*lsin(this.direction+a/la*360),0,this.width*lcos(this.direction+a/la*360),this.height)
+                        layer.fill(...this.color.over,this.fade.main)
+                        layer.rect(this.width/2*lsin(this.direction+a/la*360),0,(this.width-8)*lcos(this.direction+a/la*360),this.height-8)
+                        layer.fill(...this.color.button,this.fade.main)
+                        layer.ellipse(this.width/2*lsin(this.direction+a/la*360)-(this.width-16)/2*lcos(this.direction+a/la*360),-this.height/2+8,4*lcos(this.direction+a/la*360),4)
+                        layer.ellipse(this.width/2*lsin(this.direction+a/la*360)-(this.width-16)/2*lcos(this.direction+a/la*360),this.height/2-8,4*lcos(this.direction+a/la*360),4)
+                        layer.ellipse(this.width/2*lsin(this.direction+a/la*360)+(this.width-16)/2*lcos(this.direction+a/la*360),-this.height/2+8,4*lcos(this.direction+a/la*360),4)
+                        layer.ellipse(this.width/2*lsin(this.direction+a/la*360)+(this.width-16)/2*lcos(this.direction+a/la*360),this.height/2-8,4*lcos(this.direction+a/la*360),4)
+                        layer.fill(...(a==0?this.color.success:this.color.fail),this.fade.main)
+                        layer.ellipse(this.width/2*lsin(this.direction+a/la*360),0,12*lcos(this.direction+a/la*360),12)
+                    }
+                }
+            break
+            case 16:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.ellipse(0,0,this.width,this.height)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,45,80,60,5)
+                this.player.display()
+            break
         }
         layer.pop()
     }
@@ -558,11 +601,89 @@ class wall extends partisan{
                     this.position.y+=5
                 }
             break
+            case 14:
+                if(this.hit.trigger&&this.direction%90<15&&this.direction%90>=this.maxSpeed){
+                    this.direction=round(this.direction-this.angularSpeed)
+                    if(this.angularSpeed<this.maxSpeed){
+                        this.angularSpeed+=0.2
+                    }
+                }else if(this.hit.trigger&&this.direction%90<this.maxSpeed){
+                    this.direction=floor(this.direction%360/90)*90
+                    this.hit.time++
+                    if(lcos(this.direction)>=0.5){
+                        if(this.hit.time==30){
+                            parent.entities.walls.splice(0,0,new wall(this.layer,this.position.x,this.position.y+135,60,20,15,{base:[[225,75,75],[225,150,75],[225,225,75],[75,225,75],[75,150,225],[150,75,225]][this.stack%6],over:[[180,60,60],[180,120,60],[180,180,60],[60,180,60],[60,120,180],[120,60,180]][this.stack%6]}))
+                            for(let a=0,la=8;a<la;a++){
+                                parent.entities.walls[0].ladder(a,[])
+                            }
+                            this.stack++
+                        }
+                        if(this.hit.time>=40&&this.hit.time<80){
+                            this.move(0,-this.lift)
+                            if(this.stack>=18){
+                                this.lift+=0.2
+                            }
+                        }
+                        if(this.hit.time==90){
+                            this.hit.trigger=false
+                            this.hit.time=0
+                            this.angularSpeed=0
+                            this.maxSpeed+=0.4
+                        }
+                    }else{
+                        if(this.hit.time==30){
+                            this.hit.trigger=false
+                            this.hit.time=0
+                            this.angularSpeed=0
+                        }
+                    }
+                }else{
+                    this.direction=round(this.direction+this.angularSpeed)
+                    if(this.angularSpeed<this.maxSpeed){
+                        this.angularSpeed+=0.2
+                    }
+                }
+            break
+            case 15:
+                if(this.rise>0){
+                    this.rise-=0.5
+                    this.move(0,-0.5)
+                }
+            break
+            case 16:
+                if(this.timer.shuffle==0){
+                    this.timer.shuffle=floor(random(210,270))
+                }else{
+                    this.timer.shuffle--
+                    if(this.timer.shuffle>=30&&this.timer.shuffle<155&&this.timer.shuffle%5==0){
+                        let dir=random(0,360)
+                        let r=sqrt(random(0,(this.radius-5)**2))
+                        parent.entities.projectiles.push(new projectile(this.layer,
+                            this.position.x+lsin(dir)*r,
+                            this.position.y+lcos(dir)*r,
+                            15,{direction:atan2(
+                                parent.entities.players[this.copy].position.x+parent.entities.players[this.copy].velocity.x*40-this.position.x+lsin(dir)*r,
+                                parent.entities.players[this.copy].position.y+parent.entities.players[this.copy].velocity.y*40-this.position.y+lcos(dir)*r
+                            )+random(-10,10)}))
+                    }else if(this.timer.shuffle==155){
+                        this.timer.shuffle-=floor(random(0,25))
+                    }else if(this.timer.shuffle>=180&&this.timer.shuffle%10==0){
+                        let possible=[]
+                        for(let a=0,la=parent.entities.players.length;a<la;a++){
+                            if(a!=this.copy){
+                                possible.push(a)
+                            }
+                        }
+                        this.copy=possible[floor(random(0,possible.length))]
+                        this.player.color=this.player.copyColor(parent.entities.players[this.copy].color)
+                    }
+                }
+            break
         }
     }
     collide(type,obj,parent){
         switch(this.type){
-            case 0: case 1: case 2: case 8: case 9: case 10: case 11:
+            case 0: case 1: case 2: case 8: case 9: case 10: case 11: case 14: case 15:
                 switch(type){
                     case 0:
                         if(inBoxBox(this.bounder,obj)){
@@ -579,6 +700,11 @@ class wall extends partisan{
                                                 obj.position.y=this.position.y+this.height/2+obj.height/2
                                                 obj.velocity.y=max(0,obj.velocity.y)+this.velocity.y
                                                 obj.collided.wall[0]=max(2,obj.collided.wall[0])
+                                                switch(this.type){
+                                                    case 14:
+                                                        this.hit.trigger=true
+                                                    break
+                                                }
                                             break
                                             case 1:
                                                 obj.position.y=this.position.y-this.height/2-obj.height/2
@@ -655,6 +781,24 @@ class wall extends partisan{
                             }
                         }
                     break
+                    case 3:
+                        if(inCircleBox(obj,this)){
+                            switch(this.type){
+                                case 1:
+                                    return [0]
+                                default:
+                                    let basis={x:constrain(obj.position.x,this.position.x-this.width/2,this.position.x+this.width/2),y:constrain(obj.position.y,this.position.y-this.height/2,this.position.y+this.height/2)}
+                                    let dir=dirPos({position:basis},obj)
+                                    obj.position.x=basis.x+lsin(dir)*obj.radius
+                                    obj.position.y=basis.y+lcos(dir)*obj.radius
+                                    let magnitude=magVec(obj.velocity)
+                                    let incident=atan2(obj.velocity.x,obj.velocity.y)
+                                    obj.velocity.x=lsin(180+dir*2-incident)*magnitude
+                                    obj.velocity.y=lcos(180+dir*2-incident)*magnitude
+                                break
+                            }
+                        }
+                    break
                 }
             break
             case 4: case 5:
@@ -673,6 +817,14 @@ class wall extends partisan{
                             obj.dead.trigger=true
                         }
                     break
+                }
+            break
+            case 16:
+                if(distPos(this,obj)<this.radius+obj.radius){
+                    let dir=dirPos(this,obj)
+                    let dist=this.radius+obj.radius-distPos(this,obj)
+                    obj.position.x+=dist*lsin(dir)
+                    obj.position.y+=dist*lcos(dir)
                 }
             break
         }
