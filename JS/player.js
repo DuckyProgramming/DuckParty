@@ -45,7 +45,7 @@ class player extends partisan{
                 this.timer.dizzySafe=0
                 this.timer.attack=0
                 this.infoAnim={life:[1,1,1],dizzy:0}
-                this.hijack={timer:0,direction:0,reverse:false}
+                this.hijack={timer:0,direction:0,flip:0,reverse:false}
                 this.controlDirection={x:0,y:0}
                 switch(this.distinct){
                     case 0: case 7: case 8:
@@ -96,7 +96,7 @@ class player extends partisan{
                         this.speed=random(0.6,0.75)
                     break
                     case 17:
-                        this.speed=1.2
+                        this.speed=0.75
                         this.base.radius=this.radius
                         this.timer.stuffed=0
                     break
@@ -104,6 +104,12 @@ class player extends partisan{
                         this.run=false
                         this.timer.reset=0
                         this.speed=0.6
+                    break
+                    case 20:
+                        this.projectile=-1
+                        this.speed=0.6
+                        this.interact=0
+                        this.animSet.hold=0
                     break
                     default:
                         this.speed=1.2
@@ -228,9 +234,29 @@ class player extends partisan{
         }
     }
     mainAnim(){
-        for(let a=0,la=2;a<la;a++){
-            this.skin.legs[a].anim.phi=90*(1-a*2)+lsin((this.animSet.loop+this.animSet.flip)*12)*75
-            this.skin.arms[a].anim.phi=90*(1-a*2)+lsin((this.animSet.loop+this.animSet.flip)*12)*60+(a==1?abs(lsin(this.animSet.attack*12))*60:0)+(this.type==1&&this.distinct==14&&a==0?-abs(lsin(this.animSet.attack*12))*60:0)
+        switch(this.type){
+            case 1:
+                switch(this.distinct){
+                    case 20:
+                        for(let a=0,la=2;a<la;a++){
+                            this.skin.legs[a].anim.phi=90*(1-a*2)+lsin((this.animSet.loop+this.animSet.flip*15)*12)*75
+                            this.skin.arms[a].anim.phi=90*(1-a*2)*(1-this.animSet.hold*0.6)+lsin((this.animSet.loop+this.animSet.flip*15)*12)*60*(1-this.animSet.hold)+(a==1?abs(lsin(this.animSet.attack*12))*60:0)
+                        }
+                    break
+                    default:
+                        for(let a=0,la=2;a<la;a++){
+                            this.skin.legs[a].anim.phi=90*(1-a*2)+lsin((this.animSet.loop+this.animSet.flip*15)*12)*75
+                            this.skin.arms[a].anim.phi=90*(1-a*2)+lsin((this.animSet.loop+this.animSet.flip*15)*12)*60+(a==1?abs(lsin(this.animSet.attack*12))*60:0)+(this.type==1&&this.distinct==14&&a==0?-abs(lsin(this.animSet.attack*12))*60:0)
+                        }
+                    break
+                }
+            break
+            default:
+                for(let a=0,la=2;a<la;a++){
+                    this.skin.legs[a].anim.phi=90*(1-a*2)+lsin((this.animSet.loop+this.animSet.flip*15)*12)*75
+                    this.skin.arms[a].anim.phi=90*(1-a*2)+lsin((this.animSet.loop+this.animSet.flip*15)*12)*60+(a==1?abs(lsin(this.animSet.attack*12))*60:0)+(this.type==1&&this.distinct==14&&a==0?-abs(lsin(this.animSet.attack*12))*60:0)
+                }
+            break
         }
     }
     setColor(){
@@ -502,6 +528,16 @@ class player extends partisan{
                                     layer.fill(200,240,250)
                                     layer.ellipse(0,14+2.5*this.ball,5*this.ball)
                                     layer.rotate(this.direction.main)
+                                }
+                            break
+                            case 20:
+                                if(this.projectile!=-1){
+                                    layer.push()
+                                    layer.rotate(-this.direction.main)
+                                    layer.translate(0,20)
+                                    this.projectile.held=true
+                                    this.projectile.display()
+                                    layer.pop()
                                 }
                             break
                         }
@@ -874,6 +910,7 @@ class player extends partisan{
                             this.velocity.x=0
                             this.velocity.y=0
                             this.hijack.timer=random(4,6)
+                            this.hijack.flip=floor(random(0,2))
                             this.hijack.direction=atan2(this.layer.width*0.5-this.position.x,this.layer.height*0.5-this.position.y)
                         }
                         if(magVec(this.velocity)>1){
@@ -888,7 +925,7 @@ class player extends partisan{
                             this.hijack.timer--
                             this.velocity.x+=this.speed*lsin(this.hijack.direction)
                             this.velocity.y+=this.speed*lcos(this.hijack.direction)
-                            this.direction.goal+=10
+                            this.direction.goal+=(this.hijack.flip*2-1)*10
                             this.runAnim(0,1)
                             switch(this.id){
                                 case -1:
@@ -956,30 +993,34 @@ class player extends partisan{
                         if(this.position.x<parent.control.bound.base.x+this.radius){
                             this.position.x=parent.control.bound.base.x+this.radius
                             this.velocity.x*=-1
-                            if(this.distinct!=4&&this.distinct!=18){
-                                this.hijack.timer=random(30,45)
+                            if(this.distinct!=4&&this.distinct!=21){
+                                this.hijack.timer=random(30,45)*(this.distinct==19?0.2:1)
+                                this.hijack.flip=floor(random(0,2))
                                 this.hijack.direction=90
                             }
                         }else if(this.position.x>parent.control.bound.base.x+parent.control.bound.width-this.radius){
                             this.position.x=parent.control.bound.base.x+parent.control.bound.width-this.radius
                             this.velocity.x*=-1
-                            if(this.distinct!=4&&this.distinct!=18){
-                                this.hijack.timer=random(30,45)
+                            if(this.distinct!=4&&this.distinct!=21){
+                                this.hijack.timer=random(30,45)*(this.distinct==19?0.2:1)
+                                this.hijack.flip=floor(random(0,2))
                                 this.hijack.direction=270
                             }
                         }
                         if(this.position.y<parent.control.bound.base.y+this.radius){
                             this.position.y=parent.control.bound.base.y+this.radius
                             this.velocity.y*=-1
-                            if(this.distinct!=4&&this.distinct!=18){
-                                this.hijack.timer=random(30,45)
+                            if(this.distinct!=4&&this.distinct!=21){
+                                this.hijack.timer=random(30,45)*(this.distinct==19?0.2:1)
+                                this.hijack.flip=floor(random(0,2))
                                 this.hijack.direction=0
                             }
                         }else if(this.position.y>parent.control.bound.base.y+parent.control.bound.height-this.radius){
                             this.position.y=parent.control.bound.base.y+parent.control.bound.height-this.radius
                             this.velocity.y*=-1
-                            if(this.distinct!=4&&this.distinct!=18){
-                                this.hijack.timer=random(30,45)
+                            if(this.distinct!=4&&this.distinct!=21){
+                                this.hijack.timer=random(30,45)*(this.distinct==19?0.2:1)
+                                this.hijack.flip=floor(random(0,2))
                                 this.hijack.direction=180
                             }
                         }
@@ -987,6 +1028,7 @@ class player extends partisan{
                             this.velocity.x=0
                             this.velocity.y=0
                             this.hijack.timer=random(30,45)
+                            this.hijack.flip=floor(random(0,2))
                             this.hijack.direction=atan2(this.layer.width*0.5-this.position.x,this.layer.height*0.5-this.position.y)
                         }
                         this.direction.main=spinControl(this.direction.main)
@@ -1011,7 +1053,7 @@ class player extends partisan{
                             this.hijack.timer--
                             this.velocity.x+=this.speed*lsin(this.hijack.direction)
                             this.velocity.y+=this.speed*lcos(this.hijack.direction)
-                            this.direction.goal+=10
+                            this.direction.goal+=(this.hijack.flip*2-1)*10
                             this.runAnim(0,1)
                             switch(this.id){
                                 case -1:
@@ -1065,7 +1107,7 @@ class player extends partisan{
                                             this.controlDirection.x+=this.velocity.x>0?1:-1
                                         }
                                     }
-                                    if(this.distinct!=18){
+                                    if(this.distinct!=21){
                                         if(inputKeys[2]&&!inputKeys[3]&&this.active){
                                             this.velocity.y-=this.speed
                                             this.controlDirection.y--
@@ -1136,16 +1178,43 @@ class player extends partisan{
                                                 this.runAnim(1,1)
                                             break
                                             case 14:
-                                                this.timer.attack=30
-                                                this.runAnim(1,0.5)
-                                                if(this.ball>0){
-                                                    parent.entities.projectiles.push(new projectile(this.layer,
-                                                        this.position.x+lsin(this.direction.main)*(14+2.5*this.ball),
-                                                        this.position.y+lcos(this.direction.main)*(14+2.5*this.ball),
-                                                        10,{direction:this.direction.main,id:this.id,size:this.ball}))
-                                                    this.ball=0
-                                                }else{
-                                                    this.ball+=1/60
+                                                if(this.ball==0||this.ball>=1){
+                                                    this.timer.attack=30
+                                                    this.runAnim(1,0.5)
+                                                    if(this.ball>0){
+                                                        parent.entities.projectiles.push(new projectile(this.layer,
+                                                            this.position.x+lsin(this.direction.main)*(14+2.5*this.ball),
+                                                            this.position.y+lcos(this.direction.main)*(14+2.5*this.ball),
+                                                            10,{direction:this.direction.main,id:this.id,size:this.ball}))
+                                                        this.ball=0
+                                                    }else{
+                                                        this.ball+=1/60
+                                                    }
+                                                }
+                                            break
+                                            case 20:
+                                                let grab=false
+                                                for(let a=0,la=parent.entities.walls[this.interact].length;a<la;a++){
+                                                    let result=this.collide(8,parent.entities.walls[this.interact][a],parent)
+                                                    if(result[0]){
+                                                        if(this.animSet.loop<=0){
+                                                            this.runAnim(0,1)
+                                                        }
+                                                        grab=true
+                                                        this.timer.attack=result[1]
+                                                    }
+                                                }
+                                                if(!grab){
+                                                    this.timer.attack=15
+                                                    let grab=false
+                                                    for(let a=0,la=parent.entities.walls[this.interact].length;a<la;a++){
+                                                        if(this.collide(7,parent.entities.walls[this.interact][a],parent)){
+                                                            grab=true
+                                                        }
+                                                    }
+                                                    if(!grab){
+                                                        this.runAnim(1,1)
+                                                    }
                                                 }
                                             break
                                         }
@@ -1160,6 +1229,9 @@ class player extends partisan{
                                     if(this.controlDirection.x!=0&&this.ball==0||this.controlDirection.y!=0&&this.ball==0||this.animSet.loop>0&&this.animSet.loop%15!=0){
                                         this.runAnim(0,1)
                                     }else{
+                                        if(this.animSet.loop%30>=15){
+                                            this.animSet.flip=1-this.animSet.flip
+                                        }
                                         this.animSet.loop=0
                                     }
                                 break
@@ -1167,6 +1239,9 @@ class player extends partisan{
                                     if(this.controlDirection.x!=0||this.controlDirection.y!=0||this.animSet.loop>0&&this.animSet.loop%15!=0){
                                         this.runAnim(0,1)
                                     }else{
+                                        if(this.animSet.loop%30>=15){
+                                            this.animSet.flip=1-this.animSet.flip
+                                        }
                                         this.animSet.loop=0
                                     }
                                 break
@@ -1256,8 +1331,14 @@ class player extends partisan{
                                     this.timer.stuffed--
                                 }
                                 this.size=smoothAnim(this.size,this.timer.stuffed>0,1,2.5,20)
-                                this.speed=1.2-(this.size-1)*0.75
+                                this.speed=0.75-(this.size-1)*0.45
                                 this.radius=this.base.radius*this.size
+                            break
+                            case 20:
+                                this.animSet.hold=smoothAnim(this.animSet.hold,this.projectile!=-1,0,1,5)
+                                if(this.projectile!=-1){
+                                    this.projectile.update()
+                                }
                             break
                         }
                     break
@@ -1533,6 +1614,69 @@ class player extends partisan{
                             this.velocity.y=-magnitude[1]*lcos(dir)*2
                         }
                     break
+                    case 7:
+                        if(this.active){
+                            let hand={position:{x:this.position.x+lsin(this.direction.main)*40,y:this.position.y+lcos(this.direction.main)*40},radius:1}
+                            if(inCircleBox(hand,obj)){
+                                if(obj.type==21&&this.projectile==-1){
+                                    this.projectile=new projectile(this.layer,0,0,16,{variant:1})
+                                    return true
+                                }else if(obj.type==22&&this.projectile==-1){
+                                    this.projectile=new projectile(this.layer,0,0,16,{variant:2})
+                                    return true
+                                }else if(obj.type==22&&this.projectile!=-1&&this.projectile.variant==3){
+                                    this.projectile.setupValues({variant:4})
+                                    return true
+                                }else if(obj.projectile!=-1&&obj.projectile!=undefined&&this.projectile==-1){
+                                    this.projectile=obj.projectile
+                                    obj.projectile=-1
+                                    return true
+                                }else if(obj.projectile==-1&&this.projectile!=-1){
+                                    obj.projectile=this.projectile
+                                    this.projectile=-1
+                                    return true
+                                }else if(obj.projectile!=-1&&obj.projectile!=undefined&&this.projectile!=-1){
+                                    if(
+                                        obj.projectile.variant==2&&this.projectile.variant==3||
+                                        obj.projectile.variant==3&&this.projectile.variant==2
+                                    ){
+                                        this.projectile=-1
+                                        obj.projectile.setupValues({variant:4})
+                                        return true
+                                    }else if(
+                                        obj.projectile.variant==0&&this.projectile.variant==5||
+                                        obj.projectile.variant==5&&this.projectile.variant==0
+                                    ){
+                                        this.projectile=-1
+                                        obj.projectile.setupValues({variant:7})
+                                        return true
+                                    }
+                                }
+                            }
+                        }
+                    break
+                    case 8:
+                        if(this.active){
+                            let hand={position:{x:this.position.x+lsin(this.direction.main)*40,y:this.position.y+lcos(this.direction.main)*40},radius:1}
+                            if(inCircleBox(hand,obj)){
+                                if(obj.type==24&&obj.projectile!=-1&&obj.projectile.variant==1){
+                                    obj.projectile.process.main++
+                                    if(obj.projectile.process.main>=obj.projectile.process.goal){
+                                        return [true,15]
+                                    }else{
+                                        return [true,0]
+                                    }
+                                }else if(obj.type==23&&obj.projectile!=-1&&obj.projectile.variant==8){
+                                    obj.projectile.process.main++
+                                    if(obj.projectile.process.main>=obj.projectile.process.goal){
+                                        return [true,15]
+                                    }else{
+                                        return [true,0]
+                                    }
+                                }
+                            }
+                        }
+                        return [false,0]
                 }
             break
             case 2:

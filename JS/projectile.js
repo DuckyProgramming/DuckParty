@@ -152,6 +152,33 @@ class projectile extends entity{
                 setupLayer(this.image)
                 this.image.translate(15,15)
             break
+            case 16:
+                this.variant=control.variant
+                if(this.variant!=8){
+                    this.fade.main=1
+                }
+                this.fade.speed=15
+                this.direction=random(0,360)
+                this.process={main:0}
+                this.held=false
+                switch(this.variant){
+                    case 1:
+                        this.process.goal=120
+                    break
+                    case 4:
+                        this.process.goal=300
+                    break
+                    case 5:
+                        this.process.goal=240
+                    break
+                    case 8:
+                        this.process.goal=90
+                    break
+                    default:
+                        this.process.goal=0
+                    break
+                }
+            break
         }
     }
     display(layer=this.layer){
@@ -285,6 +312,146 @@ class projectile extends entity{
                     this.image.stroke(255,0.4)
                     this.image.strokeWeight(2.5)
                     this.image.arc(0,0,24,24,-75,-15)
+                }
+            break
+            case 16:
+                layer.rotate(this.direction)
+                switch(this.variant){
+                    case 0:
+                        layer.fill(220,this.fade.main)
+                        layer.ellipse(0,0,24)
+                        layer.fill(200,this.fade.main)
+                        layer.ellipse(0,0,20)
+                    break
+                    case 1:
+                        layer.fill(220,220,160,this.fade.main)
+                        layer.ellipse(0,0,12)
+                    break
+                    case 2:
+                        layer.stroke(180,100,80,this.fade.main)
+                        layer.strokeWeight(1)
+                        layer.line(-3,-1,0,-4)
+                        layer.line(3,-1,0,-4)
+                        layer.noStroke()
+                        layer.fill(200,0,80,this.fade.main)
+                        layer.ellipse(-3.5,1,6)
+                        layer.ellipse(3.5,1,6)
+                        layer.fill(240,80,120,this.fade.main)
+                        layer.ellipse(-3.5,1,4)
+                        layer.ellipse(3.5,1,4)
+                    break
+                    case 3:
+                        layer.fill(220,220,160,this.fade.main)
+                        layer.ellipse(0,0,16)
+                        layer.fill(200,180,120,this.fade.main)
+                        layer.ellipse(0,0,13)
+                        layer.stroke(220,220,160,this.fade.main)
+                        layer.strokeWeight(1.5)
+                        layer.line(0,-7.25,0,7.25)
+                        layer.line(-7.25,0,7.25,0)
+                        layer.line(-3.25,-6,-3.25,6)
+                        layer.line(3.25,-6,3.25,6)
+                        layer.line(-6,-3.25,6,-3.25)
+                        layer.line(-6,3.25,6,3.25)
+                    break
+                    case 4:
+                        layer.fill(220,220,160,this.fade.main)
+                        layer.ellipse(0,0,16)
+                        layer.fill(200,180,120,this.fade.main)
+                        layer.ellipse(0,0,13)
+                        layer.stroke(180,100,80,this.fade.main)
+                        layer.strokeWeight(1)
+                        layer.line(-3,-1,0,-4)
+                        layer.line(3,-1,0,-4)
+                        layer.noStroke()
+                        layer.fill(200,0,80,this.fade.main)
+                        layer.ellipse(-3.5,1,6)
+                        layer.ellipse(3.5,1,6)
+                        layer.fill(240,80,120,this.fade.main)
+                        layer.ellipse(-3.5,1,4)
+                        layer.ellipse(3.5,1,4)
+                        layer.stroke(220,220,160,this.fade.main)
+                        layer.strokeWeight(1.5)
+                        layer.line(0,-7.25,0,7.25)
+                        layer.line(-7.25,0,7.25,0)
+                        layer.line(-3.25,-6,-3.25,6)
+                        layer.line(3.25,-6,3.25,6)
+                        layer.line(-6,-3.25,6,-3.25)
+                        layer.line(-6,3.25,6,3.25)
+                    break
+                    case 5:
+                        layer.fill(200,180,120,this.fade.main)
+                        layer.ellipse(0,0,16)
+                        layer.fill(160,0,60,this.fade.main)
+                        layer.ellipse(0,0,13)
+                        layer.stroke(200,180,120,this.fade.main)
+                        layer.strokeWeight(1.5)
+                        layer.line(0,-7.25,0,7.25)
+                        layer.line(-7.25,0,7.25,0)
+                        layer.line(-3.25,-6,-3.25,6)
+                        layer.line(3.25,-6,3.25,6)
+                        layer.line(-6,-3.25,6,-3.25)
+                        layer.line(-6,3.25,6,3.25)
+                    break
+                    case 6:
+                        layer.fill(30,this.fade.main)
+                        layer.ellipse(0,0,16)
+                        layer.fill(0,this.fade.main)
+                        layer.ellipse(0,0,13)
+                        layer.stroke(30,this.fade.main)
+                        layer.strokeWeight(1.5)
+                        layer.line(0,-7.25,0,7.25)
+                        layer.line(-7.25,0,7.25,0)
+                        layer.line(-3.25,-6,-3.25,6)
+                        layer.line(3.25,-6,3.25,6)
+                        layer.line(-6,-3.25,6,-3.25)
+                        layer.line(-6,3.25,6,3.25)
+                    break
+                    case 7:
+                        layer.fill(220,this.fade.main)
+                        layer.ellipse(0,0,24)
+                        layer.fill(200,this.fade.main)
+                        layer.ellipse(0,0,20)
+                        layer.fill(200,180,120,this.fade.main)
+                        layer.ellipse(0,0,16)
+                        layer.fill(160,0,60,this.fade.main)
+                        layer.ellipse(0,0,13)
+                        layer.stroke(200,180,120,this.fade.main)
+                        layer.strokeWeight(1.5)
+                        layer.line(0,-7.25,0,7.25)
+                        layer.line(-7.25,0,7.25,0)
+                        layer.line(-3.25,-6,-3.25,6)
+                        layer.line(3.25,-6,3.25,6)
+                        layer.line(-6,-3.25,6,-3.25)
+                        layer.line(-6,3.25,6,3.25)
+                    break
+                    case 8:
+                        layer.fill(220,this.fade.main)
+                        layer.ellipse(0,0,24)
+                        layer.fill(200,this.fade.main)
+                        layer.ellipse(0,0,20)
+                        layer.fill(200,180,120,this.fade.main)
+                        layer.ellipse(-4,0,5)
+                        layer.ellipse(1,-4,3.5)
+                        layer.fill(160,0,60,this.fade.main)
+                        layer.ellipse(3.5,2,4)
+                    break
+                }
+                layer.rotate(-this.direction)
+                if(this.process.main>0&&this.process.goal>0&&!this.held){
+                    layer.noStroke()
+                    layer.fill(40)
+                    layer.rect(0,-16,36,8,3)
+                    switch(this.variant){
+                        case 5:
+                            layer.fill(240,20,20,this.fade.main)
+                            layer.rect(-16.5*(1-this.process.main/this.process.goal),-16,33*this.process.main/this.process.goal,5,2)
+                        break
+                        default:
+                            layer.fill(20,240,20,this.fade.main)
+                            layer.rect(-16.5*(1-this.process.main/this.process.goal),-16,33*this.process.main/this.process.goal,5,2)
+                        break
+                    }
                 }
             break
         }
@@ -678,6 +845,24 @@ class projectile extends entity{
                     this.remove=true
                 }
             break
+            case 16:
+                if(this.process.goal>0&&this.process.main>=this.process.goal){
+                    switch(this.variant){
+                        case 1:
+                            this.setupValues({variant:3})
+                        break
+                        case 4:
+                            this.setupValues({variant:5})
+                        break
+                        case 5:
+                            this.setupValues({variant:6})
+                        break
+                        case 8:
+                            this.setupValues({variant:0})
+                        break
+                    }
+                }
+            break
         
         }
     }
@@ -795,6 +980,11 @@ class projectile extends entity{
                             this.velocity.y=-magnitude[1]*lcos(dir)
                             this.active=false
                             this.fade.trigger=false
+                            if(obj.ball>0){
+                                obj.runAnim(1,0.5)
+                                obj.timer.attack=30
+                                obj.ball=0
+                            }
                         }
                     break
                     case 1:

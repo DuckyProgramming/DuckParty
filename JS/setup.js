@@ -3,7 +3,7 @@ function setup(){
     setupGraphics()
     current=new operation(graphics.main)
     //current.setup('minigame',{minigame:31})
-    //current.setup('board',{board:0})
+    current.setup('board',{board:0})
 }
 function windowResized(){
     resizeCanvas(windowWidth-50,windowHeight-50)

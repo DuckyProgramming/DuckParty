@@ -384,7 +384,7 @@ Reach the top first to win.
             desc:
 `
 Move with UP.
-Collect the most cookies to in 60 seconds.
+Collect the most cookies.
 `,
         },{
             name:'Marble Mess',player:1,
@@ -405,14 +405,15 @@ Don't get hit by the randomly targetted attacks.
 Get to 5 wins first.
 `,
         },{
-            name:'Pie Production',player:1,
+            name:'Pie Production',player:2,
             desc:
 `
 Move with UP, DOWN, LEFT, RIGHT.
 Interact or grab with ACTION.
-Interact dough to produce crust.
+Roll dough to produce crust.
 Cook crust with filling to make pie.
-Deliver the most pies in 60 seconds.
+Plate and serve cooked pie, then wash the plate.
+Be the first to deliver 5 pies.
 `,
         },
     ],
@@ -424,6 +425,6 @@ listing={
         'Maze Murder','Cookie Chaos','Hidden Hunt','Tank Ducks','Electric Maze',
         'Overpopulation','Toxic Tower','Math Mania','Blackened Boxes','Snowballers',
         'Runner Ducks','Lemmings','Stuffed Up','The Bomber','Blocked',
-        'Duck in the Box','Cookie Conveyor','Marble Mess','Fire At Will',//'Pie Production',
+        'Duck in the Box','Cookie Conveyor','Marble Mess','Fire At Will','Pie Production',
     ],
 }

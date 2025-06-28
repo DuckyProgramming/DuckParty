@@ -13,6 +13,7 @@ class wall extends partisan{
         constants.index++
     }
     setupValues(){
+        let begin
         switch(this.type){
             case 2:
                 this.anim={offset:random(0,150)}
@@ -55,6 +56,36 @@ class wall extends partisan{
                 this.timer.shuffle=0
                 this.copy=-1
                 this.player=new player(this.layer,0,45,1,1,0,-1)
+            break
+            case 17: case 20: case 23: case 24:
+                this.projectile=-1
+            break
+            case 18:
+                this.anim=4
+                this.projectile=-1
+            break
+            case 19:
+                this.anim=4
+                this.projectile=-1
+                this.saved=0
+            break
+            case 21:
+                this.spots=[]
+                begin=random(0,360)
+                for(let a=0,la=10;a<la;a++){
+                    let rad=random(8,10)
+                    let dir=begin+(a+random(-0.2,0.2))/la*360
+                    this.spots.push([lsin(dir)*rad,lcos(dir)*rad,random(4,8)])
+                }
+            break
+            case 22:
+                this.spots=[]
+                begin=random(0,360)
+                for(let a=0,la=10;a<la;a++){
+                    let rad=sqrt(random(a%2*100,100+a%2*100))
+                    let dir=begin+(a+random(-0.2,0.2))/la*360
+                    this.spots.push([lsin(dir)*rad,lcos(dir)*rad,random(0,360)])
+                }
             break
         }
     }
@@ -543,6 +574,156 @@ class wall extends partisan{
                 layer.rect(0,45,80,60,5)
                 this.player.display()
             break
+            case 17:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width+2,this.height+2)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,0,this.width-2,this.height-2)
+                if(this.projectile!=-1){
+                    this.projectile.display()
+                }
+            break
+            case 18:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width+2,this.height+2)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,0,this.width-2,this.height-2)
+                layer.fill(...this.color.conveyor[0],this.fade.main)
+                layer.rect(-6,0,this.width-10,28,4)
+                layer.rect(-14,0,this.width-26,28)
+                layer.fill(...this.color.conveyor[1],this.fade.main)
+                for(let a=0,la=5;a<la;a++){
+                    layer.rect(-19-this.anim%8+a*8,0,2,28)
+                }
+                layer.noFill()
+                layer.stroke(...this.color.conveyor[2],this.fade.main)
+                layer.strokeWeight(2)
+                regTriangle(layer,-4,0,8,8,30)
+                if(this.projectile!=-1){
+                    this.projectile.display()
+                }
+            break
+            case 19:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width+2,this.height+2)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,0,this.width-2,this.height-2)
+                layer.fill(...this.color.conveyor[0],this.fade.main)
+                layer.rect(-6,0,this.width-10,28,4)
+                layer.rect(-14,0,this.width-26,28)
+                layer.fill(...this.color.conveyor[1],this.fade.main)
+                for(let a=0,la=5;a<la;a++){
+                    layer.rect(-27+this.anim%8+a*8,0,2,28)
+                }
+                layer.noFill()
+                layer.stroke(...this.color.conveyor[2],this.fade.main)
+                layer.strokeWeight(2)
+                regTriangle(layer,-6,0,8,8,90)
+                if(this.projectile!=-1){
+                    this.projectile.display()
+                }
+            break
+            case 20:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width+2,this.height+2)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,0,this.width-2,this.height-2)
+                layer.fill(...this.color.burner[0],this.fade.main)
+                layer.rect(0,0,32,32,10)
+                layer.noFill()
+                layer.stroke(...this.color.burner[1],this.fade.main)
+                layer.strokeWeight(2)
+                layer.ellipse(0,0,22)
+                layer.ellipse(0,0,12)
+                layer.line(-6,0,-11,0)
+                layer.line(0,-6,0,-11)
+                layer.line(6,0,11,0)
+                layer.line(0,6,0,11)
+                layer.line(-8,-8,-10.5,-10.5)
+                layer.line(-8,8,-10.5,10.5)
+                layer.line(8,-8,10.5,-10.5)
+                layer.line(8,8,10.5,10.5)
+                if(this.projectile!=-1){
+                    if(this.projectile.variant==4||this.projectile.variant==5){
+                        this.projectile.held=false
+                    }
+                    this.projectile.display()
+                }
+            break
+            case 21:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width+2,this.height+2)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,0,this.width-2,this.height-2)
+                layer.fill(...this.color.base[2],this.fade.main)
+                layer.rect(0,0,32,32,10)
+                layer.fill(220,220,160,this.fade.main)
+                layer.ellipse(0,0,20)
+                for(let a=0,la=this.spots.length;a<la;a++){
+                    layer.ellipse(this.spots[a][0],this.spots[a][1],this.spots[a][2])
+                }
+            break
+            case 22:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width+2,this.height+2)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,0,this.width-2,this.height-2)
+                layer.fill(...this.color.base[2],this.fade.main)
+                layer.rect(0,0,32,32,10)
+                for(let a=0,la=this.spots.length;a<la;a++){
+                    layer.push()
+                    layer.translate(this.spots[a][0],this.spots[a][1])
+                    layer.rotate(this.spots[a][2])
+                    layer.stroke(180,100,80,this.fade.main)
+                    layer.strokeWeight(1)
+                    layer.line(-3,-2,0,-5)
+                    layer.line(3,-2,0,-5)
+                    layer.noStroke()
+                    layer.fill(200,0,80,this.fade.main)
+                    layer.ellipse(-3.5,0,6)
+                    layer.ellipse(3.5,0,6)
+                    layer.fill(240,80,120,this.fade.main)
+                    layer.ellipse(-3.5,0,4)
+                    layer.ellipse(3.5,0,4)
+                    layer.pop()
+                }
+            break
+            case 23:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width+2,this.height+2)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,0,this.width-2,this.height-2)
+                layer.fill(...this.color.base[2],this.fade.main)
+                layer.rect(0,0,32,24,6)
+                layer.fill(...this.color.base[3],this.fade.main)
+                layer.rect(0,-12,5,10,3)
+                layer.fill(...this.color.base[4],this.fade.main)
+                layer.ellipse(0,2,12)
+                if(this.projectile!=-1){
+                    if(this.projectile.variant==8){
+                        this.projectile.held=false
+                    }
+                    this.projectile.display()
+                }
+            break
+            case 24:
+                layer.fill(...this.color.base[0],this.fade.main)
+                layer.rect(0,0,this.width+2,this.height+2)
+                layer.fill(...this.color.base[1],this.fade.main)
+                layer.rect(0,0,this.width-2,this.height-2)
+                layer.fill(...this.color.base[2],this.fade.main)
+                layer.rect(0,0,36,28,8)
+                layer.fill(...this.color.pin,this.fade.main)
+                layer.rect(-10,0,6,24,3)
+                layer.ellipse(-10,-14,3,8)
+                layer.ellipse(-10,14,3,8)
+                if(this.projectile!=-1){
+                    if(this.projectile.variant==1){
+                        this.projectile.held=false
+                    }
+                    this.projectile.display()
+                }
+            break
         }
         layer.pop()
     }
@@ -679,11 +860,50 @@ class wall extends partisan{
                     }
                 }
             break
+            case 17: case 18: case 19: case 20: case 23: case 24:
+                if(this.projectile!=-1){
+                    this.projectile.update()
+                    if(this.type==18){
+                        this.projectile.fade.trigger=this.projectile.variant!=6&&this.projectile.variant!=7
+                        if(this.projectile.variant==6||this.projectile.variant==7){
+                            this.anim++
+                        }
+                        if(this.projectile.fade.main<=0){
+                            if(this.projectile.variant==7){
+                                parent.result.score[this.id]++
+                                for(let a=0,la=parent.entities.walls[this.id].length;a<la;a++){
+                                    if(dist(parent.entities.walls[this.id][a].position.x,parent.entities.walls[this.id][a].position.y,this.position.x,this.position.y+100)<10){
+                                        parent.entities.walls[this.id][a].saved++
+                                    }
+                                }
+                            }
+                            this.projectile=-1
+                        }
+                    }else{
+                        this.projectile.fade.trigger=true
+                    }
+                }
+                if(this.type==19){
+                    if(this.projectile==-1&&this.saved>0){
+                        this.saved--
+                        this.projectile=new projectile(this.layer,0,0,16,{variant:8})
+                        this.projectile.fade.main=0
+                        this.anim++
+                    }
+                    if(this.projectile!=-1&&this.projectile.fade.main<1){
+                        this.anim++
+                    }
+                }
+                if(this.type==20&&this.projectile!=-1&&(this.projectile.variant==4||this.projectile.variant==5)){
+                    this.projectile.process.main++
+                }
+            break
         }
     }
     collide(type,obj,parent){
         switch(this.type){
-            case 0: case 1: case 2: case 8: case 9: case 10: case 11: case 14: case 15:
+            case 0: case 1: case 2: case 8: case 9: case 10: case 11: case 14: case 15: case 17:
+            case 18: case 19: case 20: case 21: case 22: case 23: case 24:
                 switch(type){
                     case 0:
                         if(inBoxBox(this.bounder,obj)){
