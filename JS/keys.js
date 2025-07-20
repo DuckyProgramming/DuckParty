@@ -81,6 +81,7 @@ function keyPressed(){
             inputs.tap[3][4]=true
         break
     }
+    current.onKey(key)
 }
 function keyReleased(){
     switch(key){

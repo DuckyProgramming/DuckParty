@@ -257,7 +257,7 @@ class minigameManager{
             case 7:
                 this.entities={players:[],projectiles:[]}
                 this.control.cycle={phase:0,time:0,total:0}
-                spawnable=range(0,this.operation.player.length)
+                spawnable=this.operation.player.length==2?[0,floor(random(1,4))]:range(0,this.operation.player.length)
                 for(let a=0,la=this.operation.player.length;a<la;a++){
                     this.entities.players.push(new player(this.layer,this.layer.width/2-this.layer.height*0.2*lsin(a/la*360),this.layer.height/2-this.layer.height*0.2*lcos(a/la*360),1,5,a,this.operation.player[a]))
                     last(this.entities.players).direction.main=a/la*360
@@ -1305,7 +1305,7 @@ class minigameManager{
                 this.control.bound={base:{x:0,y:180},width:this.layer.width,height:this.layer.height-360,radius:0}
                 for(let a=0,la=20;a<la;a++){
                     for(let b=0,lb=6-a%2;b<lb;b++){
-                        //this.entities.projectiles.push(new projectile(this.layer,this.layer.width/2+(-la*10+10+a*20)*constants.sqrt3,this.layer.height*0.5-lb*20+20+b*40,14))
+                        this.entities.projectiles.push(new projectile(this.layer,this.layer.width/2+(-la*10+10+a*20)*constants.sqrt3,this.layer.height*0.5-lb*20+20+b*40,14))
                     }
                 }
                 for(let a=0,la=8;a<la;a++){
@@ -1696,7 +1696,7 @@ class minigameManager{
                         }
                         this.layer.textAlign(CENTER,CENTER)
                     break
-                    case 12: case 15: case 16:
+                    case 12: case 15:
                         this.layer.background(0)
                         for(let a=0,la=this.entities.projectiles.length;a<la;a++){
                             this.entities.projectiles[a].display()
@@ -1739,6 +1739,21 @@ class minigameManager{
                         this.layer.background(0)
                         for(let a=0,la=this.entities.players.length;a<la;a++){
                             this.entities.players[a].display()
+                        }
+                    break
+                    case 16:
+                        this.layer.background(0)
+                        for(let a=0,la=this.entities.projectiles.length;a<la;a++){
+                            this.entities.projectiles[a].display()
+                        }
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].display()
+                        }
+                        for(let a=0,la=this.entities.walls.length;a<la;a++){
+                            this.entities.walls[a].display()
+                        }
+                        for(let a=0,la=this.entities.players.length;a<la;a++){
+                            this.entities.players[a].displayOver()
                         }
                     break
                     case 17:

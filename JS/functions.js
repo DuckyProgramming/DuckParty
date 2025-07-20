@@ -42,6 +42,14 @@ function inDirArc(dir,start,end){
 function dirDist(base,goal){
     return min(min(abs(base-goal),abs(base-goal+360)),abs(base-goal-360))
 }
+function findName(name,list){
+	for(let a=0,la=list.length;a<la;a++){
+		if(list[a].name==name){
+			return a
+		}
+	}
+	return -1
+}
 function HSVtoRGB(h,s,v){
 	let i,f,p,q,t,r,g,b=0
 	if(s==0){
@@ -261,22 +269,10 @@ function collideBoxBox(static,mobile){
     }
     return -1
 }
-//main
-function displayTransition(layer,transition){
-	layer.noStroke()
-	layer.fill(0)
-	layer.rect(transition.anim*layer.width/4,layer.height/2,transition.anim*layer.width/2,layer.height)
-	layer.rect(layer.width-transition.anim*layer.width/4,layer.height/2,transition.anim*layer.width/2,layer.height)
-	layer.rect(layer.width/2,transition.anim*layer.height/4,layer.width,transition.anim*layer.height/2)
-	layer.rect(layer.width/2,layer.height-transition.anim*layer.height/4,layer.width,transition.anim*layer.height/2)
-	if(transition.trigger){
-		transition.anim=round(transition.anim*10+1)/10
-		if(transition.anim>=1){
-			transition.trigger=false
-			stage.scene=transition.scene
-		}
-	}
-	else if(transition.anim>0){
-		transition.anim=round(transition.anim*10-1)/10
-	}
+function updateMouse(layer,scale){
+	inputs.mouse.base.x=mouseX
+	inputs.mouse.base.y=mouseY
+	inputs.mouse.rel.x=(inputs.mouse.base.x-width/2)/scale+layer.width/2
+	inputs.mouse.rel.y=(inputs.mouse.base.y-height/2)/scale+layer.height/2
 }
+//main

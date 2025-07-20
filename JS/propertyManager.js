@@ -13,7 +13,7 @@ class propertyManager{
             this.bits.main.push(0)
             this.items.main.push([])
             for(let b=0,lb=constants.itemSlots;b<lb;b++){
-                this.items.main[a].push(new item(this.layer,-1))
+                this.items.main[a].push(new item(this.layer,0,0,0))
             }
         }
     }
@@ -40,10 +40,12 @@ class propertyManager{
     addItem(type,player){
         if(player>=0&&player<this.items.main.length){
             for(let a=0,la=this.items[player].length;a<la;a++){
-                if(this.items[player][a].type==-1){
-                    this.items[player][a]=new item(this.layer,type)
+                if(this.items[player][a].type==0){
+                    this.items[player][a]=new item(this.layer,0,0,type)
                 }
             }
         }
+    }
+    display(scene){
     }
 }

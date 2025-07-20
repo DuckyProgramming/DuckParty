@@ -934,7 +934,7 @@ class projectile extends entity{
             case 8: case 9: case 11:
                 switch(type){
                     case 0:
-                        if(distPos(this,obj)<this.radius+obj.radius&&obj.active&&obj.timer.invincible<=0&&this.size>0&&(obj.id!=this.id||this.timer.main>60)){
+                        if(distPos(this,obj)<this.radius+obj.radius&&obj.active&&obj.timer.invincible<=0&&this.size>0&&(obj.id!=this.id||this.timer.main>30)){
                             obj.life--
                             obj.timer.invincible=30
                             let dir=dirPos(this,obj)
@@ -956,7 +956,7 @@ class projectile extends entity{
                         }
                     break
                     case 2:
-                        if(inCircleBox(this,obj)&&this.size>0&&(obj.id!=this.id||this.timer.main>60)){
+                        if(inCircleBox(this,obj)&&this.size>0&&(obj.id!=this.id||this.timer.main>30)){
                             let dir=dirPos(this,obj)
                             let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
                             obj.velocity.x+=magnitude[0]*lsin(dir)
@@ -971,7 +971,7 @@ class projectile extends entity{
             case 10:
                 switch(type){
                     case 0:
-                        if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.active&&(obj.id!=this.id||this.timer.main>60)){
+                        if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.active&&(obj.id!=this.id||this.timer.main>30)){
                             let dir=dirPos(this,obj)
                             let magnitude=[magVec(this.velocity)*0.4,magVec(this.velocity)*0.6]
                             obj.velocity.x=magnitude[0]*lsin(dir)*this.size/(1-this.size*0.1)

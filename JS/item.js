@@ -1,6 +1,22 @@
-class item{
-    constructor(layer,type){
+class item extends entity{
+    constructor(layer,x,y,type){
+        super(layer,x,y,{main:0,trigger:true,speed:5})
         this.layer=layer
         this.type=type
+        this.name=types.item[this.type].name
+        this.desc=types.item[this.type].desc
+        this.rarity=types.item[this.type].rarity
+        this.useCase=types.item[this.type].useCase
+    }
+    display(layer=this.layer){
+        layer.push()
+        layer.translate(this.position.x,this.position.y)
+        layer.scale(this.size)
+        switch(this.type){
+        }
+        layer.pop()
+    }
+    update(){
+        super.update()
     }
 }

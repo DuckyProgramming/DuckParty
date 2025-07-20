@@ -1,5 +1,5 @@
 function draw(){
-    current.display(stage.scene)
-    current.update(stage.scene)
+    current.display()
+    current.update()
     displayMain(graphics.main)
 }

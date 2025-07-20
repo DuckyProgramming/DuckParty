@@ -22,6 +22,7 @@ class player extends partisan{
                 this.collided={wall:[0,0,0,0]}
                 this.offset.position.y+=12
                 this.dead={trigger:false}
+                this.speed=1.2
                 switch(this.distinct){
                     case 1:
                         this.life=3
@@ -130,7 +131,7 @@ class player extends partisan{
                         this.speed=1.2
                     break
                     case 1:
-                        this.speed=0.8
+                        this.speed=0.9
                         this.timer.attack=0
                         this.timer.invincible=0
                         this.life=3
@@ -162,7 +163,7 @@ class player extends partisan{
         }
     }
     copyColor(color){
-        return {eye:{back:color.eye.back},beak:{main:color.beak.main,mouth:color.beak.mouth,nostril:color.beak.nostril},skin:{head:color.skin.head,body:color.skin.body,legs:color.skin.legs,arms:color.skin.arms}}
+        return {eye:{back:color.eye.back.slice()},beak:{main:color.beak.main.slice(),mouth:color.beak.mouth.slice(),nostril:color.beak.nostril.slice()},skin:{head:color.skin.head.slice(),body:color.skin.body.slice(),legs:color.skin.legs.slice(),arms:color.skin.arms.slice()}}
     }
     setupGraphics(){
         switch(this.type){
@@ -256,31 +257,6 @@ class player extends partisan{
                     this.skin.legs[a].anim.phi=90*(1-a*2)+lsin((this.animSet.loop+this.animSet.flip*15)*12)*75
                     this.skin.arms[a].anim.phi=90*(1-a*2)+lsin((this.animSet.loop+this.animSet.flip*15)*12)*60+(a==1?abs(lsin(this.animSet.attack*12))*60:0)+(this.type==1&&this.distinct==14&&a==0?-abs(lsin(this.animSet.attack*12))*60:0)
                 }
-            break
-        }
-    }
-    setColor(){
-        switch(this.color){
-            case 0:
-                this.color={eye:{back:[0,0,0]},beak:{main:[255,140,25],mouth:[0,0,0],nostril:[0,0,0]},skin:{head:[255,235,25],body:[255,225,15],legs:[255,210,0],arms:[255,215,5]}}
-            break
-            case 1:
-                this.color={eye:{back:[0,0,0]},beak:{main:[255,140,25],mouth:[0,0,0],nostril:[0,0,0]},skin:{head:[25,85,255],body:[15,75,255],legs:[0,60,255],arms:[5,65,255]}}
-            break
-            case 2:
-                this.color={eye:{back:[0,0,0]},beak:{main:[255,140,25],mouth:[0,0,0],nostril:[0,0,0]},skin:{head:[235,25,255],body:[225,15,255],legs:[210,0,255],arms:[215,5,255]}}
-            break
-            case 3:
-                this.color={eye:{back:[0,0,0]},beak:{main:[255,140,25],mouth:[0,0,0],nostril:[0,0,0]},skin:{head:[55,235,25],body:[55,225,15],legs:[55,210,0],arms:[55,215,5]}}
-            break
-            case 4:
-                this.color={eye:{back:[0,0,0]},beak:{main:[255,140,25],mouth:[0,0,0],nostril:[0,0,0]},skin:{head:[235,105,25],body:[225,105,15],legs:[210,105,0],arms:[215,105,5]}}
-            break
-            case 5:
-                this.color={eye:{back:[0,0,0]},beak:{main:[255,140,25],mouth:[0,0,0],nostril:[0,0,0]},skin:{head:[25,245,255],body:[15,235,255],legs:[0,220,255],arms:[5,225,255]}}
-            break
-            case 6:
-                this.color={eye:{back:[0,0,0]},beak:{main:[255,140,25],mouth:[0,0,0],nostril:[0,0,0]},skin:{head:[135,25,255],body:[125,15,255],legs:[110,0,255],arms:[215,5,255]}}
             break
         }
     }
@@ -723,11 +699,11 @@ class player extends partisan{
                 this.controlDirection={x:0,y:0}
                 if(this.distinct!=4){
                     if(inputKeys[0]&&!inputKeys[1]&&this.active){
-                        this.velocity.x-=1.2
+                        this.velocity.x-=this.speed
                         this.direction.goal=-54
                         this.controlDirection.x--
                     }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
-                        this.velocity.x+=1.2
+                        this.velocity.x+=this.speed
                         this.direction.goal=54
                         this.controlDirection.x++
                     }
@@ -746,7 +722,7 @@ class player extends partisan{
                 }
                 this.direction.main=spinControl(this.direction.main)
                 this.direction.goal=spinControl(this.direction.goal)
-                this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                this.direction.main=spinDirection(this.direction.main,this.direction.goal,15)
                 this.velocity.x*=0.8
                 this.velocity.y*=0.99
                 this.velocity.y+=constants.gravity*this.size
@@ -798,6 +774,7 @@ class player extends partisan{
                         }
                     break
                     case 3:
+                        this.speed=this.timer.bomb>0?1.5:1.2
                         if(this.timer.bomb>0){
                             this.timer.bomb--
                             if(this.timer.bomb<=0){
@@ -858,7 +835,7 @@ class player extends partisan{
                         this.animSet.reveal=smoothAnim(this.animSet.reveal,this.reveal,0,1,10)
                         this.direction.main=spinControl(this.direction.main)
                         this.direction.goal=spinControl(this.direction.goal)
-                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,15)
                         if(this.choice==-1&&parent.control.cycle.phase==0){
                             let set=[]
                             switch(parent.operation.player.length){
@@ -903,7 +880,7 @@ class player extends partisan{
                         }
                         this.direction.main=spinControl(this.direction.main)
                         this.direction.goal=spinControl(this.direction.goal)
-                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,15)
                     break
                     case 12:
                         if(parent.control.bound.radius>0&&dist(this.position.x,this.position.y,this.layer.width*0.5,this.layer.height*0.5)>parent.control.bound.radius-this.radius){
@@ -918,7 +895,7 @@ class player extends partisan{
                         }
                         this.direction.main=spinControl(this.direction.main)
                         this.direction.goal=spinControl(this.direction.goal)
-                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,15)
                         this.velocity.x*=0.9
                         this.velocity.y*=0.9
                         if(this.hijack.timer>0){
@@ -944,7 +921,7 @@ class player extends partisan{
                         this.direction.goal=-90
                         this.direction.main=spinControl(this.direction.main)
                         this.direction.goal=spinControl(this.direction.goal)
-                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,15)
                         this.velocity.x*=0.9
                         this.velocity.y*=0.9
                         this.runAnim(0,1)
@@ -1033,15 +1010,15 @@ class player extends partisan{
                         }
                         this.direction.main=spinControl(this.direction.main)
                         this.direction.goal=spinControl(this.direction.goal)
-                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,15)
                         switch(this.distinct){
                             case 14:
                                 this.velocity.x*=0.95
                                 this.velocity.y*=0.95
                             break
                             case 17:
-                                this.velocity.x*=0.8+(this.size-1)*0.125
-                                this.velocity.y*=0.8+(this.size-1)*0.125
+                                this.velocity.x*=0.8+(this.size-1)*0.12
+                                this.velocity.y*=0.8+(this.size-1)*0.12
                             break
                             default:
                                 this.velocity.x*=0.8
@@ -1160,7 +1137,7 @@ class player extends partisan{
                                                 parent.entities.projectiles.push(new projectile(this.layer,
                                                     this.position.x+this.skin.arms[1].points.end.x*0.8,
                                                     this.position.y+this.skin.arms[1].points.end.z*0.8,
-                                                    8,{direction:this.direction.main,id:this.id,color:{main:this.color.skin.body},timer:300}))
+                                                    8,{direction:this.direction.goal,id:this.id,color:{main:this.color.skin.body},timer:300}))
                                                 this.runAnim(1,1)
                                             break
                                             case 10:
@@ -1331,7 +1308,7 @@ class player extends partisan{
                                     this.timer.stuffed--
                                 }
                                 this.size=smoothAnim(this.size,this.timer.stuffed>0,1,2.5,20)
-                                this.speed=0.75-(this.size-1)*0.45
+                                this.speed=0.75-(this.size-1)*0.4
                                 this.radius=this.base.radius*this.size
                             break
                             case 20:
@@ -1428,7 +1405,7 @@ class player extends partisan{
                 }
                 this.direction.main=spinControl(this.direction.main)
                 this.direction.goal=spinControl(this.direction.goal)
-                this.direction.main=spinDirection(this.direction.main,this.direction.goal,10)
+                this.direction.main=spinDirection(this.direction.main,this.direction.goal,15)
                 this.velocity.x*=0.8
                 this.velocity.y*=0.8
                 if(!this.active){

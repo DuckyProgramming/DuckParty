@@ -1,8 +1,6 @@
-stage={scene:`minigame`}
 constants={trig:[[],[]],gravity:1.25,itemSlots:3,sqrt2:0,sqrt3:0,index:0}
 dev={bound:false}
-transition={trigger:false,anim:0,scene:stage.scene}
-graphics={main:undefined}
+graphics={main:undefined,menu:undefined}
 inputs={
     keys:[
         [false,false,false,false,false],
@@ -14,25 +12,85 @@ inputs={
         [false,false,false,false,false],
         [false,false,false,false,false],
         [false,false,false,false,false],
-    ],
+    ],mouse:{
+        base:{x:0,y:0},
+        rel:{x:0,y:0}
+    }
 }
 types={
     board:[
         {
-            name:'Miniboards',
-            spaces:[
+            name:'Miniboard',
+            tileset:{
+                space:[75,75],
+            },spaces:[
+                {type:[0,5],pos:[12,12],link:[1]},//0
+                {type:[0,1],pos:[11,12],link:[1]},
+                {type:[0,1],pos:[10,12],link:[1]},
+                {type:[0,1],pos:[9,12],link:[1]},
+                {type:[0,1],pos:[8,12],link:[1]},
+                {type:[0,1],pos:[7,12],link:[1]},
+                {type:[0,5],pos:[6,12],link:[1]},
+                {type:[0,1],pos:[6,11],link:[1]},
+                {type:[0,1],pos:[6,10],link:[1]},
+                {type:[1,0],pos:[6,9],link:[1,'']},
+                {type:[0,1],pos:[5,9],link:[1]},//10
+                {type:[0,1],pos:[4,9],link:[1]},
+                {type:[0,1],pos:[3,9],link:[1]},
+                {type:[0,5],pos:[2,9],link:[1]},
+                {type:[0,1],pos:[2,8],link:[1]},
+                {type:[0,1],pos:[2,7],link:[1]},
+                {type:[1,0],pos:[2,6],link:[1,'']},
+                {type:[0,1],pos:[1,6],link:[1]},
+                {type:[0,5],pos:[0,6],link:[1]},
+                {type:[0,1],pos:[0,5],link:[1]},
+                {type:[1,1],pos:[0,4],link:[1]},//20
+                {type:[0,1],pos:[0,3],link:[1]},
+                {type:[0,5],pos:[0,2],link:[1]},
+                {type:[0,1],pos:[1,2],link:[1]},
+                {type:[0,1],pos:[2,2],link:[1]},
+                {type:[0,1],pos:[3,2],link:[1]},
+                {type:[1,0],pos:[4,2],link:[1,'']},
+                {type:[0,2],pos:[4,1],link:[1]},
+                {type:[0,2],pos:[4,0],link:[1]},
+                {type:[0,2],pos:[5,0],link:[1]},
+                {type:[0,2],pos:[6,0],link:[1]},//30
+                {type:[0,2],pos:[7,0],link:[1]},
+                {type:[0,8],pos:[8,0],link:[1]},
+                {type:[0,2],pos:[9,0],link:[1]},
+                {type:[0,2],pos:[10,0],link:[1]},
+                {type:[0,2],pos:[11,0],link:[1]},
+                {type:[0,9],pos:[12,0],link:[1]},
+                {type:[0,2],pos:[12,1],link:[1]},
+                {type:[0,2],pos:[12,2],link:[1]},
+                {type:[0,2],pos:[12,3],link:[1]},
+                {type:[0,8],pos:[12,4],link:[1]},//40
+                {type:[0,8],pos:[12,5],link:[1]},
+                {type:[0,2],pos:[12,6],link:[1]},
+                {type:[0,2],pos:[12,7],link:[1]},
+                {type:[0,2],pos:[12,8],link:[1]},
+                {type:[0,10],pos:[12,9],link:[1]},
+                {type:[0,1],pos:[12,10],link:[1]},
+                {type:[0,1],pos:[12,11],link:[0]},
             ]
         },
     ],space:[
-        {name:`Blank Space`},
-        {name:`Blue Space`},
-        {name:`Red Space`},
-        {name:`Lucky Space`},
-        {name:`Unlucky Space`},
-        {name:`Event Space`},
-        {name:`Stop Space`},
-        {name:`Conduckator Space`},
-        {name:`Lucky Time Space`},
+        [
+            {name:`Blank Space`},
+            {name:`Blue Space`},
+            {name:`Red Space`},
+            {name:`Lucky Space`},
+            {name:`Unlucky Space`},
+            {name:`Item Space`},
+            {name:`Event Space`},
+            {name:`Stop Space`},
+            {name:`Conduckator Space`},
+            {name:`Lucky Time Space`},
+            {name:`Teleport Space`},
+        ],[
+            {name:`Route Point`},
+            {name:`Item Shop`},
+        ]
     ],player:[
         {
             name:'Yellow Duck',
@@ -110,17 +168,19 @@ types={
     },item:[
         /*
         cost -1: cannot be bought
-        rarity 0: common, rarity 1: rare
+        rarity -1: doesn't appear, rarity 0: common, rarity 1: rare
         
         useCase 0: no standard use,
         useCase 1: standard use
         */
+        {name:`Item Slot`,desc:`Can hold an item`,cost:0,rarity:-1,useCase:0},
+
         {name:`Double Dice`,desc:`Roll 2 dice and move the total`,cost:5,rarity:0,useCase:1},
         {name:`Triple Dice`,desc:`Roll 3 dice and move the total`,cost:10,rarity:0,useCase:1},
         {name:`Custom Dice`,desc:`Roll any number 1-10`,cost:20,rarity:0,useCase:1},
         {name:`Reverse Dice`,desc:`Rolls negative numbers to move backwards, can be used on opponents`,cost:10,rarity:0,useCase:1},
         {name:`1 or 10 Dice`,desc:`Rolls either a 1 or a 10, can be used on opponents`,cost:3,rarity:0,useCase:1},
-        {name:`Curesd Dice`,desc:`Rolls 1-3, can be used on opponents`,cost:3,rarity:0,useCase:1},
+        {name:`Cursed Dice`,desc:`Rolls 1-3, can be used on opponents`,cost:3,rarity:0,useCase:1},
         {name:`Lump Dice`,desc:`Earns lumps equal to your roll`,cost:3,rarity:0,useCase:1},
         {name:`0 Dice`,desc:`Always rolls a 0 and retriggers the space`,cost:5,rarity:0,useCase:1},
         {name:`Warp Box`,desc:`Swap with a random opponent`,cost:7,rarity:0,useCase:1},
@@ -133,10 +193,8 @@ types={
         {name:`Key`,desc:`Opens gates on the map`,cost:3,rarity:0,useCase:0},
         {name:`Hidden Box Card`,desc:`Find a hidden box`,cost:20,rarity:0,useCase:1},
         {name:`Shop Whistle`,desc:`Call the shop to buy something`,cost:5,rarity:0,useCase:1},
-        {name:`Sound Box`,desc:`Moves the Bit`,cost:5,rarity:0,useCase:1},
         {name:`Bank Card`,desc:`Collect money from the bank when you pass it`,cost:-1,rarity:1,useCase:1},
 
-        {name:`Cursed Dice Block`,desc:`Cause any player to roll from 1-3`,cost:3,rarity:0,useCase:1},
         {name:`Conduckator Whistle`,desc:`Send any player to the Conduckator`,cost:5,rarity:0,useCase:1},
         {name:`Hunterbob Whistle`,desc:`Steal lumps or a bit`,cost:25,rarity:0,useCase:1},
         {name:`Plunder Box`,desc:`Steal an item`,cost:20,rarity:0,useCase:1},
