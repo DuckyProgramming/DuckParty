@@ -328,7 +328,7 @@ Don't get the spiky ball.
 Move with UP, DOWN, LEFT, RIGHT.
 Punch with ACTION to kill opponents.
 Blend in with NPCs to avoid opponents.
-If you punch an NPC you die.
+If you punch an NPC you get revealed.
 Get to 5 wins first.
 `,
         },{
@@ -392,8 +392,8 @@ Get to 5 wins first.
             name:'Runner Ducks',player:1,
             desc:
 `
-Turn with LEFT, RIGHT. You can't stop moving forward.
-Attack with ACTION to damage opponents.
+Turn with LEFT, RIGHT. You can't stop moving.
+Attack with DOWN, ACTION to damage opponents.
 Get to 5 wins first.
 `,
         },{
@@ -468,10 +468,23 @@ Get to 5 wins first.
 `
 Move with UP, DOWN, LEFT, RIGHT.
 Interact or grab with ACTION.
-Roll dough to produce crust.
-Cook crust with filling to make pie.
-Plate and serve cooked pie, then wash the plate.
 Be the first to deliver 5 pies.
+`,
+        },{
+            name:'Dizzy Ducks',player:1,
+            desc:
+`
+Move with UP, DOWN, LEFT, RIGHT.
+Your controls will be randomly rotated.
+Collect 10 cookies first.
+`,
+        },{
+            name:'Antiduck Guns',player:1,
+            desc:
+`
+Turn with LEFT, RIGHT.
+Attack with DOWN, ACTION to target ducks.
+Get to 25 hits first.
 `,
         },
     ],
@@ -482,7 +495,8 @@ listing={
         'Cookie Wheel','Cookie Piles','Acid Rain','Vortex','Treadmill',
         'Maze Murder','Cookie Chaos','Hidden Hunt','Tank Ducks','Electric Maze',
         'Overpopulation','Toxic Tower','Math Mania','Blackened Boxes','Snowballers',
-        'Runner Ducks','Lemmings','Stuffed Up','The Bomber','Blocked',
+        'Runner Ducks','Lemmings','Stuffed Up','The Bomber','Blocked',  
         'Duck in the Box','Cookie Conveyor','Marble Mess','Fire At Will','Pie Production',
+        'Dizzy Ducks','Antiduck Guns',
     ],
 }

@@ -2,9 +2,15 @@ class operation{
     constructor(layer){
         this.layer=layer
         this.scene=''
-        this.player=[0]
-        this.menu={phase:0,anim:0}
+        this.player=[0,1]
+        this.menu={phase:0,anim:0,subAnim:[]}
+        this.initial()
         this.initialManagers()
+    }
+    initial(){
+        for(let a=0,la=listing.minigame.length;a<la;a++){
+            this.menu.subAnim.push(0)
+        }
     }
     initialManagers(){
         this.boardManager=new boardManager(this.layer,this)
@@ -55,17 +61,20 @@ class operation{
                 if(this.menu.anim>0){
                     for(let a=0,la=10;a<la;a++){
                         this.layer.fill(125+a*5,this.menu.anim)
-                        for(let b=0,lb=5;b<lb;b++){
-                            for(let c=0,lc=6;c<lc;c++){
+                        for(let b=0,lb=4;b<lb;b++){
+                            for(let c=0,lc=8;c<lc;c++){
                                 this.layer.rect(this.layer.width/2+a*0.5+b*180-lb*90+90,this.layer.height/2+a+c*60-lc*30+30,160,40,10)
                             }
                         }
                     }
-                    this.layer.fill(50,this.menu.anim)
-                    this.layer.textSize(16)
-                    for(let b=0,lb=5;b<lb;b++){
-                        for(let c=0,lc=6;c<lc;c++){
+                    for(let b=0,lb=4;b<lb;b++){
+                        for(let c=0,lc=8;c<lc;c++){
+                            this.layer.fill(50,this.menu.anim*(1-this.menu.subAnim[b+c*lb]))
+                            this.layer.textSize(16)
                             this.layer.text(listing.minigame[b+c*lb],this.layer.width/2+b*180-lb*90+90+4.5,this.layer.height/2+c*60-lc*30+30+9)
+                            this.layer.fill(50,this.menu.anim*this.menu.subAnim[b+c*lb])
+                            this.layer.textSize(7)
+                            this.layer.text(types.minigame[findName(listing.minigame[b+c*lb],types.minigame)].desc,this.layer.width/2+b*180-lb*90+90+4.5,this.layer.height/2+c*60-lc*30+30+6)
                         }
                     }
                 }
@@ -84,6 +93,11 @@ class operation{
         switch(scene){
             case 'menu':
                 this.menu.anim=smoothAnim(this.menu.anim,this.menu.phase>0,0,1,5)
+                for(let b=0,lb=4;b<lb;b++){
+                    for(let c=0,lc=8;c<lc;c++){
+                        this.menu.subAnim[b+c*lb]=smoothAnim(this.menu.subAnim[b+c*lb],inPointBox({position:inputs.mouse.rel},{position:{x:this.layer.width/2+b*180-lb*90+90+2.5,y:this.layer.height/2+c*60-lc*30+30+5},width:165,height:50}),0,1,5)
+                    }
+                }
             break
             case 'board':
                 this.boardManager.display(scene)
@@ -99,7 +113,7 @@ class operation{
             case 'menu':
                 switch(this.menu.phase){
                     case 0:
-                        if(inPointBox(mouse,{position:{x:this.layer.width/2-132.5,y:this.layer.height/2+30},width:45,height:50})&&this.player.length>1){
+                        if(inPointBox(mouse,{position:{x:this.layer.width/2-132.5,y:this.layer.height/2+30},width:45,height:50})&&this.player.length>2){
                             this.player.splice(this.player.length-1,1)
                         }
                         if(inPointBox(mouse,{position:{x:this.layer.width/2+137.5,y:this.layer.height/2+30},width:45,height:50})&&this.player.length<4){
@@ -110,8 +124,8 @@ class operation{
                         }
                     break
                     case 1:
-                        for(let b=0,lb=5;b<lb;b++){
-                            for(let c=0,lc=6;c<lc;c++){
+                        for(let b=0,lb=4;b<lb;b++){
+                            for(let c=0,lc=9;c<lc;c++){
                                 if(inPointBox(mouse,{position:{x:this.layer.width/2+b*180-lb*90+90+2.5,y:this.layer.height/2+c*60-lc*30+30+5},width:165,height:50})){
                                     this.transitionManager.begin('minigame',{minigame:findName(listing.minigame[b+c*lb],types.minigame)})
                                 }
@@ -129,7 +143,7 @@ class operation{
                     case 0:
                         switch(key){
                             case 'ArrowLeft': case 'a': case 'A':
-                                if(this.player.length>1){
+                                if(this.player.length>2){
                                     this.player.splice(this.player.length-1,1)
                                 }
                             break

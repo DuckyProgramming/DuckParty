@@ -179,6 +179,23 @@ class projectile extends entity{
                     break
                 }
             break
+            case 17:
+                this.speed=4.5
+                this.radius=random(7.5,8.25)
+                this.insided=false
+                this.direction=atan2(this.layer.width/2-this.position.x,this.layer.height/2-this.position.y)+random(-30,30)
+                this.velocity={x:0,y:0}
+                this.velocity.x=lsin(this.direction)*this.speed
+                this.velocity.y=lcos(this.direction)*this.speed
+                this.spots=[]
+                begin=random(0,360)
+                for(let a=0,la=floor(random(2.5,5.5));a<la;a++){
+                    let rad=random(3,5.25)
+                    let dir=begin+(a+random(-0.2,0.2))/la*360
+                    this.spots.push([lsin(dir)*rad,lcos(dir)*rad,random(2.25,3.375)])
+                }
+                this.active=true
+            break
         }
     }
     display(layer=this.layer){
@@ -280,7 +297,7 @@ class projectile extends entity{
                     layer.ellipse(0,0,4*this.size)
                 }
             break
-            case 12:
+            case 12: case 17:
                 layer.rotate(this.timer.main)
                 layer.fill(160,130,80,this.fade.main)
                 layer.ellipse(0,0,this.radius*2)
@@ -783,7 +800,7 @@ class projectile extends entity{
                     this.velocity.y*=0.5
                 }
             break
-            case 12:
+            case 12: case 17:
                 this.position.x+=this.velocity.x
                 this.position.y+=this.velocity.y
                 if(this.fade<=0){
@@ -966,6 +983,18 @@ class projectile extends entity{
                             this.active=false
                         }
                     break
+                    case 3:
+                        if(distPos(this,obj)<this.radius+obj.radius&&obj.active&&(obj.id!=this.id||this.timer.main>30)){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
+                            obj.velocity.x+=magnitude[0]*lsin(dir)
+                            obj.velocity.y+=magnitude[0]*lcos(dir)
+                            this.velocity.x=-magnitude[0]*lsin(dir)
+                            this.velocity.y=-magnitude[0]*lcos(dir)
+                            obj.fade.trigger=false
+                            parent.result.score[this.id]++
+                        }
+                    break
                 }
             break
             case 10:
@@ -1047,6 +1076,28 @@ class projectile extends entity{
                         if(distPos(this,obj)<this.radius+obj.radius){
                             let dir=dirPos(this,obj)
                             let magnitude=[magVec(this.velocity)*0.6+magVec(obj.velocity)*0.2,magVec(obj.velocity)*0.6+magVec(this.velocity)*0.2]
+                            obj.velocity.x=magnitude[0]*lsin(dir)
+                            obj.velocity.y=magnitude[0]*lcos(dir)
+                            this.velocity.x=-magnitude[1]*lsin(dir)
+                            this.velocity.y=-magnitude[1]*lcos(dir)
+                        }
+                    break
+                }
+            break
+            case 17:
+                switch(type){
+                    case 0:
+                        if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.active){
+                            parent.result.score[obj.id]++
+                            obj.spin=random(0,360)
+                            this.active=false
+                            this.fade.trigger=false
+                        }
+                    break
+                    case 1:
+                        if(distPos(this,obj)<this.radius+obj.radius&&this.active&&obj.active){
+                            let dir=dirPos(this,obj)
+                            let magnitude=[magVec(this.velocity),magVec(obj.velocity)]
                             obj.velocity.x=magnitude[0]*lsin(dir)
                             obj.velocity.y=magnitude[0]*lcos(dir)
                             this.velocity.x=-magnitude[1]*lsin(dir)

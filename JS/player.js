@@ -112,6 +112,13 @@ class player extends partisan{
                         this.interact=0
                         this.animSet.hold=0
                     break
+                    case 22:
+                        this.spin=floor(random(0,360))
+                        this.speed=1.2
+                    break
+                    case 23:
+                        this.speed=random(0.2,0.3)
+                    break
                     default:
                         this.speed=1.2
                     break
@@ -141,6 +148,11 @@ class player extends partisan{
                         this.timer.attack=0
                         this.timer.invincible=0
                         this.life=3
+                        this.firing={tick:0}
+                    break
+                    case 3:
+                        this.speed=0
+                        this.timer.attack=0
                         this.firing={tick:0}
                     break
                 }
@@ -545,6 +557,15 @@ class player extends partisan{
                                 layer.rect(4,16,4,6)
                                 layer.rotate(this.direction.main)
                             break
+                            case 3:
+                                layer.rotate(-this.direction.main)
+                                layer.fill(...this.color.skin.body,this.fade.main*0.25)
+                                layer.rect(0,600,2,1200)
+                                layer.fill(120,this.fade.main)
+                                layer.rect(-4,16,4,6)
+                                layer.rect(4,16,4,6)
+                                layer.rotate(this.direction.main)
+                            break
                         }
                     break
                     
@@ -927,6 +948,20 @@ class player extends partisan{
                         this.runAnim(0,1)
                         this.mainAnim()
                     break
+                    case 23:
+                        this.velocity.x+=lsin(this.direction.goal)*this.speed
+                        this.velocity.y+=lcos(this.direction.goal)*this.speed
+                        this.direction.main=spinControl(this.direction.main)
+                        this.direction.goal=spinControl(this.direction.goal)
+                        this.direction.main=spinDirection(this.direction.main,this.direction.goal,15)
+                        this.velocity.x*=0.9
+                        this.velocity.y*=0.9
+                        this.runAnim(0,1)
+                        this.mainAnim()
+                        if(this.fade.main<=0||this.position.x<-100||this.position.x>this.layer.width+100){
+                            this.remove=true
+                        }
+                    break
                     case 18:
                         if(dist(this.position.x,this.position.y,this.layer.width/2,this.layer.height/2)<60-this.radius){
                             if(this.size>0){
@@ -1073,27 +1108,77 @@ class player extends partisan{
                                     }
                                 break
                                 default:
-                                    if(this.distinct!=4){
-                                        if(inputKeys[0]&&!inputKeys[1]&&this.active){
-                                            this.velocity.x-=this.speed
-                                            this.controlDirection.x--
-                                        }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
-                                            this.velocity.x+=this.speed
-                                            this.controlDirection.x++
-                                        }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
-                                            this.controlDirection.x+=this.velocity.x>0?1:-1
-                                        }
-                                    }
-                                    if(this.distinct!=21){
-                                        if(inputKeys[2]&&!inputKeys[3]&&this.active){
-                                            this.velocity.y-=this.speed
-                                            this.controlDirection.y--
-                                        }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
-                                            this.velocity.y+=this.speed
-                                            this.controlDirection.y++
-                                        }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
-                                            this.controlDirection.y+=this.velocity.y>0?1:-1
-                                        }
+                                    switch(this.distinct){
+                                        case 4:
+                                            if(inputKeys[2]&&!inputKeys[3]&&this.active){
+                                                this.velocity.y-=this.speed
+                                                this.controlDirection.y--
+                                            }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
+                                                this.velocity.y+=this.speed
+                                                this.controlDirection.y++
+                                            }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
+                                                this.controlDirection.y+=this.velocity.y>0?1:-1
+                                            }
+                                        break
+                                        case 21:
+                                            if(inputKeys[0]&&!inputKeys[1]&&this.active){
+                                                this.velocity.x-=this.speed
+                                                this.controlDirection.x--
+                                            }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
+                                                this.velocity.x+=this.speed
+                                                this.controlDirection.x++
+                                            }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
+                                                this.controlDirection.x+=this.velocity.x>0?1:-1
+                                            }
+                                        break
+                                        case 22:
+                                            if(inputKeys[0]&&!inputKeys[1]&&this.active){
+                                                this.velocity.x-=this.speed*lcos(this.spin)
+                                                this.velocity.y-=this.speed*lsin(this.spin)
+                                                this.controlDirection.x-=lcos(this.spin)
+                                                this.controlDirection.y-=lsin(this.spin)
+                                            }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
+                                                this.velocity.x+=this.speed*lcos(this.spin)
+                                                this.velocity.y+=this.speed*lsin(this.spin)
+                                                this.controlDirection.x+=lcos(this.spin)
+                                                this.controlDirection.y+=lsin(this.spin)
+                                            }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
+                                                this.controlDirection.x+=this.velocity.x>0?1:-1
+                                            }
+                                            if(inputKeys[2]&&!inputKeys[3]&&this.active){
+                                                this.velocity.y-=this.speed*lcos(this.spin)
+                                                this.velocity.x+=this.speed*lsin(this.spin)
+                                                this.controlDirection.y-=lcos(this.spin)
+                                                this.controlDirection.x+=lsin(this.spin)
+                                            }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
+                                                this.velocity.y+=this.speed*lcos(this.spin)
+                                                this.velocity.x-=this.speed*lsin(this.spin)
+                                                this.controlDirection.y+=lcos(this.spin)
+                                                this.controlDirection.x-=lsin(this.spin)
+                                            }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
+                                                this.controlDirection.y+=this.velocity.y>0?1:-1
+                                            }
+                                        break
+                                        default:
+                                            if(inputKeys[0]&&!inputKeys[1]&&this.active){
+                                                this.velocity.x-=this.speed
+                                                this.controlDirection.x--
+                                            }else if(inputKeys[1]&&!inputKeys[0]&&this.active){
+                                                this.velocity.x+=this.speed
+                                                this.controlDirection.x++
+                                            }else if(abs(this.velocity.x)>2&&(inputKeys[2]&&!inputKeys[3]||inputKeys[3]&&!inputKeys[2])){
+                                                this.controlDirection.x+=this.velocity.x>0?1:-1
+                                            }
+                                            if(inputKeys[2]&&!inputKeys[3]&&this.active){
+                                                this.velocity.y-=this.speed
+                                                this.controlDirection.y--
+                                            }else if(inputKeys[3]&&!inputKeys[2]&&this.active){
+                                                this.velocity.y+=this.speed
+                                                this.controlDirection.y++
+                                            }else if(abs(this.velocity.y)>2&&(inputKeys[0]&&!inputKeys[1]||inputKeys[1]&&!inputKeys[0])){
+                                                this.controlDirection.y+=this.velocity.y>0?1:-1
+                                            }
+                                        break
                                     }
                                     if(this.timer.attack>0){
                                         this.timer.attack--
@@ -1433,7 +1518,7 @@ class player extends partisan{
                 }
                 if(this.timer.attack>0){
                     this.timer.attack--
-                }else if(inputKeys[4]){
+                }else if(inputKeys[4]||(this.distinct==2||this.distinct==3)&&inputKeys[3]){
                     switch(this.distinct){
                         case 1:
                             this.timer.attack=150
@@ -1445,6 +1530,15 @@ class player extends partisan{
                         break
                         case 2:
                             this.timer.attack=15
+                            parent.entities.projectiles.push(new projectile(this.layer,
+                                this.position.x+lsin(this.direction.main)*9+lcos(this.direction.main)*(4-this.firing.tick*8),
+                                this.position.y+lcos(this.direction.main)*9-lsin(this.direction.main)*(4-this.firing.tick*8),
+                                11,{direction:this.direction.main,id:this.id,color:{main:this.color.skin.body},timer:300}))
+                            this.firing.tick=(this.firing.tick+1)%2
+                            this.runAnim(1,1)
+                        break
+                        case 3:
+                            this.timer.attack=60
                             parent.entities.projectiles.push(new projectile(this.layer,
                                 this.position.x+lsin(this.direction.main)*9+lcos(this.direction.main)*(4-this.firing.tick*8),
                                 this.position.y+lcos(this.direction.main)*9-lsin(this.direction.main)*(4-this.firing.tick*8),
