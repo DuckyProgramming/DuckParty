@@ -3282,7 +3282,7 @@ class minigameManager{
                                 this.entities.projectiles[a].collide(1,this.entities.projectiles[b],this)
                             }
                             for(let b=0,lb=this.entities.players.length;b<lb;b++){
-                                this.entities.projectiles[a].collide(2,this.entities.players[b],this)
+                                this.entities.projectiles[a].collide(4,this.entities.players[b],this)
                             }
                             if(this.entities.projectiles[a].remove){
                                 this.entities.projectiles.splice(a,1)

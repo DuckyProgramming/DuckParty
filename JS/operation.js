@@ -125,7 +125,7 @@ class operation{
                     break
                     case 1:
                         for(let b=0,lb=4;b<lb;b++){
-                            for(let c=0,lc=9;c<lc;c++){
+                            for(let c=0,lc=8;c<lc;c++){
                                 if(inPointBox(mouse,{position:{x:this.layer.width/2+b*180-lb*90+90+2.5,y:this.layer.height/2+c*60-lc*30+30+5},width:165,height:50})){
                                     this.transitionManager.begin('minigame',{minigame:findName(listing.minigame[b+c*lb],types.minigame)})
                                 }

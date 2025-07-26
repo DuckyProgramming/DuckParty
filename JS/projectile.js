@@ -995,6 +995,17 @@ class projectile extends entity{
                             parent.result.score[this.id]++
                         }
                     break
+                    case 4:
+                        if(inCircleBox(this,obj)&&this.size>0&&(obj.id!=this.id||this.timer.main>30)){
+                            let dir=dirPos(this.previous,obj)
+                            let magnitude=[magVec(this.velocity)*3,magVec(obj.velocity)]
+                            obj.velocity.x=magnitude[0]*lsin(dir)
+                            obj.velocity.y=magnitude[0]*lcos(dir)
+                            this.velocity.x=-magnitude[1]*lsin(dir)
+                            this.velocity.y=-magnitude[1]*lcos(dir)
+                            this.active=false
+                        }
+                    break
                 }
             break
             case 10:
