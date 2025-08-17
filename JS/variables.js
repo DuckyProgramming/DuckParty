@@ -346,7 +346,6 @@ Get to 5 wins first.
 `
 Move with UP, DOWN, LEFT, RIGHT.
 Reach the end.
-Get to 5 wins first.
 `,
         },{
             name:'Overpopulation',player:1,
