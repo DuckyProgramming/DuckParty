@@ -1518,7 +1518,7 @@ class player extends partisan{
                 }
                 if(this.timer.attack>0){
                     this.timer.attack--
-                }else if(inputKeys[4]||(this.distinct==2||this.distinct==3)&&inputKeys[3]){
+                }else if((inputKeys[4]||(this.distinct==2||this.distinct==3)&&inputKeys[3])&&this.active){
                     switch(this.distinct){
                         case 1:
                             this.timer.attack=150
